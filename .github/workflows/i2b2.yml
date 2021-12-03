@@ -23,6 +23,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
+          token: ${{ secrets.LDS_PKG_PAT }}
           submodules: true
 
 #      - name: Setup Git and Golang environment for private repositories

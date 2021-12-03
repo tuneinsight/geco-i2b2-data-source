@@ -15,15 +15,15 @@ jobs:
           go version
           env
 
+      - name: Setup SSH deploy key for private repositories
+        uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.GECO_SSH_DEPLOY_KEY }}
+
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           submodules: true
-
-#      - name: Setup SSH deploy key for private repositories
-#        uses: webfactory/ssh-agent@v0.4.1
-#        with:
-#          ssh-private-key: ${{ secrets.GECO_SSH_DEPLOY_KEY }}
 
 #      - name: Setup Git and Golang environment for private repositories
 #        run: |

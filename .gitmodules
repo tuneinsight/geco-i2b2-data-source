@@ -1,3 +1,0 @@
-[submodule "vendor/github.com/ldsec/geco"]
-	path = vendor/github.com/ldsec/geco
-	url = git@github.com:ldsec/geco.git

@@ -13,6 +13,12 @@ function postXmlI2b2 {
   grep "HTTP/1.1 200 OK" "$RESP_XML.log"
 }
 
+# wait for i2b2 to be up
+until curl -v http://localhost:8080/i2b2/services/listServices; do
+  >&2 echo "Waiting for i2b2..."
+  sleep 1
+done
+
 MSG=pm_get_user_configuration
 postXmlI2b2 PMService/getServices "${MSG}_req.xml" "${MSG}_resp.xml"
 xmllint --xpath "string(//status)" "${MSG}_resp.xml" | grep "PM processing completed"

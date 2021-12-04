@@ -1,4 +1,4 @@
-VERSION := $(shell scripts/version.sh)
+#VERSION := $(shell scripts/version.sh)
 USER_GROUP := $(shell id -u):$(shell id -g)
 DOCKER_IMAGE ?= ghcr.io/ldsec/geco-i2b2-data-source:$(VERSION)
 

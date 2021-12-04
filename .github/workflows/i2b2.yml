@@ -68,7 +68,9 @@ jobs:
           make i2b2-docker-compose ARGS="up -d"
 
       - name: Run i2b2 test
-        run: make test-i2b2
+        run: |
+          sudo apt-get install -y libxml2-utils
+          make test-i2b2
 
       - name: Show deployment logs
         if: always()

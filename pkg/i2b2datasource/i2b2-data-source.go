@@ -21,7 +21,7 @@ type I2b2DataSource struct {
 
 }
 
-func (ds I2b2DataSource) Init(dm *datamanager.DataManager, config map[string]string) error {
+func (ds I2b2DataSource) Init(dm *datamanager.DataManager, logger *logrus.Logger, config map[string]string) error {
 	ds.dm = dm
 
 	fmt.Println("called init")

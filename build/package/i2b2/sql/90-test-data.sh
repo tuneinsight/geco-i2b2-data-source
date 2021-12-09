@@ -3,7 +3,7 @@ set -Eeuo pipefail
 # set up data in the database for end-to-end tests
 
 ### description of the test data
-# 4 patients: 1 (real), 2 (real), 3 (real), 4 (dummy)
+# 4 patients: 1, 2, 3, 4
 # 3 concepts: 1, 2, 3
 # observation_fact: p1: c1; p2: c1, c2; p3: c2, c3; p4: c1, c2, c3
 # the same data is replicated on all nodes

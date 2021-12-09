@@ -96,7 +96,7 @@ func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels [
 		})
 	}
 
-	return NewRequestWithBody(ci, CrcPsmReqFromQueryDefMessageBody{
+	return NewRequestWithBody(CrcPsmReqFromQueryDefMessageBody{
 		PsmHeader:  psmHeader,
 		PsmRequest: psmRequest,
 	})

@@ -4,37 +4,37 @@ import (
 	"encoding/xml"
 )
 
-// NewCrcPdoReqFromInputList returns a new request object for i2b2 pdo request
-func NewCrcPdoReqFromInputList(ci ConnectionInfo, patientSetID string) Request {
-
-	// PDO header
-	pdoHeader := PdoHeader{
-		PatientSetLimit: "0",
-		EstimatedTime:   "0",
-		RequestType:     "getPDO_fromInputList",
-	}
-
-	// PDO request
-	pdoRequest := PdoRequestFromInputList{
-		Type: "crcpdons:GetPDOFromInputList_requestType",
-		Xsi:  "http://www.w3.org/2001/XMLSchema-instance",
-	}
-
-	// set request for patient set ID
-	pdoRequest.InputList.PatientList.Max = "1000000"
-	pdoRequest.InputList.PatientList.Min = "0"
-	pdoRequest.InputList.PatientList.PatientSetCollID = patientSetID
-	pdoRequest.OutputOption.Name = "none"
-	pdoRequest.OutputOption.PatientSet.Blob = "false"
-	pdoRequest.OutputOption.PatientSet.TechData = "false"
-	pdoRequest.OutputOption.PatientSet.OnlyKeys = "false"
-	pdoRequest.OutputOption.PatientSet.Select = "using_input_list"
-
-	return NewRequestWithBody(ci, CrcPdoReqFromInputListMessageBody{
-		PdoHeader:  pdoHeader,
-		PdoRequest: pdoRequest,
-	})
-}
+// // NewCrcPdoReqFromInputList returns a new request object for i2b2 pdo request
+// func NewCrcPdoReqFromInputList(ci ConnectionInfo, patientSetID string) Request {
+//
+// 	// PDO header
+// 	pdoHeader := PdoHeader{
+// 		PatientSetLimit: "0",
+// 		EstimatedTime:   "0",
+// 		RequestType:     "getPDO_fromInputList",
+// 	}
+//
+// 	// PDO request
+// 	pdoRequest := PdoRequestFromInputList{
+// 		Type: "crcpdons:GetPDOFromInputList_requestType",
+// 		Xsi:  "http://www.w3.org/2001/XMLSchema-instance",
+// 	}
+//
+// 	// set request for patient set ID
+// 	pdoRequest.InputList.PatientList.Max = "1000000"
+// 	pdoRequest.InputList.PatientList.Min = "0"
+// 	pdoRequest.InputList.PatientList.PatientSetCollID = patientSetID
+// 	pdoRequest.OutputOption.Name = "none"
+// 	pdoRequest.OutputOption.PatientSet.Blob = "false"
+// 	pdoRequest.OutputOption.PatientSet.TechData = "false"
+// 	pdoRequest.OutputOption.PatientSet.OnlyKeys = "false"
+// 	pdoRequest.OutputOption.PatientSet.Select = "using_input_list"
+//
+// 	return NewRequestWithBody(ci, CrcPdoReqFromInputListMessageBody{
+// 		PdoHeader:  pdoHeader,
+// 		PdoRequest: pdoRequest,
+// 	})
+// }
 
 // --- request
 

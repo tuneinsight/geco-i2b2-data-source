@@ -4,36 +4,34 @@ import (
 	"encoding/xml"
 )
 
-// // NewOntReqGetTermInfoMessageBody returns a new request object for i2b2 get term info (information about node)
-// func NewOntReqGetTermInfoMessageBody(path string) Request {
-// 	body := OntReqGetTermInfoMessageBody{}
-// 	body.GetTermInfo.Hiddens = "false"
-// 	body.GetTermInfo.Blob = "true"
-// 	body.GetTermInfo.Synonyms = "false"
-// 	body.GetTermInfo.Max = utilserver.I2b2OntMaxElements
-// 	body.GetTermInfo.Type = "core"
-// 	body.GetTermInfo.Self = path
-//
-// 	return NewRequestWithBody(body)
-// }
-//
-// // NewOntReqGetModifierInfoMessageBody returns a new request object for i2b2 get modifier info (information about node).
-// // A modifier is identified by its own path (field self in XML API) and its applied path.
-// func NewOntReqGetModifierInfoMessageBody(path string, appliedPath string) Request {
-// 	body := OntReqGetModifierInfoMessageBody{}
-//
-// 	body.GetModifierInfo.Hiddens = "false"
-// 	body.GetModifierInfo.Blob = "true"
-// 	body.GetModifierInfo.Synonyms = "false"
-// 	body.GetModifierInfo.Type = "core"
-// 	body.GetModifierInfo.Self = path
-// 	body.GetModifierInfo.AppliedPath = appliedPath
-//
-// 	return NewRequestWithBody(body)
-// }
+func NewOntReqGetTermInfoMessageBody(ontMaxElements, path string) OntReqGetTermInfoMessageBody {
+	body := OntReqGetTermInfoMessageBody{}
 
-// NewOntReqGetCategoriesMessageBody returns a new request object for i2b2 categories (ontology root nodes)
-func NewOntReqGetCategoriesMessageBody(ci ConnectionInfo) Request {
+	body.GetTermInfo.Hiddens = "false"
+	body.GetTermInfo.Blob = "true"
+	body.GetTermInfo.Synonyms = "false"
+	body.GetTermInfo.Max = ontMaxElements
+	body.GetTermInfo.Type = "core"
+	body.GetTermInfo.Self = path
+
+	return body
+}
+
+func NewOntReqGetModifierInfoMessageBody(path string, appliedPath string) OntReqGetModifierInfoMessageBody {
+	body := OntReqGetModifierInfoMessageBody{}
+
+	body.GetModifierInfo.Hiddens = "false"
+	body.GetModifierInfo.Blob = "true"
+	body.GetModifierInfo.Synonyms = "false"
+	body.GetModifierInfo.Type = "core"
+	body.GetModifierInfo.Self = path
+	body.GetModifierInfo.AppliedPath = appliedPath
+
+	return body
+}
+
+// NewOntReqGetCategoriesMessageBody returns a new message body for a request object for i2b2 categories (ontology root nodes)
+func NewOntReqGetCategoriesMessageBody() OntReqGetCategoriesMessageBody {
 	body := OntReqGetCategoriesMessageBody{}
 
 	body.GetCategories.Hiddens = "false"
@@ -41,11 +39,11 @@ func NewOntReqGetCategoriesMessageBody(ci ConnectionInfo) Request {
 	body.GetCategories.Synonyms = "false"
 	body.GetCategories.Type = "core"
 
-	return NewRequestWithBody(ci, body)
+	return body
 }
 
-// NewOntReqGetChildrenMessageBody returns a new request object for i2b2 children of a node
-func NewOntReqGetChildrenMessageBody(ci ConnectionInfo, ontMaxElements, parent string) Request {
+// NewOntReqGetChildrenMessageBody returns a new message body for a request object for i2b2 children of a node
+func NewOntReqGetChildrenMessageBody(ontMaxElements, parent string) OntReqGetChildrenMessageBody {
 	body := OntReqGetChildrenMessageBody{}
 
 	body.GetChildren.Hiddens = "false"
@@ -56,11 +54,11 @@ func NewOntReqGetChildrenMessageBody(ci ConnectionInfo, ontMaxElements, parent s
 
 	body.GetChildren.Parent = parent
 
-	return NewRequestWithBody(ci, body)
+	return body
 }
 
 // NewOntReqGetModifiersMessageBody returns a new request object to get the i2b2 modifiers that apply to the concept path
-func NewOntReqGetModifiersMessageBody(ci ConnectionInfo, self string) Request {
+func NewOntReqGetModifiersMessageBody(self string) OntReqGetModifiersMessageBody {
 	body := OntReqGetModifiersMessageBody{}
 
 	body.GetModifiers.Blob = "true"
@@ -69,11 +67,11 @@ func NewOntReqGetModifiersMessageBody(ci ConnectionInfo, self string) Request {
 
 	body.GetModifiers.Self = self
 
-	return NewRequestWithBody(ci, body)
+	return body
 }
 
-// NewOntReqGetModifierChildrenMessageBody returns a new request object to get the i2b2 modifiers that apply to the concept path
-func NewOntReqGetModifierChildrenMessageBody(ci ConnectionInfo, ontMaxElements, parent, appliedPath, appliedConcept string) Request {
+// NewOntReqGetModifierChildrenMessageBody returns a new message body for a request object to get the i2b2 modifiers that apply to the concept path
+func NewOntReqGetModifierChildrenMessageBody(ontMaxElements, parent, appliedPath, appliedConcept string) OntReqGetModifierChildrenMessageBody {
 	body := OntReqGetModifierChildrenMessageBody{}
 
 	body.GetModifierChildren.Blob = "true"
@@ -86,7 +84,7 @@ func NewOntReqGetModifierChildrenMessageBody(ci ConnectionInfo, ontMaxElements, 
 	body.GetModifierChildren.AppliedPath = appliedPath
 	body.GetModifierChildren.AppliedConcept = appliedConcept
 
-	return NewRequestWithBody(ci, body)
+	return body
 }
 
 // --- request
@@ -99,31 +97,22 @@ type baseMessageBody struct {
 	Max      string `xml:"max,attr,omitempty"`
 }
 
-// // OntReqGetTermInfoMessageBody is an i2b2 XML message body for ontology term info request
-// type OntReqGetTermInfoMessageBody struct {
-// 	XMLName     xml.Name `xml:"message_body"`
-// 	GetTermInfo struct {
-// 		Max      string `xml:"max,attr"`
-// 		Hiddens  string `xml:"hiddens,attr"`
-// 		Synonyms string `xml:"synonyms,attr"`
-// 		Type     string `xml:"type,attr"`
-// 		Blob     string `xml:"blob,attr"`
-// 		Self     string `xml:"self"`
-// 	} `xml:"ontns:get_term_info"`
-// }
-//
-// // OntReqGetModifierInfoMessageBody is an i2b2 XML message body for ontology modifier info request
-// type OntReqGetModifierInfoMessageBody struct {
-// 	XMLName         xml.Name `xml:"message_body"`
-// 	GetModifierInfo struct {
-// 		Hiddens     string `xml:"hiddens,attr"`
-// 		Synonyms    string `xml:"synonyms,attr"`
-// 		Type        string `xml:"type,attr"`
-// 		Blob        string `xml:"blob,attr"`
-// 		Self        string `xml:"self"`
-// 		AppliedPath string `xml:"applied_path"`
-// 	} `xml:"ontns:get_modifier_info"`
-// }
+type OntReqGetTermInfoMessageBody struct {
+	XMLName     xml.Name `xml:"message_body"`
+	GetTermInfo struct {
+		baseMessageBody
+		Self     string `xml:"self"`
+	} `xml:"ontns:get_term_info"`
+}
+
+type OntReqGetModifierInfoMessageBody struct {
+	XMLName         xml.Name `xml:"message_body"`
+	GetModifierInfo struct {
+		baseMessageBody
+		Self        string `xml:"self"`
+		AppliedPath string `xml:"applied_path"`
+	} `xml:"ontns:get_modifier_info"`
+}
 
 // OntReqGetCategoriesMessageBody is an i2b2 XML message body for ontology categories request
 type OntReqGetCategoriesMessageBody struct {
@@ -170,6 +159,12 @@ type OntRespConceptsMessageBody struct {
 	Concepts []Concept `xml:"concepts>concept"`
 }
 
+// OntRespModifiersMessageBody is the message_body of the i2b2 get_modifiers response message.
+type OntRespModifiersMessageBody struct {
+	XMLName   xml.Name   `xml:"message_body"`
+	Modifiers []Modifier `xml:"modifiers>modifier"`
+}
+
 // Concept is an i2b2 XML concept
 type Concept struct {
 	Level            string              `xml:"level"`
@@ -179,7 +174,7 @@ type Concept struct {
 	Visualattributes string              `xml:"visualattributes"`
 	Totalnum         string              `xml:"totalnum"`
 	Basecode         string              `xml:"basecode"`
-	Metadataxml      *Metadataxml 		 `xml:"metadataxml"`
+	Metadataxml      *MetadataXML 		 `xml:"metadataxml"`
 	Facttablecolumn  string              `xml:"facttablecolumn"`
 	Tablename        string              `xml:"tablename"`
 	Columnname       string              `xml:"columnname"`
@@ -201,8 +196,26 @@ type Modifier struct {
 	AppliedPath string `xml:"applied_path"`
 }
 
-// OntRespModifiersMessageBody is the message_body of the i2b2 get_modifiers response message.
-type OntRespModifiersMessageBody struct {
-	XMLName   xml.Name   `xml:"message_body"`
-	Modifiers []Modifier `xml:"modifiers>modifier"`
+type MetadataXML struct {
+	CreationDateTime string `xml:"ValueMetadata>CreationDateTime"`
+	DataType string `xml:"ValueMetadata>DataType"`
+	EnumValues string `xml:"ValueMetadata>EnumValues"`
+	Flagstouse string `xml:"ValueMetadata>Flagstouse"`
+	Oktousevalues string `xml:"ValueMetadata>Oktousevalues"`
+	TestID string `xml:"ValueMetadata>TestID"`
+	TestName string `xml:"ValueMetadata>TestName"`
+	UnitValues ValueMetadataUnitValues `xml:"ValueMetadata>UnitValues"`
+	Version string `xml:"ValueMetadata>Version"`
+}
+
+type ValueMetadataUnitValues struct {
+	ConvertingUnits []UnitValuesConvertingUnits `xml:"ConvertingUnits"`
+	EqualUnits []string `xml:"EqualUnits"`
+	ExcludingUnits []string `xml:"ExcludingUnits"`
+	NormalUnits string `xml:"NormalUnits"`
+}
+
+type UnitValuesConvertingUnits struct {
+	MultiplyingFactor string `xml:"MultiplyingFactor"`
+	Units string `xml:"Units"`
 }

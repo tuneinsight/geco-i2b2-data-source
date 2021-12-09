@@ -12,7 +12,7 @@ import (
 type DataSource interface {
 
 	// Init the data source with the provided configuration.
-	Init(dm *datamanager.DataManager, logger *logrus.Logger, config map[string]string) error
+	Init(dm *datamanager.DataManager, logger logrus.FieldLogger, config map[string]string) error
 
 	// Query data source with a specific operation.
 	// todo: parameters and results are json marshallable -> some other interface instead? check what swagger provides or not

@@ -7,30 +7,8 @@ import (
 	"time"
 )
 
-// ConnectionInfo contains the data needed for connection to i2b2.
-type ConnectionInfo struct {
-
-	// HiveURL is the URL of the i2b2 hive
-	HiveURL string
-
-	// Domain is the i2b2 login domain
-	Domain string
-
-	// Username is the i2b2 login username
-	Username string
-
-	// Password is the i2b2 login password
-	Password string
-
-	// Project is the i2b2 project ID
-	Project string
-
-	// WaitTime is the wait time to send with i2b2 requests
-	WaitTime time.Duration
-}
-
 // NewRequest creates a new ready-to-use i2b2 request, with a nil message body.
-func NewRequest(ci ConnectionInfo) Request {
+func NewRequest() Request {
 	now := time.Now()
 	return Request{
 		XMLNSMSG:    "http://www.i2b2.org/xsd/hive/msg/1.1/",
@@ -49,9 +27,9 @@ func NewRequest(ci ConnectionInfo) Request {
 			ReceivingApplicationApplicationVersion: "1.7",
 			ReceivingFacilityFacilityName:          "i2b2 hive",
 			DatetimeOfMessage:                      now.Format(time.RFC3339),
-			SecurityDomain:                         ci.Domain,
-			SecurityUsername:                       ci.Username,
-			SecurityPassword:                       ci.Password,
+			SecurityDomain:                         "NOT_SET",
+			SecurityUsername:                       "NOT_SET",
+			SecurityPassword:                       "NOT_SET",
 			MessageTypeMessageCode:                 "EQQ",
 			MessageTypeEventType:                   "Q04",
 			MessageTypeMessageStructure:            "EQQ_Q04",
@@ -63,19 +41,28 @@ func NewRequest(ci ConnectionInfo) Request {
 			AcceptAcknowledgementType:              "messageId",
 			ApplicationAcknowledgementType:         "",
 			CountryCode:                            "CH",
-			ProjectID:                              ci.Project,
+			ProjectID:                              "NOT_SET",
 		},
 		RequestHeader: RequestHeader{
-			ResultWaittimeMs: strconv.FormatInt(ci.WaitTime.Milliseconds(), 10),
+			ResultWaittimeMs: "NOT_SET",
 		},
 	}
 }
 
 // NewRequestWithBody creates a new ready-to-use i2b2 request, with a message body
-func NewRequestWithBody(ci ConnectionInfo, body MessageBody) (req Request) {
-	req = NewRequest(ci)
+func NewRequestWithBody(body MessageBody) (req Request) {
+	req = NewRequest()
 	req.MessageBody = body
 	return
+}
+
+// SetConnectionInfo sets the i2b2 connection information in the request.
+func (req *Request) SetConnectionInfo(ci ConnectionInfo) {
+	req.MessageHeader.SecurityDomain = ci.Domain
+	req.MessageHeader.SecurityUsername = ci.Username
+	req.MessageHeader.SecurityPassword = ci.Password
+	req.MessageHeader.ProjectID = ci.Project
+	req.RequestHeader.ResultWaittimeMs = strconv.FormatInt(ci.WaitTime.Milliseconds(), 10)
 }
 
 // Request is an i2b2 XML request
@@ -101,7 +88,7 @@ type Response struct {
 	MessageBody    MessageBody    `xml:"message_body"`
 }
 
-func (response *Response) CheckStatus() error {
+func (response Response) CheckStatus() error {
 	if response.ResponseHeader.ResultStatus.Status.Type != "DONE" {
 		return errors.New(response.ResponseHeader.ResultStatus.Status.Text)
 	}

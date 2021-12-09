@@ -48,6 +48,6 @@
         <result_waittime_ms>180000</result_waittime_ms>
     </request_header>
     <message_body>
-        <get_categories type="default" blob="false" hiddens="true" synonyms="false"/>
+        <ontns:get_categories type="core" blob="false" hiddens="true" synonyms="false"/>
     </message_body>
 </msgns:request>

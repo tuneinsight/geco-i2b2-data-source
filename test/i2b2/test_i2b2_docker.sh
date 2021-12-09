@@ -24,7 +24,7 @@ postXmlI2b2 PMService/getServices "${MSG}_req.xml" "${MSG}_resp.xml"
 xmllint --xpath "string(//status)" "${MSG}_resp.xml" | grep "PM processing completed"
 xmllint --xpath "string(//password)" "${MSG}_resp.xml" | grep "SessionKey"
 
-# todo: with test data, fails with empty DB
-#MSG=ont_get_categories
-#postXmlI2b2 TBD "${MSG}_req.xml" "${MSG}_resp.xml"
-#xmllint --xpath "string(//TBD)" "${MSG}_resp.xml" | grep "TBD"
+MSG=ont_get_categories
+postXmlI2b2 OntologyService/getCategories "${MSG}_req.xml" "${MSG}_resp.xml"
+xmllint --xpath "string(//status)" "${MSG}_resp.xml" | grep "Ontology processing completed"
+xmllint --xpath "string(//name)" "${MSG}_resp.xml" | grep "Test Ontology"

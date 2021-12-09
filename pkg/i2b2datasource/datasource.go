@@ -16,14 +16,19 @@ import (
 
 type queryType string
 const (
-	searchConceptQueryType queryType = "searchConcept"
-	searchModifierQueryType queryType = "searchModifier"
-	exploreQueryQueryType queryType = "exploreQuery"
-	getCohortsQueryType queryType = "getCohorts"
-	addCohortQueryType queryType = "addCohort"
-	deleteCohortQueryType queryType = "deleteCohort"
-	survivalQueryQueryType queryType = "survivalQuery"
-	searchOntologyQueryType queryType = "searchOntology"
+	queryTypeSearchConcept  queryType = "searchConcept"
+	queryTypeSearchModifier queryType = "searchModifier"
+	queryTypeExploreQuery   queryType = "exploreQuery"
+	queryTypeGetCohorts     queryType = "getCohorts"
+	queryTypeAddCohort queryType = "addCohort"
+	queryTypeDeleteCohort queryType = "deleteCohort"
+	queryTypeSurvivalQuery queryType = "survivalQuery"
+	queryTypeSearchOntology queryType = "searchOntology"
+)
+
+const (
+	sharedIdExploreQueryCount string = "count"
+	sharedIdExploreQueryPatientList string = "patientList"
 )
 
 type I2b2DataSource struct {
@@ -106,7 +111,7 @@ func (ds I2b2DataSource) Query(userID string, operation string, parameters map[s
 
 	results = make(map[string]interface{})
 	switch queryType(operation) {
-	case searchConceptQueryType:
+	case queryTypeSearchConcept:
 		decodedParams := &models.SearchConceptParameters{}
 		if err := mapstructure.Decode(parameters, decodedParams); err != nil {
 			return nil, ds.logError("decoding parameters", err)
@@ -116,7 +121,7 @@ func (ds I2b2DataSource) Query(userID string, operation string, parameters map[s
 			return nil, ds.logError("encoding results", err)
 		}
 
-	case searchModifierQueryType:
+	case queryTypeSearchModifier:
 		decodedParams := &models.SearchModifierParameters{}
 		if err := mapstructure.Decode(parameters, decodedParams); err != nil {
 			return nil, ds.logError("decoding parameters", err)
@@ -126,8 +131,26 @@ func (ds I2b2DataSource) Query(userID string, operation string, parameters map[s
 			return nil, ds.logError("encoding results", err)
 		}
 
+	case queryTypeExploreQuery:
+		countSharedID, countOK := resultsSharedIds[sharedIdExploreQueryCount]
+		patientListSharedID, patientListOK := resultsSharedIds[sharedIdExploreQueryPatientList]
+		if !countOK || !patientListOK {
+			return nil, ds.logError("missing results shared ID", nil)
+		}
+
+		decodedParams := &models.ExploreQueryParameters{}
+		if err := mapstructure.Decode(parameters, decodedParams); err != nil {
+			return nil, ds.logError("decoding parameters", err)
+		} else if count, patientList, err := ds.ExploreQuery(decodedParams); err != nil {
+			return nil, ds.logError("executing query", err)
+		} else if err := ds.storeIntValue(count, countSharedID); err != nil {
+			return nil, ds.logError("storing count", err)
+		} else if err := ds.storeIntVector(patientList, patientListSharedID); err != nil {
+			return nil, ds.logError("storing patient list", err)
+		}
+
 	default:
-		return
+		return nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)
 	}
 	return
 }

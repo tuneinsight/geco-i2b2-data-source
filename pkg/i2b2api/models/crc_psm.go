@@ -37,62 +37,6 @@ func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels [
 		Panels: queryPanels,
 	}
 
-	// embed query in request
-	//for p, queryPanel := range queryPanels {
-
-		// todo: make constructors NewXXX for the models, and use that from data source
-
-		// invert := "0"
-		// if *queryPanel.Not {
-		// 	invert = "1"
-		// }
-		//
-		// i2b2Panel := Panel{
-		// 	PanelNumber:          strconv.Itoa(p + 1),
-		// 	PanelAccuracyScale:   "100",
-		// 	Invert:               invert,
-		// 	PanelTiming:          strings.ToUpper(string(queryPanel.PanelTiming)),
-		// 	TotalItemOccurrences: "1",
-		// }
-
-		// for _, queryItem := range queryPanel.ConceptItems {
-		// 	i2b2Item := Item{
-		// 		ItemKey: ConvertPathToI2b2Format(*queryItem.QueryTerm),
-		// 	}
-		// 	if queryItem.Operator != "" && queryItem.Modifier == nil {
-		// 		i2b2Item.ConstrainByValue = &ConstrainByValue{
-		// 			ValueType:       queryItem.Type,
-		// 			ValueOperator:   queryItem.Operator,
-		// 			ValueConstraint: queryItem.Value,
-		// 		}
-		// 	}
-		// 	if queryItem.Modifier != nil {
-		// 		i2b2Item.ConstrainByModifier = &ConstrainByModifier{
-		// 			AppliedPath: strings.ReplaceAll(*queryItem.Modifier.AppliedPath, "/", `\`),
-		// 			ModifierKey: ConvertPathToI2b2Format(*queryItem.Modifier.ModifierKey),
-		// 		}
-		// 		if queryItem.Operator != "" {
-		// 			i2b2Item.ConstrainByModifier.ConstrainByValue = &ConstrainByValue{
-		// 				ValueType:       queryItem.Type,
-		// 				ValueOperator:   queryItem.Operator,
-		// 				ValueConstraint: queryItem.Value,
-		// 			}
-		// 		}
-		// 	}
-		// 	i2b2Panel.Items = append(i2b2Panel.Items, i2b2Item)
-		// }
-		//
-		// for _, cohort := range queryPanel.CohortItems {
-		//
-		// 	i2b2Item := Item{
-		// 		ItemKey: cohort,
-		// 	}
-		// 	i2b2Panel.Items = append(i2b2Panel.Items, i2b2Item)
-		// }
-
-	// 	psmRequest.Panels = append(psmRequest.Panels, i2b2Panel)
-	// }
-
 	// embed result outputs
 	for i, resultOutput := range resultOutputs {
 		psmRequest.ResultOutputs = append(psmRequest.ResultOutputs, ResultOutput{
@@ -207,13 +151,13 @@ type ResultOutput struct {
 // ResultOutputName is an i2b2 XML requested result type value
 type ResultOutputName string
 const (
-	Patientset                 ResultOutputName = "PATIENTSET"
-	PatientEncounterSet        ResultOutputName = "PATIENT_ENCOUNTER_SET"
-	PatientCountXML            ResultOutputName = "PATIENT_COUNT_XML"
-	PatientGenderCountXML      ResultOutputName = "PATIENT_GENDER_COUNT_XML"
-	PatientAgeCountXML         ResultOutputName = "PATIENT_AGE_COUNT_XML"
-	PatientVitalstatusCountXML ResultOutputName = "PATIENT_VITALSTATUS_COUNT_XML"
-	PatientRaceCountXML        ResultOutputName = "PATIENT_RACE_COUNT_XML"
+	ResultOutputPatientSet       ResultOutputName = "PATIENTSET"
+	ResultOutputEncounterSet     ResultOutputName = "PATIENT_ENCOUNTER_SET"
+	ResultOutputCount            ResultOutputName = "PATIENT_COUNT_XML"
+	ResultOutputGenderCount      ResultOutputName = "PATIENT_GENDER_COUNT_XML"
+	ResultOutputAgeCount         ResultOutputName = "PATIENT_AGE_COUNT_XML"
+	ResultOutputVitalStatusCount ResultOutputName = "PATIENT_VITALSTATUS_COUNT_XML"
+	ResultOutputRaceCount        ResultOutputName = "PATIENT_RACE_COUNT_XML"
 )
 
 type Timing string

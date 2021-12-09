@@ -27,6 +27,11 @@ type ConnectionInfo struct {
 	WaitTime time.Duration
 }
 
+// ConvertAppliedPathToI2b2Format converts a GeCo applied path to an i2b2 applied path format
+func ConvertAppliedPathToI2b2Format(path string) string {
+	return strings.Replace(path, "/", `\`, -1)
+}
+
 // ConvertPathToI2b2Format converts a GeCo ontology path to an i2b2 path format
 func ConvertPathToI2b2Format(path string) string {
 	return `\` + strings.Replace(path, "/", `\`, -1)

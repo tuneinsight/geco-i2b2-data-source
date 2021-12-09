@@ -7,6 +7,7 @@ import (
 	"github.com/ldsec/geco-i2b2-data-source/pkg"
 	"github.com/ldsec/geco/pkg/common/configuration"
 	"github.com/ldsec/geco/pkg/datamanager"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,7 +24,17 @@ func TestPlugin(t *testing.T) {
 	dm, err := datamanager.NewDataManager(configuration.NewTestDataManagerConfig())
 	require.NoError(t, err)
 
-	err = (*ds).Init(dm, nil)
+	config := make(map[string]string)
+	config["i2b2.api.url"] = "http://localhost:8080/i2b2/services"
+	config["i2b2.api.domain"] = "i2b2demo"
+	config["i2b2.api.username"] = "demo"
+	config["i2b2.api.password"] = "changeme"
+	config["i2b2.api.project"] = "Demo"
+	config["i2b2.api.wait-time"] = "10s"
+	config["i2b2.api.ont-max-elements"] = "200"
+
+	logrus.StandardLogger().SetLevel(logrus.DebugLevel)
+	err = (*ds).Init(dm, logrus.StandardLogger(), config)
 	require.NoError(t, err)
 
 	_, err = (*ds).Query("", "", nil, nil)

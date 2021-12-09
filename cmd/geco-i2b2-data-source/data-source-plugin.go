@@ -6,4 +6,4 @@ import (
 )
 
 // DataSourcePlugin exports an instance of the GeCo i2b2 data source for the plugin.
-var DataSourcePlugin pkg.DataSource = i2b2datasource.I2b2DataSource{}
+var DataSourcePlugin pkg.DataSource = &i2b2datasource.I2b2DataSource{}

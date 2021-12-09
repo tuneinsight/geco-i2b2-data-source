@@ -2,14 +2,16 @@ package models
 
 import (
 	"encoding/xml"
-	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
 
+// --- request
+
 // NewCrcPsmReqFromQueryDef returns a new request object for i2b2 psm request
-func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels []*APIPanel,
-	resultOutputs []ResultOutputName, queryTiming APITiming) Request {
+func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels []Panel, queryTiming Timing,
+	resultOutputs []ResultOutputName) CrcPsmReqFromQueryDefMessageBody {
 
 	// PSM header
 	psmHeader := PsmHeader{
@@ -30,63 +32,66 @@ func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels [
 		QueryName:        queryName,
 		QueryID:          queryName,
 		QueryDescription: "Query from GeCo i2b2 data source (" + queryName + ")",
-		QueryTiming:      strings.ToUpper(string(queryTiming)),
+		QueryTiming:      string(queryTiming),
 		SpecificityScale: "0",
+		Panels: queryPanels,
 	}
 
 	// embed query in request
-	for p, queryPanel := range queryPanels {
+	//for p, queryPanel := range queryPanels {
 
-		invert := "0"
-		if *queryPanel.Not {
-			invert = "1"
-		}
+		// todo: make constructors NewXXX for the models, and use that from data source
 
-		i2b2Panel := Panel{
-			PanelNumber:          strconv.Itoa(p + 1),
-			PanelAccuracyScale:   "100",
-			Invert:               invert,
-			PanelTiming:          strings.ToUpper(string(queryPanel.PanelTiming)),
-			TotalItemOccurrences: "1",
-		}
+		// invert := "0"
+		// if *queryPanel.Not {
+		// 	invert = "1"
+		// }
+		//
+		// i2b2Panel := Panel{
+		// 	PanelNumber:          strconv.Itoa(p + 1),
+		// 	PanelAccuracyScale:   "100",
+		// 	Invert:               invert,
+		// 	PanelTiming:          strings.ToUpper(string(queryPanel.PanelTiming)),
+		// 	TotalItemOccurrences: "1",
+		// }
 
-		for _, queryItem := range queryPanel.ConceptItems {
-			i2b2Item := Item{
-				ItemKey: ConvertPathToI2b2Format(*queryItem.QueryTerm),
-			}
-			if queryItem.Operator != "" && queryItem.Modifier == nil {
-				i2b2Item.ConstrainByValue = &ConstrainByValue{
-					ValueType:       queryItem.Type,
-					ValueOperator:   queryItem.Operator,
-					ValueConstraint: queryItem.Value,
-				}
-			}
-			if queryItem.Modifier != nil {
-				i2b2Item.ConstrainByModifier = &ConstrainByModifier{
-					AppliedPath: strings.ReplaceAll(*queryItem.Modifier.AppliedPath, "/", `\`),
-					ModifierKey: ConvertPathToI2b2Format(*queryItem.Modifier.ModifierKey),
-				}
-				if queryItem.Operator != "" {
-					i2b2Item.ConstrainByModifier.ConstrainByValue = &ConstrainByValue{
-						ValueType:       queryItem.Type,
-						ValueOperator:   queryItem.Operator,
-						ValueConstraint: queryItem.Value,
-					}
-				}
-			}
-			i2b2Panel.Items = append(i2b2Panel.Items, i2b2Item)
-		}
+		// for _, queryItem := range queryPanel.ConceptItems {
+		// 	i2b2Item := Item{
+		// 		ItemKey: ConvertPathToI2b2Format(*queryItem.QueryTerm),
+		// 	}
+		// 	if queryItem.Operator != "" && queryItem.Modifier == nil {
+		// 		i2b2Item.ConstrainByValue = &ConstrainByValue{
+		// 			ValueType:       queryItem.Type,
+		// 			ValueOperator:   queryItem.Operator,
+		// 			ValueConstraint: queryItem.Value,
+		// 		}
+		// 	}
+		// 	if queryItem.Modifier != nil {
+		// 		i2b2Item.ConstrainByModifier = &ConstrainByModifier{
+		// 			AppliedPath: strings.ReplaceAll(*queryItem.Modifier.AppliedPath, "/", `\`),
+		// 			ModifierKey: ConvertPathToI2b2Format(*queryItem.Modifier.ModifierKey),
+		// 		}
+		// 		if queryItem.Operator != "" {
+		// 			i2b2Item.ConstrainByModifier.ConstrainByValue = &ConstrainByValue{
+		// 				ValueType:       queryItem.Type,
+		// 				ValueOperator:   queryItem.Operator,
+		// 				ValueConstraint: queryItem.Value,
+		// 			}
+		// 		}
+		// 	}
+		// 	i2b2Panel.Items = append(i2b2Panel.Items, i2b2Item)
+		// }
+		//
+		// for _, cohort := range queryPanel.CohortItems {
+		//
+		// 	i2b2Item := Item{
+		// 		ItemKey: cohort,
+		// 	}
+		// 	i2b2Panel.Items = append(i2b2Panel.Items, i2b2Item)
+		// }
 
-		for _, cohort := range queryPanel.CohortItems {
-
-			i2b2Item := Item{
-				ItemKey: cohort,
-			}
-			i2b2Panel.Items = append(i2b2Panel.Items, i2b2Item)
-		}
-
-		psmRequest.Panels = append(psmRequest.Panels, i2b2Panel)
-	}
+	// 	psmRequest.Panels = append(psmRequest.Panels, i2b2Panel)
+	// }
 
 	// embed result outputs
 	for i, resultOutput := range resultOutputs {
@@ -96,13 +101,11 @@ func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels [
 		})
 	}
 
-	return NewRequestWithBody(CrcPsmReqFromQueryDefMessageBody{
+	return CrcPsmReqFromQueryDefMessageBody{
 		PsmHeader:  psmHeader,
 		PsmRequest: psmRequest,
-	})
+	}
 }
-
-// --- request
 
 // CrcPsmReqFromQueryDefMessageBody is an i2b2 XML message body for CRC PSM request from query definition
 type CrcPsmReqFromQueryDefMessageBody struct {
@@ -139,6 +142,22 @@ type PsmRequestFromQueryDef struct {
 	Panels           []Panel `xml:"query_definition>panel"`
 
 	ResultOutputs []ResultOutput `xml:"result_output_list>result_output"`
+}
+
+func NewPanel(panelNb int, not bool, timing Timing, items []Item) Panel {
+	invert := "0"
+	if not {
+		invert = "1"
+	}
+
+	return Panel{
+		PanelNumber:          strconv.Itoa(panelNb + 1),
+		PanelAccuracyScale:   "100",
+		Invert:               invert,
+		Items: 				  items,
+		PanelTiming:          string(timing),
+		TotalItemOccurrences: "1",
+	}
 }
 
 // Panel is an i2b2 XML panel
@@ -187,8 +206,6 @@ type ResultOutput struct {
 
 // ResultOutputName is an i2b2 XML requested result type value
 type ResultOutputName string
-
-// enumerated values of ResultOutputName
 const (
 	Patientset                 ResultOutputName = "PATIENTSET"
 	PatientEncounterSet        ResultOutputName = "PATIENT_ENCOUNTER_SET"
@@ -197,6 +214,13 @@ const (
 	PatientAgeCountXML         ResultOutputName = "PATIENT_AGE_COUNT_XML"
 	PatientVitalstatusCountXML ResultOutputName = "PATIENT_VITALSTATUS_COUNT_XML"
 	PatientRaceCountXML        ResultOutputName = "PATIENT_RACE_COUNT_XML"
+)
+
+type Timing string
+const (
+	TimingAny 				Timing = "ANY"
+	TimingSameVisit			Timing = "SAMEVISIT"
+	TimingSameInstanceNum 	Timing = "SAMEINSTANCENUM"
 )
 
 // --- response
@@ -243,7 +267,7 @@ type CrcPsmRespMessageBody struct {
 	} `xml:"response"`
 }
 
-func (mb CrcPsmRespMessageBody) checkStatus() error {
+func (mb CrcPsmRespMessageBody) CheckStatus() error {
 	var errorMessages []string
 	for _, status := range mb.Response.Status {
 		if status.Type == "ERROR" || status.Type == "FATAL_ERROR" {
@@ -252,7 +276,7 @@ func (mb CrcPsmRespMessageBody) checkStatus() error {
 	}
 
 	if len(errorMessages) != 0 {
-		return errors.New(strings.Join(errorMessages, "; "))
+		return fmt.Errorf(strings.Join(errorMessages, "; "))
 	}
 	return nil
 }
@@ -276,9 +300,9 @@ type QueryResultInstance struct {
 	} `xml:"query_status_type"`
 }
 
-func (qri QueryResultInstance) checkStatus() error {
+func (qri QueryResultInstance) CheckStatus() error {
 	if qri.QueryStatusType.StatusTypeID != "3" {
-		return errors.New("i2b2 result instance does not have finished status")
+		return fmt.Errorf("i2b2 result instance does not have finished status: %v / %v / %v", qri.QueryStatusType.StatusTypeID, qri.QueryStatusType.Name, qri.QueryStatusType.Description)
 	}
 	return nil
 }

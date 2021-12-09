@@ -7,6 +7,52 @@ import (
 	"time"
 )
 
+
+// MessageBody is an i2b2 XML generic body
+type MessageBody interface{}
+
+// MessageHeader is an i2b2 XML header embedded in a request or response
+type MessageHeader struct {
+	XMLName xml.Name `xml:"message_header"`
+
+	I2b2VersionCompatible string `xml:"i2b2_version_compatible"`
+	Hl7VersionCompatible  string `xml:"hl7_version_compatible"`
+
+	SendingApplicationApplicationName    string `xml:"sending_application>application_name"`
+	SendingApplicationApplicationVersion string `xml:"sending_application>application_version"`
+
+	SendingFacilityFacilityName string `xml:"sending_facility>facility_name"`
+
+	ReceivingApplicationApplicationName    string `xml:"receiving_application>application_name"`
+	ReceivingApplicationApplicationVersion string `xml:"receiving_application>application_version"`
+
+	ReceivingFacilityFacilityName string `xml:"receiving_facility>facility_name"`
+
+	DatetimeOfMessage string `xml:"datetime_of_message"`
+
+	SecurityDomain   string `xml:"security>domain"`
+	SecurityUsername string `xml:"security>username"`
+	SecurityPassword string `xml:"security>password"`
+
+	MessageTypeMessageCode      string `xml:"message_type>message_code"`
+	MessageTypeEventType        string `xml:"message_type>event_type"`
+	MessageTypeMessageStructure string `xml:"message_type>message_structure"`
+
+	MessageControlIDSessionID   string `xml:"message_control_id>session_id"`
+	MessageControlIDMessageNum  string `xml:"message_control_id>message_num"`
+	MessageControlIDInstanceNum string `xml:"message_control_id>instance_num"`
+
+	ProcessingIDProcessingID   string `xml:"processing_id>processing_id"`
+	ProcessingIDProcessingMode string `xml:"processing_id>processing_mode"`
+
+	AcceptAcknowledgementType      string `xml:"accept_acknowledgement_type"`
+	ApplicationAcknowledgementType string `xml:"application_acknowledgement_type"`
+	CountryCode                    string `xml:"country_code"`
+	ProjectID                      string `xml:"project_id"`
+}
+
+// --- request
+
 // NewRequest creates a new ready-to-use i2b2 request, with a nil message body.
 func NewRequest() Request {
 	now := time.Now()
@@ -95,51 +141,13 @@ func (response Response) CheckStatus() error {
 	return nil
 }
 
-// MessageHeader is an i2b2 XML header embedded in a request or response
-type MessageHeader struct {
-	XMLName xml.Name `xml:"message_header"`
-
-	I2b2VersionCompatible string `xml:"i2b2_version_compatible"`
-	Hl7VersionCompatible  string `xml:"hl7_version_compatible"`
-
-	SendingApplicationApplicationName    string `xml:"sending_application>application_name"`
-	SendingApplicationApplicationVersion string `xml:"sending_application>application_version"`
-
-	SendingFacilityFacilityName string `xml:"sending_facility>facility_name"`
-
-	ReceivingApplicationApplicationName    string `xml:"receiving_application>application_name"`
-	ReceivingApplicationApplicationVersion string `xml:"receiving_application>application_version"`
-
-	ReceivingFacilityFacilityName string `xml:"receiving_facility>facility_name"`
-
-	DatetimeOfMessage string `xml:"datetime_of_message"`
-
-	SecurityDomain   string `xml:"security>domain"`
-	SecurityUsername string `xml:"security>username"`
-	SecurityPassword string `xml:"security>password"`
-
-	MessageTypeMessageCode      string `xml:"message_type>message_code"`
-	MessageTypeEventType        string `xml:"message_type>event_type"`
-	MessageTypeMessageStructure string `xml:"message_type>message_structure"`
-
-	MessageControlIDSessionID   string `xml:"message_control_id>session_id"`
-	MessageControlIDMessageNum  string `xml:"message_control_id>message_num"`
-	MessageControlIDInstanceNum string `xml:"message_control_id>instance_num"`
-
-	ProcessingIDProcessingID   string `xml:"processing_id>processing_id"`
-	ProcessingIDProcessingMode string `xml:"processing_id>processing_mode"`
-
-	AcceptAcknowledgementType      string `xml:"accept_acknowledgement_type"`
-	ApplicationAcknowledgementType string `xml:"application_acknowledgement_type"`
-	CountryCode                    string `xml:"country_code"`
-	ProjectID                      string `xml:"project_id"`
-}
-
 // RequestHeader is an i2b2 XML header embedded in a request
 type RequestHeader struct {
 	XMLName          xml.Name `xml:"request_header"`
 	ResultWaittimeMs string   `xml:"result_waittime_ms"`
 }
+
+// --- response
 
 // ResponseHeader is an i2b2 XML header embedded in a response
 type ResponseHeader struct {
@@ -166,6 +174,3 @@ type ResponseHeader struct {
 		} `xml:"conditions"`
 	} `xml:"result_status"`
 }
-
-// MessageBody is an i2b2 XML generic body
-type MessageBody interface{}

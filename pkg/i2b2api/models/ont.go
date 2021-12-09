@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 )
 
+// --- request
+
 func NewOntReqGetTermInfoMessageBody(ontMaxElements, path string) OntReqGetTermInfoMessageBody {
 	body := OntReqGetTermInfoMessageBody{}
 
@@ -86,8 +88,6 @@ func NewOntReqGetModifierChildrenMessageBody(ontMaxElements, parent, appliedPath
 
 	return body
 }
-
-// --- request
 
 type baseMessageBody struct {
 	Hiddens  string `xml:"hiddens,attr,omitempty"`

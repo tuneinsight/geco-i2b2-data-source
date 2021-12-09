@@ -11,11 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// todo: define API of what's needed from geco
-// todo: then define the query functions that take as arguments the API models
-// todo: then adapt the existing XML request to be made
-// todo: add tests and integration with CI
-
 // Client is an i2b2 client for its XML API
 type Client struct {
 

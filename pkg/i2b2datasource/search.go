@@ -140,7 +140,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 			return &models.SearchResults{SearchResults: make([]models.SearchResult, 0)}, nil
 
 		} else {
-			i2b2FormatAppliedPath := i2b2apimodels.ConvertPathToI2b2Format(strings.TrimSpace(params.AppliedPath))[1:]
+			i2b2FormatAppliedPath := i2b2apimodels.ConvertAppliedPathToI2b2Format(strings.TrimSpace(params.AppliedPath))
 			req := i2b2apimodels.NewOntReqGetModifierInfoMessageBody(i2b2FormatPath, i2b2FormatAppliedPath)
 			if resp, err = ds.i2b2Client.OntGetModifierInfo(&req); err != nil {
 				return nil, fmt.Errorf("requesting info of modifier: %v", err)
@@ -152,7 +152,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 			return &models.SearchResults{SearchResults: make([]models.SearchResult, 0)}, nil
 
 		} else {
-			i2b2FormatAppliedPath := i2b2apimodels.ConvertPathToI2b2Format(strings.TrimSpace(params.AppliedPath))[1:]
+			i2b2FormatAppliedPath := i2b2apimodels.ConvertAppliedPathToI2b2Format(strings.TrimSpace(params.AppliedPath))
 			i2b2FormatAppliedConcept := i2b2apimodels.ConvertPathToI2b2Format(strings.TrimSpace(params.AppliedConcept))
 			req := i2b2apimodels.NewOntReqGetModifierChildrenMessageBody(ds.i2b2OntMaxElements, i2b2FormatPath, i2b2FormatAppliedPath, i2b2FormatAppliedConcept)
 			if resp, err = ds.i2b2Client.OntGetModifierChildren(&req); err != nil {

@@ -37,9 +37,9 @@ func (c Client) CrcPdoReqFromInputList(reqMsgBody *models.CrcPdoReqFromInputList
 		return nil, fmt.Errorf("making XML request: %v", err)
 	}
 
-	if mb, ok := xmlResponse.MessageBody.(*models.CrcPdoRespMessageBody); !ok {
+	mb, ok := xmlResponse.MessageBody.(*models.CrcPdoRespMessageBody)
+	if !ok {
 		return nil, fmt.Errorf("casting message body, got %T", xmlResponse.MessageBody)
-	} else {
-		return mb, nil
 	}
+	return mb, nil
 }

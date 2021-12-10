@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Client is an i2b2 client for its XML API
+// Client is an i2b2 client for its XML API.
 type Client struct {
 
 	// Logger is the Logger from GeCo
@@ -21,10 +21,10 @@ type Client struct {
 	Ci models.ConnectionInfo
 }
 
-// xmlRequest makes an HTTP POST request to i2b2
+// xmlRequest makes an HTTP POST request with an XML payload to i2b2.
 func (c Client) xmlRequest(endpoint string, xmlRequest *models.Request, xmlResponse *models.Response) error {
-	reqUrl := c.Ci.HiveURL + endpoint
-	c.Logger.Infof("i2b2 XML request to %v", reqUrl)
+	reqURL := c.Ci.HiveURL + endpoint
+	c.Logger.Infof("i2b2 XML request to %v", reqURL)
 
 	xmlRequest.SetConnectionInfo(c.Ci)
 
@@ -37,7 +37,7 @@ func (c Client) xmlRequest(endpoint string, xmlRequest *models.Request, xmlRespo
 	c.Logger.Debugf("i2b2 request:\n%v", string(marshaledRequest))
 
 	// execute HTTP request
-	httpResponse, err := http.Post(reqUrl, "application/xml", bytes.NewBuffer(marshaledRequest))
+	httpResponse, err := http.Post(reqURL, "application/xml", bytes.NewBuffer(marshaledRequest))
 	if err != nil {
 		return fmt.Errorf("making HTTP POST of XML request: %v", err)
 	}

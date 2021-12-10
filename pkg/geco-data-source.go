@@ -5,7 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// todo: move this interface to geco once finalized
+// todo: move this interface to geco once finalized, e.g. sdk
 
 // DataSource defines a GeCo data source plugin. The plugin must export a variable named DataSourcePlugin of the
 // type DataSource to be compatible.

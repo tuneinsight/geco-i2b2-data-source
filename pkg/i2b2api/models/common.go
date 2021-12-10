@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-// MessageBody is an i2b2 XML generic body
+// MessageBody is an i2b2 XML generic body.
 type MessageBody interface{}
 
-// MessageHeader is an i2b2 XML header embedded in a request or response
+// MessageHeader is an i2b2 XML header embedded in a request or response.
 type MessageHeader struct {
 	XMLName xml.Name `xml:"message_header"`
 
@@ -94,7 +94,7 @@ func NewRequest() Request {
 	}
 }
 
-// NewRequestWithBody creates a new ready-to-use i2b2 request, with a message body
+// NewRequestWithBody creates a new ready-to-use i2b2 request, with a message body.
 func NewRequestWithBody(body MessageBody) (req Request) {
 	req = NewRequest()
 	req.MessageBody = body
@@ -110,7 +110,7 @@ func (req *Request) SetConnectionInfo(ci ConnectionInfo) {
 	req.RequestHeader.ResultWaittimeMs = strconv.FormatInt(ci.WaitTime.Milliseconds(), 10)
 }
 
-// Request is an i2b2 XML request
+// Request is an i2b2 XML request.
 type Request struct {
 	XMLName     xml.Name `xml:"msgns:request"`
 	XMLNSMSG    string   `xml:"xmlns:msgns,attr"`
@@ -124,7 +124,7 @@ type Request struct {
 	MessageBody   MessageBody   `xml:"message_body"`
 }
 
-// Response is an i2b2 XML response
+// Response is an i2b2 XML response.
 type Response struct {
 	XMLName        xml.Name       `xml:"response"`
 	MessageHeader  MessageHeader  `xml:"message_header"`
@@ -133,6 +133,7 @@ type Response struct {
 	MessageBody    MessageBody    `xml:"message_body"`
 }
 
+// CheckStatus returns an error if the status of the Response is not successful.
 func (response Response) CheckStatus() error {
 	if response.ResponseHeader.ResultStatus.Status.Type != "DONE" {
 		return errors.New(response.ResponseHeader.ResultStatus.Status.Text)
@@ -140,7 +141,7 @@ func (response Response) CheckStatus() error {
 	return nil
 }
 
-// RequestHeader is an i2b2 XML header embedded in a request
+// RequestHeader is an i2b2 XML header embedded in a request.
 type RequestHeader struct {
 	XMLName          xml.Name `xml:"request_header"`
 	ResultWaittimeMs string   `xml:"result_waittime_ms"`
@@ -148,7 +149,7 @@ type RequestHeader struct {
 
 // --- response
 
-// ResponseHeader is an i2b2 XML header embedded in a response
+// ResponseHeader is an i2b2 XML header embedded in a response.
 type ResponseHeader struct {
 	XMLName xml.Name `xml:"response_header"`
 	Info    struct {

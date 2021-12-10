@@ -19,25 +19,25 @@ func (ds I2b2DataSource) ExploreQuery(params *models.ExploreQueryParameters) (pa
 		return 0, nil, fmt.Errorf("parsing patient count: %v", err)
 	} else {
 		for _, patientID := range i2b2PatientIDs {
-			if parsedPatientID, err := strconv.ParseUint(patientID, 10, 64); err != nil {
+			parsedPatientID, err := strconv.ParseUint(patientID, 10, 64)
+			if err != nil {
 				return 0, nil, fmt.Errorf("parsing patient ID: %v", err)
-			} else {
-				patientList = append(patientList, parsedPatientID)
 			}
+			patientList = append(patientList, parsedPatientID)
 		}
 	}
 
 	return
 }
 
-// doExploreQuery requests the explore query to the i2b2 CRC and parse its results.
+// doExploreQuery requests an explore query to the i2b2 CRC and parse its results.
 func (ds I2b2DataSource) doExploreQuery(params *models.ExploreQueryParameters) (patientCount, patientSetID string, err error) {
 
 	// build query
 	panels, timing := params.Definition.ToI2b2APIModel()
 	psmReq := i2b2apimodels.NewCrcPsmReqFromQueryDef(
 		ds.i2b2Client.Ci,
-		params.Id,
+		params.ID,
 		panels,
 		timing,
 		[]i2b2apimodels.ResultOutputName{i2b2apimodels.ResultOutputPatientSet, i2b2apimodels.ResultOutputCount},

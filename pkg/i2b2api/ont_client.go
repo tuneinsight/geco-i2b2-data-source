@@ -32,11 +32,11 @@ func (c Client) ontConceptsRequest(endpoint string, reqMsgBody models.MessageBod
 		return nil, fmt.Errorf("making XML request: %v", err)
 	}
 
-	if mb, ok := xmlResponse.MessageBody.(*models.OntRespConceptsMessageBody); !ok {
+	mb, ok := xmlResponse.MessageBody.(*models.OntRespConceptsMessageBody)
+	if !ok {
 		return nil, fmt.Errorf("casting message body, got %T", xmlResponse.MessageBody)
-	} else {
-		return mb, nil
 	}
+	return mb, nil
 }
 
 // OntGetModifiers makes an i2b2 API request to /OntologyService/getModifiers.
@@ -65,9 +65,9 @@ func (c Client) ontModifiersRequest(endpoint string, reqMsgBody models.MessageBo
 		return nil, fmt.Errorf("making XML request: %v", err)
 	}
 
-	if mb, ok := xmlResponse.MessageBody.(*models.OntRespModifiersMessageBody); !ok {
+	mb, ok := xmlResponse.MessageBody.(*models.OntRespModifiersMessageBody)
+	if !ok {
 		return nil, fmt.Errorf("casting message body, got %T", xmlResponse.MessageBody)
-	} else {
-		return mb, nil
 	}
+	return mb, nil
 }

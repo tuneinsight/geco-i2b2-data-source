@@ -13,11 +13,12 @@ import (
 func (ds I2b2DataSource) storeIntValue(value uint64, doSharedID string) error {
 
 	do := datamanager.NewFloatVector([]float64{float64(value)}) // todo: need to be different type of data object
-	if doId, err := ds.dm.AddDataObjectWithSharedID(do, gecomodels.DataObjectSharedID(doSharedID), false); err != nil {
+
+	doID, err := ds.dm.AddDataObjectWithSharedID(do, gecomodels.DataObjectSharedID(doSharedID), false)
+	if err != nil {
 		return fmt.Errorf("adding data object: %v", err)
-	} else {
-		ds.logger.Infof("added data object to data manager (%v)", doId)
 	}
+	ds.logger.Infof("added data object to data manager (%v)", doID)
 
 	return nil
 }
@@ -29,13 +30,13 @@ func (ds I2b2DataSource) storeIntVector(values []uint64, doSharedID string) erro
 	for _, value := range values {
 		floats = append(floats, float64(value))
 	}
-
 	do := datamanager.NewFloatVector(floats) // todo: need to be different type of data object
-	if doId, err := ds.dm.AddDataObjectWithSharedID(do, gecomodels.DataObjectSharedID(doSharedID), false); err != nil {
+
+	doID, err := ds.dm.AddDataObjectWithSharedID(do, gecomodels.DataObjectSharedID(doSharedID), false)
+	if err != nil {
 		return fmt.Errorf("adding data object: %v", err)
-	} else {
-		ds.logger.Infof("added data object to data manager (%v)", doId)
 	}
+	ds.logger.Infof("added data object to data manager (%v)", doID)
 
 	return nil
 }

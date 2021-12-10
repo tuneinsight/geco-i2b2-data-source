@@ -4,16 +4,19 @@ import i2b2apimodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api/models"
 
 // --- parameters
 
+// ExploreQueryParameters is the parameter for the ExploreQuery operation.
 type ExploreQueryParameters struct {
-	Id         string
+	ID         string
 	Definition ExploreQueryDefinition
 }
 
+// ExploreQueryDefinition is the query definition of ExploreQueryParameters.
 type ExploreQueryDefinition struct {
 	Timing string // any | samevisit | sameinstancenum
 	Panels []Panel
 }
 
+// Panel is part of an ExploreQueryDefinition.
 type Panel struct {
 	Not          bool
 	Timing       string // any | samevisit | sameinstancenum
@@ -21,6 +24,7 @@ type Panel struct {
 	ConceptItems []ConceptItem
 }
 
+// ConceptItem is part of a Panel.
 type ConceptItem struct {
 	QueryTerm string
 	Operator  string // EQ | NE | GT | GE | LT | LE | BETWEEN | IN | LIKE[exact] | LIKE[begin] | LIKE[end] | LIKE[contains]
@@ -32,6 +36,7 @@ type ConceptItem struct {
 	}
 }
 
+// ToI2b2APIModel converts this query definition in the i2b2 API format.
 func (d ExploreQueryDefinition) ToI2b2APIModel() (i2b2ApiPanels []i2b2apimodels.Panel, i2b2ApiTiming i2b2apimodels.Timing) {
 	i2b2ApiTiming = i2b2apimodels.Timing(d.Timing)
 

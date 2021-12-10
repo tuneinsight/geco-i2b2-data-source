@@ -6,6 +6,7 @@ import (
 
 // --- request
 
+// NewOntReqGetTermInfoMessageBody returns a new message body for a request object for concept info.
 func NewOntReqGetTermInfoMessageBody(ontMaxElements, path string) OntReqGetTermInfoMessageBody {
 	body := OntReqGetTermInfoMessageBody{}
 
@@ -19,20 +20,7 @@ func NewOntReqGetTermInfoMessageBody(ontMaxElements, path string) OntReqGetTermI
 	return body
 }
 
-func NewOntReqGetModifierInfoMessageBody(path string, appliedPath string) OntReqGetModifierInfoMessageBody {
-	body := OntReqGetModifierInfoMessageBody{}
-
-	body.GetModifierInfo.Hiddens = "false"
-	body.GetModifierInfo.Blob = "true"
-	body.GetModifierInfo.Synonyms = "false"
-	body.GetModifierInfo.Type = "core"
-	body.GetModifierInfo.Self = path
-	body.GetModifierInfo.AppliedPath = appliedPath
-
-	return body
-}
-
-// NewOntReqGetCategoriesMessageBody returns a new message body for a request object for i2b2 categories (ontology root nodes)
+// NewOntReqGetCategoriesMessageBody returns a new message body for a request object for i2b2 categories (ontology root nodes).
 func NewOntReqGetCategoriesMessageBody() OntReqGetCategoriesMessageBody {
 	body := OntReqGetCategoriesMessageBody{}
 
@@ -44,7 +32,7 @@ func NewOntReqGetCategoriesMessageBody() OntReqGetCategoriesMessageBody {
 	return body
 }
 
-// NewOntReqGetChildrenMessageBody returns a new message body for a request object for i2b2 children of a node
+// NewOntReqGetChildrenMessageBody returns a new message body for a request object for i2b2 children of a node.
 func NewOntReqGetChildrenMessageBody(ontMaxElements, parent string) OntReqGetChildrenMessageBody {
 	body := OntReqGetChildrenMessageBody{}
 
@@ -59,7 +47,21 @@ func NewOntReqGetChildrenMessageBody(ontMaxElements, parent string) OntReqGetChi
 	return body
 }
 
-// NewOntReqGetModifiersMessageBody returns a new request object to get the i2b2 modifiers that apply to the concept path
+// NewOntReqGetModifierInfoMessageBody returns a new message body for a request object for modifier info.
+func NewOntReqGetModifierInfoMessageBody(path string, appliedPath string) OntReqGetModifierInfoMessageBody {
+	body := OntReqGetModifierInfoMessageBody{}
+
+	body.GetModifierInfo.Hiddens = "false"
+	body.GetModifierInfo.Blob = "true"
+	body.GetModifierInfo.Synonyms = "false"
+	body.GetModifierInfo.Type = "core"
+	body.GetModifierInfo.Self = path
+	body.GetModifierInfo.AppliedPath = appliedPath
+
+	return body
+}
+
+// NewOntReqGetModifiersMessageBody returns a new request object to get the i2b2 modifiers that apply to the concept path.
 func NewOntReqGetModifiersMessageBody(self string) OntReqGetModifiersMessageBody {
 	body := OntReqGetModifiersMessageBody{}
 
@@ -72,7 +74,7 @@ func NewOntReqGetModifiersMessageBody(self string) OntReqGetModifiersMessageBody
 	return body
 }
 
-// NewOntReqGetModifierChildrenMessageBody returns a new message body for a request object to get the i2b2 modifiers that apply to the concept path
+// NewOntReqGetModifierChildrenMessageBody returns a new message body for a request object to get the children of a modifier.
 func NewOntReqGetModifierChildrenMessageBody(ontMaxElements, parent, appliedPath, appliedConcept string) OntReqGetModifierChildrenMessageBody {
 	body := OntReqGetModifierChildrenMessageBody{}
 
@@ -97,6 +99,7 @@ type baseMessageBody struct {
 	Max      string `xml:"max,attr,omitempty"`
 }
 
+// OntReqGetTermInfoMessageBody is an i2b2 XML message for ontology concept info request.
 type OntReqGetTermInfoMessageBody struct {
 	XMLName     xml.Name `xml:"message_body"`
 	GetTermInfo struct {
@@ -105,6 +108,24 @@ type OntReqGetTermInfoMessageBody struct {
 	} `xml:"ontns:get_term_info"`
 }
 
+// OntReqGetCategoriesMessageBody is an i2b2 XML message body for ontology categories request.
+type OntReqGetCategoriesMessageBody struct {
+	XMLName       xml.Name `xml:"message_body"`
+	GetCategories struct {
+		baseMessageBody
+	} `xml:"ontns:get_categories"`
+}
+
+// OntReqGetChildrenMessageBody is an i2b2 XML message for ontology children request.
+type OntReqGetChildrenMessageBody struct {
+	XMLName     xml.Name `xml:"message_body"`
+	GetChildren struct {
+		baseMessageBody
+		Parent string `xml:"parent"`
+	} `xml:"ontns:get_children"`
+}
+
+// OntReqGetModifierInfoMessageBody is an i2b2 XML message for ontology modifier info request.
 type OntReqGetModifierInfoMessageBody struct {
 	XMLName         xml.Name `xml:"message_body"`
 	GetModifierInfo struct {
@@ -114,24 +135,7 @@ type OntReqGetModifierInfoMessageBody struct {
 	} `xml:"ontns:get_modifier_info"`
 }
 
-// OntReqGetCategoriesMessageBody is an i2b2 XML message body for ontology categories request
-type OntReqGetCategoriesMessageBody struct {
-	XMLName       xml.Name `xml:"message_body"`
-	GetCategories struct {
-		baseMessageBody
-	} `xml:"ontns:get_categories"`
-}
-
-// OntReqGetChildrenMessageBody is an i2b2 XML message for ontology children request
-type OntReqGetChildrenMessageBody struct {
-	XMLName     xml.Name `xml:"message_body"`
-	GetChildren struct {
-		baseMessageBody
-		Parent string `xml:"parent"`
-	} `xml:"ontns:get_children"`
-}
-
-// OntReqGetModifiersMessageBody is an i2b2 XML message for ontology modifiers request
+// OntReqGetModifiersMessageBody is an i2b2 XML message for ontology modifiers request.
 type OntReqGetModifiersMessageBody struct {
 	XMLName      xml.Name `xml:"message_body"`
 	GetModifiers struct {
@@ -140,7 +144,7 @@ type OntReqGetModifiersMessageBody struct {
 	} `xml:"ontns:get_modifiers"`
 }
 
-// OntReqGetModifierChildrenMessageBody is an i2b2 XML message for ontology modifier children request
+// OntReqGetModifierChildrenMessageBody is an i2b2 XML message for ontology modifier children request.
 type OntReqGetModifierChildrenMessageBody struct {
 	XMLName             xml.Name `xml:"message_body"`
 	GetModifierChildren struct {
@@ -196,6 +200,7 @@ type Modifier struct {
 	AppliedPath string `xml:"applied_path"`
 }
 
+// MetadataXML is the metadata of a Concept.
 type MetadataXML struct {
 	CreationDateTime string                  `xml:"ValueMetadata>CreationDateTime"`
 	DataType         string                  `xml:"ValueMetadata>DataType"`
@@ -208,6 +213,7 @@ type MetadataXML struct {
 	Version          string                  `xml:"ValueMetadata>Version"`
 }
 
+// ValueMetadataUnitValues is part of MetadataXML.
 type ValueMetadataUnitValues struct {
 	ConvertingUnits []UnitValuesConvertingUnits `xml:"ConvertingUnits"`
 	EqualUnits      []string                    `xml:"EqualUnits"`
@@ -215,6 +221,7 @@ type ValueMetadataUnitValues struct {
 	NormalUnits     string                      `xml:"NormalUnits"`
 }
 
+// UnitValuesConvertingUnits is part of ValueMetadataUnitValues.
 type UnitValuesConvertingUnits struct {
 	MultiplyingFactor string `xml:"MultiplyingFactor"`
 	Units             string `xml:"Units"`

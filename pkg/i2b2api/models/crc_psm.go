@@ -9,7 +9,7 @@ import (
 
 // --- request
 
-// NewCrcPsmReqFromQueryDef returns a new request object for i2b2 psm request
+// NewCrcPsmReqFromQueryDef returns a new request object for i2b2 psm request.
 func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels []Panel, queryTiming Timing,
 	resultOutputs []ResultOutputName) CrcPsmReqFromQueryDefMessageBody {
 
@@ -51,7 +51,7 @@ func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels [
 	}
 }
 
-// CrcPsmReqFromQueryDefMessageBody is an i2b2 XML message body for CRC PSM request from query definition
+// CrcPsmReqFromQueryDefMessageBody is an i2b2 XML message body for CRC PSM request from query definition.
 type CrcPsmReqFromQueryDefMessageBody struct {
 	XMLName xml.Name `xml:"message_body"`
 
@@ -59,7 +59,7 @@ type CrcPsmReqFromQueryDefMessageBody struct {
 	PsmRequest PsmRequestFromQueryDef `xml:"crcpsmns:request"`
 }
 
-// PsmHeader is an i2b2 XML header for PSM request
+// PsmHeader is an i2b2 XML header for PSM request.
 type PsmHeader struct {
 	User struct {
 		Text  string `xml:",chardata"`
@@ -73,7 +73,7 @@ type PsmHeader struct {
 	RequestType     string `xml:"request_type"`
 }
 
-// PsmRequestFromQueryDef is an i2b2 XML PSM request from query definition
+// PsmRequestFromQueryDef is an i2b2 XML PSM request from query definition.
 type PsmRequestFromQueryDef struct {
 	Type string `xml:"xsi:type,attr"`
 	Xsi  string `xml:"xmlns:xsi,attr"`
@@ -88,6 +88,7 @@ type PsmRequestFromQueryDef struct {
 	ResultOutputs []ResultOutput `xml:"result_output_list>result_output"`
 }
 
+// NewPanel creates a new Panel.
 func NewPanel(panelNb int, not bool, timing Timing, items []Item) Panel {
 	invert := "0"
 	if not {
@@ -104,7 +105,7 @@ func NewPanel(panelNb int, not bool, timing Timing, items []Item) Panel {
 	}
 }
 
-// Panel is an i2b2 XML panel
+// Panel is an i2b2 XML panel.
 type Panel struct {
 	PanelNumber          string `xml:"panel_number"`
 	PanelAccuracyScale   string `xml:"panel_accuracy_scale"`
@@ -115,7 +116,7 @@ type Panel struct {
 	Items []Item `xml:"item"`
 }
 
-// Item is an i2b2 XML item
+// Item is an i2b2 XML item.
 type Item struct {
 	Hlevel              string               `xml:"hlevel"`
 	ItemName            string               `xml:"item_name"`
@@ -128,29 +129,30 @@ type Item struct {
 	ItemIsSynonym       string               `xml:"item_is_synonym"`
 }
 
-// ConstrainByModifier is an i2b2 XML constrain_by_modifier element
+// ConstrainByModifier is an i2b2 XML constrain_by_modifier element.
 type ConstrainByModifier struct {
 	AppliedPath      string            `xml:"applied_path"`
 	ModifierKey      string            `xml:"modifier_key"`
 	ConstrainByValue *ConstrainByValue `xml:"constrain_by_value"`
 }
 
-// ConstrainByValue is an i2b2 XML constrain_by_value element
+// ConstrainByValue is an i2b2 XML constrain_by_value element.
 type ConstrainByValue struct {
 	ValueType       string `xml:"value_type"`
 	ValueOperator   string `xml:"value_operator"`
 	ValueConstraint string `xml:"value_constraint"`
 }
 
-// ResultOutput is an i2b2 XML requested result type
+// ResultOutput is an i2b2 XML requested result type.
 type ResultOutput struct {
 	PriorityIndex string `xml:"priority_index,attr"`
 	Name          string `xml:"name,attr"`
 }
 
-// ResultOutputName is an i2b2 XML requested result type value
+// ResultOutputName is an i2b2 XML requested result type value.
 type ResultOutputName string
 
+// Enumerated values for ResultOutputName.
 const (
 	ResultOutputPatientSet       ResultOutputName = "PATIENTSET"
 	ResultOutputEncounterSet     ResultOutputName = "PATIENT_ENCOUNTER_SET"
@@ -161,8 +163,10 @@ const (
 	ResultOutputRaceCount        ResultOutputName = "PATIENT_RACE_COUNT_XML"
 )
 
+// Timing is an i2b2 XML timing.
 type Timing string
 
+// Enumerated values for Timing.
 const (
 	TimingAny             Timing = "ANY"
 	TimingSameVisit       Timing = "SAMEVISIT"
@@ -213,6 +217,7 @@ type CrcPsmRespMessageBody struct {
 	} `xml:"response"`
 }
 
+// CheckStatus returns an error if the status of the CrcPsmRespMessageBody is not successful.
 func (mb CrcPsmRespMessageBody) CheckStatus() error {
 	var errorMessages []string
 	for _, status := range mb.Response.Status {
@@ -227,7 +232,7 @@ func (mb CrcPsmRespMessageBody) CheckStatus() error {
 	return nil
 }
 
-// QueryResultInstance is an i2b2 XML query result instance
+// QueryResultInstance is an i2b2 XML query result instance.
 type QueryResultInstance struct {
 	ResultInstanceID string `xml:"result_instance_id"`
 	QueryInstanceID  string `xml:"query_instance_id"`
@@ -246,6 +251,7 @@ type QueryResultInstance struct {
 	} `xml:"query_status_type"`
 }
 
+// CheckStatus returns an error if the status of the QueryResultInstance is not successful.
 func (qri QueryResultInstance) CheckStatus() error {
 	if qri.QueryStatusType.StatusTypeID != "3" {
 		return fmt.Errorf("i2b2 result instance does not have finished status: %v / %v / %v", qri.QueryStatusType.StatusTypeID, qri.QueryStatusType.Name, qri.QueryStatusType.Description)

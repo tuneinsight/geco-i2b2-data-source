@@ -12,26 +12,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// todo: linting, remove from models (both packages)
+// Operation is an operation of the data source supported by I2b2DataSource.Query.
+type Operation string
 
-type queryType string
-
+// Enumerated values for Operation.
 const (
-	queryTypeSearchConcept  queryType = "searchConcept"
-	queryTypeSearchModifier queryType = "searchModifier"
-	queryTypeExploreQuery   queryType = "exploreQuery"
-	queryTypeGetCohorts     queryType = "getCohorts"
-	queryTypeAddCohort      queryType = "addCohort"
-	queryTypeDeleteCohort   queryType = "deleteCohort"
-	queryTypeSurvivalQuery  queryType = "survivalQuery"
-	queryTypeSearchOntology queryType = "searchOntology"
+	OperationSearchConcept  Operation = "searchConcept"
+	OperationSearchModifier Operation = "searchModifier"
+	OperationExploreQuery   Operation = "exploreQuery"
+	OperationGetCohorts     Operation = "getCohorts"
+	OperationAddCohort      Operation = "addCohort"
+	OperationDeleteCohort   Operation = "deleteCohort"
+	OperationSurvivalQuery  Operation = "survivalQuery"
+	OperationSearchOntology Operation = "searchOntology"
 )
 
+// Values of identifiers for data objects shared IDs.
 const (
-	sharedIdExploreQueryCount       string = "count"
-	sharedIdExploreQueryPatientList string = "patientList"
+	sharedIDExploreQueryCount       string = "count"
+	sharedIDExploreQueryPatientList string = "patientList"
 )
 
+// I2b2DataSource is an i2b2 data source for GeCo. It implements the data source interface.
 type I2b2DataSource struct {
 
 	// init is true if the I2b2DataSource has been initialized.
@@ -50,6 +52,7 @@ type I2b2DataSource struct {
 	i2b2OntMaxElements string
 }
 
+// Init implements the data source interface Init function.
 func (ds *I2b2DataSource) Init(dm *datamanager.DataManager, logger logrus.FieldLogger, config map[string]string) (err error) {
 	fmt.Println("called init")
 
@@ -87,17 +90,7 @@ func (ds *I2b2DataSource) Init(dm *datamanager.DataManager, logger logrus.FieldL
 	return nil
 }
 
-// todo: exists in GeCo, can be exposed by SDK code
-func (ds I2b2DataSource) logError(errMsg string, causedBy error) (err error) {
-	if causedBy == nil {
-		err = fmt.Errorf("%v", errMsg)
-	} else {
-		err = fmt.Errorf("%v: %v", errMsg, causedBy)
-	}
-	ds.logger.Error(err)
-	return err
-}
-
+// Query implements the data source interface Query function.
 func (ds I2b2DataSource) Query(userID string, operation string, parameters map[string]interface{}, resultsSharedIds map[string]string) (results map[string]interface{}, err error) {
 	if !ds.init {
 		panic(fmt.Errorf("data source is not initialized"))
@@ -109,8 +102,8 @@ func (ds I2b2DataSource) Query(userID string, operation string, parameters map[s
 	// todo: decoder might need squash param set
 
 	results = make(map[string]interface{})
-	switch queryType(operation) {
-	case queryTypeSearchConcept:
+	switch Operation(operation) {
+	case OperationSearchConcept:
 		decodedParams := &models.SearchConceptParameters{}
 		if err := mapstructure.Decode(parameters, decodedParams); err != nil {
 			return nil, ds.logError("decoding parameters", err)
@@ -120,7 +113,7 @@ func (ds I2b2DataSource) Query(userID string, operation string, parameters map[s
 			return nil, ds.logError("encoding results", err)
 		}
 
-	case queryTypeSearchModifier:
+	case OperationSearchModifier:
 		decodedParams := &models.SearchModifierParameters{}
 		if err := mapstructure.Decode(parameters, decodedParams); err != nil {
 			return nil, ds.logError("decoding parameters", err)
@@ -130,9 +123,9 @@ func (ds I2b2DataSource) Query(userID string, operation string, parameters map[s
 			return nil, ds.logError("encoding results", err)
 		}
 
-	case queryTypeExploreQuery:
-		countSharedID, countOK := resultsSharedIds[sharedIdExploreQueryCount]
-		patientListSharedID, patientListOK := resultsSharedIds[sharedIdExploreQueryPatientList]
+	case OperationExploreQuery:
+		countSharedID, countOK := resultsSharedIds[sharedIDExploreQueryCount]
+		patientListSharedID, patientListOK := resultsSharedIds[sharedIDExploreQueryPatientList]
 		if !countOK || !patientListOK {
 			return nil, ds.logError("missing results shared ID", nil)
 		}
@@ -152,4 +145,16 @@ func (ds I2b2DataSource) Query(userID string, operation string, parameters map[s
 		return nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)
 	}
 	return
+}
+
+// logError creates and logs an error.
+// todo: exists in GeCo, can be exposed by SDK code
+func (ds I2b2DataSource) logError(errMsg string, causedBy error) (err error) {
+	if causedBy == nil {
+		err = fmt.Errorf("%v", errMsg)
+	} else {
+		err = fmt.Errorf("%v: %v", errMsg, causedBy)
+	}
+	ds.logger.Error(err)
+	return err
 }

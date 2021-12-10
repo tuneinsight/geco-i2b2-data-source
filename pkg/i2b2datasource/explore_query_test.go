@@ -11,7 +11,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "0",
+		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -27,7 +27,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.Subset(t, []uint64{1, 2, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "1",
+		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -43,7 +43,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.Subset(t, []uint64{1, 2, 3, 4}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "2",
+		ID: "2",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -69,7 +69,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.Subset(t, []uint64{1, 2, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "3",
+		ID: "3",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -91,7 +91,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "0",
+		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -110,7 +110,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	require.Subset(t, []uint64{1}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "1",
+		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -138,7 +138,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "0",
+		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -161,7 +161,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	require.Subset(t, []uint64{1, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "1",
+		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -197,7 +197,7 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "0",
+		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,
@@ -223,7 +223,7 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	require.Subset(t, []uint64{1}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id: "1",
+		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not: false,

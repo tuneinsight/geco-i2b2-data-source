@@ -15,19 +15,20 @@ import (
 // todo: linting, remove from models (both packages)
 
 type queryType string
+
 const (
 	queryTypeSearchConcept  queryType = "searchConcept"
 	queryTypeSearchModifier queryType = "searchModifier"
 	queryTypeExploreQuery   queryType = "exploreQuery"
 	queryTypeGetCohorts     queryType = "getCohorts"
-	queryTypeAddCohort queryType = "addCohort"
-	queryTypeDeleteCohort queryType = "deleteCohort"
-	queryTypeSurvivalQuery queryType = "survivalQuery"
+	queryTypeAddCohort      queryType = "addCohort"
+	queryTypeDeleteCohort   queryType = "deleteCohort"
+	queryTypeSurvivalQuery  queryType = "survivalQuery"
 	queryTypeSearchOntology queryType = "searchOntology"
 )
 
 const (
-	sharedIdExploreQueryCount string = "count"
+	sharedIdExploreQueryCount       string = "count"
 	sharedIdExploreQueryPatientList string = "patientList"
 )
 
@@ -49,7 +50,6 @@ type I2b2DataSource struct {
 	i2b2OntMaxElements string
 }
 
-
 func (ds *I2b2DataSource) Init(dm *datamanager.DataManager, logger logrus.FieldLogger, config map[string]string) (err error) {
 	fmt.Println("called init")
 
@@ -60,7 +60,6 @@ func (ds *I2b2DataSource) Init(dm *datamanager.DataManager, logger logrus.FieldL
 	// i2b2.api.username
 	// i2b2.db.xxx
 	// datasource.db.xxx
-
 
 	// parse i2b2 API connection info and initialize i2b2 client
 	ci := i2b2apimodels.ConnectionInfo{
@@ -79,7 +78,7 @@ func (ds *I2b2DataSource) Init(dm *datamanager.DataManager, logger logrus.FieldL
 
 	ds.i2b2Client = i2b2api.Client{
 		Logger: logger,
-		Ci:ci,
+		Ci:     ci,
 	}
 	ds.i2b2OntMaxElements = config["i2b2.api.ont-max-elements"]
 

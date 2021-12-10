@@ -11,10 +11,10 @@ func TestExploreQueryConcept(t *testing.T) {
 	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "0",
+		Id: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 				}},
@@ -27,10 +27,10 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.Subset(t, []uint64{1, 2, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "1",
+		Id: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/3/",
 				}},
@@ -43,20 +43,20 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.Subset(t, []uint64{1, 2, 3, 4}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "2",
+		Id: "2",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 				}},
-			},{
-				Not:          false,
+			}, {
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/2/",
 				}},
-			},{
-				Not:          false,
+			}, {
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/3/",
 				}},
@@ -69,13 +69,13 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.Subset(t, []uint64{1, 2, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "3",
+		Id: "3",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
-				},{
+				}, {
 					QueryTerm: "/TEST/test/3/",
 				}},
 			}},
@@ -91,10 +91,10 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "0",
+		Id: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 					Operator:  "EQ",
@@ -110,16 +110,16 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	require.Subset(t, []uint64{1}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "1",
+		Id: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 					Operator:  "EQ",
 					Value:     "10",
 					Type:      "NUMBER",
-				},{
+				}, {
 					QueryTerm: "/TEST/test/3/",
 					Operator:  "EQ",
 					Value:     "20",
@@ -138,10 +138,10 @@ func TestExploreQueryModifier(t *testing.T) {
 	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "0",
+		Id: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 					Modifier: struct {
@@ -161,10 +161,10 @@ func TestExploreQueryModifier(t *testing.T) {
 	require.Subset(t, []uint64{1, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "1",
+		Id: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 					Modifier: struct {
@@ -174,7 +174,7 @@ func TestExploreQueryModifier(t *testing.T) {
 						Key:         "/TEST/modifiers/1/",
 						AppliedPath: "/test/1/",
 					},
-				},{
+				}, {
 					QueryTerm: "/TEST/test/2/",
 					Modifier: struct {
 						Key         string
@@ -197,10 +197,10 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "0",
+		Id: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/2/",
 					Operator:  "LIKE[contains]",
@@ -223,10 +223,10 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	require.Subset(t, []uint64{1}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "1",
+		Id: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
-				Not:          false,
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/3/",
 					Operator:  "LIKE[exact]",
@@ -240,8 +240,8 @@ func TestExploreQueryModifierValue(t *testing.T) {
 						AppliedPath: "/test/3/",
 					},
 				}},
-			},{
-				Not:          false,
+			}, {
+				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/2/",
 					Operator:  "LIKE[begin]",

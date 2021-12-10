@@ -12,7 +12,7 @@ package models
 // }
 
 type SearchConceptParameters struct {
-	Path string
+	Path      string
 	Operation string // children | info | concept
 }
 
@@ -29,9 +29,11 @@ type SearchConceptParameters struct {
 // 	}, nil
 // }
 
+// todo: maybe squash model together if OK with serializing etc.
+
 type SearchModifierParameters struct {
 	SearchConceptParameters
-	AppliedPath string
+	AppliedPath    string
 	AppliedConcept string
 }
 
@@ -42,15 +44,15 @@ type SearchResults struct {
 }
 
 type SearchResult struct {
-	Path string
+	Path        string
 	AppliedPath string
-	Name string
+	Name        string
 	DisplayName string
-	Code string
-	Comment string
-	Type string // concept | concept_container | concept_folder | modifier | modifier_container | modifier_folder | genomic_annotation
-	Leaf bool
-	Metadata SearchResultMetadata
+	Code        string
+	Comment     string
+	Type        string // concept | concept_container | concept_folder | modifier | modifier_container | modifier_folder | genomic_annotation
+	Leaf        bool
+	Metadata    SearchResultMetadata
 }
 
 type SearchResultMetadata struct {

@@ -34,7 +34,7 @@ func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels [
 		QueryDescription: "Query from GeCo i2b2 data source (" + queryName + ")",
 		QueryTiming:      string(queryTiming),
 		SpecificityScale: "0",
-		Panels: queryPanels,
+		Panels:           queryPanels,
 	}
 
 	// embed result outputs
@@ -98,7 +98,7 @@ func NewPanel(panelNb int, not bool, timing Timing, items []Item) Panel {
 		PanelNumber:          strconv.Itoa(panelNb + 1),
 		PanelAccuracyScale:   "100",
 		Invert:               invert,
-		Items: 				  items,
+		Items:                items,
 		PanelTiming:          string(timing),
 		TotalItemOccurrences: "1",
 	}
@@ -150,6 +150,7 @@ type ResultOutput struct {
 
 // ResultOutputName is an i2b2 XML requested result type value
 type ResultOutputName string
+
 const (
 	ResultOutputPatientSet       ResultOutputName = "PATIENTSET"
 	ResultOutputEncounterSet     ResultOutputName = "PATIENT_ENCOUNTER_SET"
@@ -161,10 +162,11 @@ const (
 )
 
 type Timing string
+
 const (
-	TimingAny 				Timing = "ANY"
-	TimingSameVisit			Timing = "SAMEVISIT"
-	TimingSameInstanceNum 	Timing = "SAMEINSTANCENUM"
+	TimingAny             Timing = "ANY"
+	TimingSameVisit       Timing = "SAMEVISIT"
+	TimingSameInstanceNum Timing = "SAMEINSTANCENUM"
 )
 
 // --- response

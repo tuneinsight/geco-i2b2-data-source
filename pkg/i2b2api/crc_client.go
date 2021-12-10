@@ -43,4 +43,3 @@ func (c Client) CrcPdoReqFromInputList(reqMsgBody *models.CrcPdoReqFromInputList
 		return mb, nil
 	}
 }
-

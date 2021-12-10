@@ -5,7 +5,7 @@ import i2b2apimodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api/models"
 // --- parameters
 
 type ExploreQueryParameters struct {
-	Id string
+	Id         string
 	Definition ExploreQueryDefinition
 }
 

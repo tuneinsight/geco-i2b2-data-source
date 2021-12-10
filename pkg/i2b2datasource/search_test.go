@@ -99,12 +99,12 @@ func TestSearchModifierConcept(t *testing.T) {
 			Path:      "/TEST/test/1/",
 			Operation: "concept",
 		},
-		AppliedPath:             "",
-		AppliedConcept:          "",
+		AppliedPath:    "",
+		AppliedConcept: "",
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResults)
-	require.Equal(t, 1,  len(searchResults.SearchResults))
+	require.Equal(t, 1, len(searchResults.SearchResults))
 	require.Contains(t, searchResults.SearchResults[0].Path, "/TEST/modifiers/")
 
 	searchResults, err = ds.SearchModifier(&models.SearchModifierParameters{
@@ -112,12 +112,12 @@ func TestSearchModifierConcept(t *testing.T) {
 			Path:      "/TEST/test/2/",
 			Operation: "concept",
 		},
-		AppliedPath:             "",
-		AppliedConcept:          "",
+		AppliedPath:    "",
+		AppliedConcept: "",
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResults)
-	require.Equal(t, 2,  len(searchResults.SearchResults))
+	require.Equal(t, 2, len(searchResults.SearchResults))
 	require.Contains(t, searchResults.SearchResults[0].Path, "/TEST/modifiers/2")
 	require.Contains(t, searchResults.SearchResults[1].Path, "/TEST/modifiers/2")
 }
@@ -130,11 +130,11 @@ func TestSearchModifierInfo(t *testing.T) {
 			Path:      "/TEST/modifiers/",
 			Operation: "info",
 		},
-		AppliedPath:             "/test/%",
+		AppliedPath: "/test/%",
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResults)
-	require.Equal(t, 1,  len(searchResults.SearchResults))
+	require.Equal(t, 1, len(searchResults.SearchResults))
 	require.Contains(t, searchResults.SearchResults[0].Path, "/TEST/modifiers/")
 
 	searchResults, err = ds.SearchModifier(&models.SearchModifierParameters{
@@ -142,11 +142,11 @@ func TestSearchModifierInfo(t *testing.T) {
 			Path:      "/TEST/modifiers/1",
 			Operation: "info",
 		},
-		AppliedPath:             "/test/%",
+		AppliedPath: "/test/%",
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResults)
-	require.Equal(t, 1,  len(searchResults.SearchResults))
+	require.Equal(t, 1, len(searchResults.SearchResults))
 	require.Contains(t, searchResults.SearchResults[0].Path, "/TEST/modifiers/1")
 }
 
@@ -158,12 +158,12 @@ func TestSearchModifierChildren(t *testing.T) {
 			Path:      "/TEST/modifiers/",
 			Operation: "children",
 		},
-		AppliedPath:             "/test/%",
-		AppliedConcept:          "/TEST/test/1/",
+		AppliedPath:    "/test/%",
+		AppliedConcept: "/TEST/test/1/",
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResults)
-	require.Equal(t, 1,  len(searchResults.SearchResults))
+	require.Equal(t, 1, len(searchResults.SearchResults))
 	require.Contains(t, searchResults.SearchResults[0].Path, "/TEST/modifiers/1/")
 
 	searchResults, err = ds.SearchModifier(&models.SearchModifierParameters{
@@ -171,24 +171,24 @@ func TestSearchModifierChildren(t *testing.T) {
 			Path:      "/TEST/modifiers/",
 			Operation: "children",
 		},
-		AppliedPath:             "/test/%",
-		AppliedConcept:          "/TEST/test/2/",
+		AppliedPath:    "/test/%",
+		AppliedConcept: "/TEST/test/2/",
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResults)
-	require.Equal(t, 2,  len(searchResults.SearchResults))
+	require.Equal(t, 2, len(searchResults.SearchResults))
 
 	searchResults, err = ds.SearchModifier(&models.SearchModifierParameters{
 		SearchConceptParameters: models.SearchConceptParameters{
 			Path:      "/TEST/modifiers/",
 			Operation: "children",
 		},
-		AppliedPath:             "/test/%",
-		AppliedConcept:          "/TEST/test/3/",
+		AppliedPath:    "/test/%",
+		AppliedConcept: "/TEST/test/3/",
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResults)
-	require.Equal(t, 2,  len(searchResults.SearchResults))
+	require.Equal(t, 2, len(searchResults.SearchResults))
 }
 
 func TestSearchModifierError(t *testing.T) {
@@ -199,8 +199,8 @@ func TestSearchModifierError(t *testing.T) {
 			Path:      "",
 			Operation: "children",
 		},
-		AppliedPath:             "/test/%",
-		AppliedConcept:          "/TEST/test/3/",
+		AppliedPath:    "/test/%",
+		AppliedConcept: "/TEST/test/3/",
 	})
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "empty path")
@@ -210,8 +210,8 @@ func TestSearchModifierError(t *testing.T) {
 			Path:      "/TEST/modifiers/",
 			Operation: "xxxxx",
 		},
-		AppliedPath:             "/test/%",
-		AppliedConcept:          "/TEST/test/3/",
+		AppliedPath:    "/test/%",
+		AppliedConcept: "/TEST/test/3/",
 	})
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "invalid search operation")
@@ -221,8 +221,8 @@ func TestSearchModifierError(t *testing.T) {
 			Path:      "/TEST/modifiers/",
 			Operation: "children",
 		},
-		AppliedPath:             "/test",
-		AppliedConcept:          "/TEST/test/3/",
+		AppliedPath:    "/test",
+		AppliedConcept: "/TEST/test/3/",
 	})
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "error")

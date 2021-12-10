@@ -101,7 +101,7 @@ type OntReqGetTermInfoMessageBody struct {
 	XMLName     xml.Name `xml:"message_body"`
 	GetTermInfo struct {
 		baseMessageBody
-		Self     string `xml:"self"`
+		Self string `xml:"self"`
 	} `xml:"ontns:get_term_info"`
 }
 
@@ -167,27 +167,27 @@ type OntRespModifiersMessageBody struct {
 
 // Concept is an i2b2 XML concept
 type Concept struct {
-	Level            string              `xml:"level"`
-	Key              string              `xml:"key"`
-	Name             string              `xml:"name"`
-	SynonymCd        string              `xml:"synonym_cd"`
-	Visualattributes string              `xml:"visualattributes"`
-	Totalnum         string              `xml:"totalnum"`
-	Basecode         string              `xml:"basecode"`
-	Metadataxml      *MetadataXML 		 `xml:"metadataxml"`
-	Facttablecolumn  string              `xml:"facttablecolumn"`
-	Tablename        string              `xml:"tablename"`
-	Columnname       string              `xml:"columnname"`
-	Columndatatype   string              `xml:"columndatatype"`
-	Operator         string              `xml:"operator"`
-	Dimcode          string              `xml:"dimcode"`
-	Comment          string              `xml:"comment"`
-	Tooltip          string              `xml:"tooltip"`
-	UpdateDate       string              `xml:"update_date"`
-	DownloadDate     string              `xml:"download_date"`
-	ImportDate       string              `xml:"import_date"`
-	SourcesystemCd   string              `xml:"sourcesystem_cd"`
-	ValuetypeCd      string              `xml:"valuetype_cd"`
+	Level            string       `xml:"level"`
+	Key              string       `xml:"key"`
+	Name             string       `xml:"name"`
+	SynonymCd        string       `xml:"synonym_cd"`
+	Visualattributes string       `xml:"visualattributes"`
+	Totalnum         string       `xml:"totalnum"`
+	Basecode         string       `xml:"basecode"`
+	Metadataxml      *MetadataXML `xml:"metadataxml"`
+	Facttablecolumn  string       `xml:"facttablecolumn"`
+	Tablename        string       `xml:"tablename"`
+	Columnname       string       `xml:"columnname"`
+	Columndatatype   string       `xml:"columndatatype"`
+	Operator         string       `xml:"operator"`
+	Dimcode          string       `xml:"dimcode"`
+	Comment          string       `xml:"comment"`
+	Tooltip          string       `xml:"tooltip"`
+	UpdateDate       string       `xml:"update_date"`
+	DownloadDate     string       `xml:"download_date"`
+	ImportDate       string       `xml:"import_date"`
+	SourcesystemCd   string       `xml:"sourcesystem_cd"`
+	ValuetypeCd      string       `xml:"valuetype_cd"`
 }
 
 // Modifier is an i2b2 XML modifier.
@@ -197,25 +197,25 @@ type Modifier struct {
 }
 
 type MetadataXML struct {
-	CreationDateTime string `xml:"ValueMetadata>CreationDateTime"`
-	DataType string `xml:"ValueMetadata>DataType"`
-	EnumValues string `xml:"ValueMetadata>EnumValues"`
-	Flagstouse string `xml:"ValueMetadata>Flagstouse"`
-	Oktousevalues string `xml:"ValueMetadata>Oktousevalues"`
-	TestID string `xml:"ValueMetadata>TestID"`
-	TestName string `xml:"ValueMetadata>TestName"`
-	UnitValues ValueMetadataUnitValues `xml:"ValueMetadata>UnitValues"`
-	Version string `xml:"ValueMetadata>Version"`
+	CreationDateTime string                  `xml:"ValueMetadata>CreationDateTime"`
+	DataType         string                  `xml:"ValueMetadata>DataType"`
+	EnumValues       string                  `xml:"ValueMetadata>EnumValues"`
+	Flagstouse       string                  `xml:"ValueMetadata>Flagstouse"`
+	Oktousevalues    string                  `xml:"ValueMetadata>Oktousevalues"`
+	TestID           string                  `xml:"ValueMetadata>TestID"`
+	TestName         string                  `xml:"ValueMetadata>TestName"`
+	UnitValues       ValueMetadataUnitValues `xml:"ValueMetadata>UnitValues"`
+	Version          string                  `xml:"ValueMetadata>Version"`
 }
 
 type ValueMetadataUnitValues struct {
 	ConvertingUnits []UnitValuesConvertingUnits `xml:"ConvertingUnits"`
-	EqualUnits []string `xml:"EqualUnits"`
-	ExcludingUnits []string `xml:"ExcludingUnits"`
-	NormalUnits string `xml:"NormalUnits"`
+	EqualUnits      []string                    `xml:"EqualUnits"`
+	ExcludingUnits  []string                    `xml:"ExcludingUnits"`
+	NormalUnits     string                      `xml:"NormalUnits"`
 }
 
 type UnitValuesConvertingUnits struct {
 	MultiplyingFactor string `xml:"MultiplyingFactor"`
-	Units string `xml:"Units"`
+	Units             string `xml:"Units"`
 }

@@ -15,6 +15,5 @@ type DataSource interface {
 	Init(dm *datamanager.DataManager, logger logrus.FieldLogger, config map[string]string) error
 
 	// Query data source with a specific operation.
-	// todo: parameters and results are json marshallable -> some other interface instead? check what swagger provides or not
 	Query(userID string, operation string, parameters map[string]interface{}, resultsSharedIds map[string]string) (results map[string]interface{}, err error)
 }

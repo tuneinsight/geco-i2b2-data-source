@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-
 // MessageBody is an i2b2 XML generic body
 type MessageBody interface{}
 

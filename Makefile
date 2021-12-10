@@ -1,41 +1,32 @@
-#VERSION := $(shell scripts/version.sh)
-USER_GROUP := $(shell id -u):$(shell id -g)
-DOCKER_IMAGE ?= ghcr.io/ldsec/geco-i2b2-data-source:$(VERSION)
-
+export DATASOURCE_VERSION := $(shell scripts/version.sh)
+export USER_GROUP := $(shell id -u):$(shell id -g)
+export I2B2_DOCKER_IMAGE ?= ghcr.io/ldsec/i2b2-geco:$(DATASOURCE_VERSION)
 export COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1
 
-# todo: set up CI with DB from geco for later , ensure exec times are OK
-# todo: assumes geco submodule has been retrioeved:
-# todo: gha caching https://evilmartians.com/chronicles/build-images-on-github-actions-with-docker-layer-caching
-# -> connect as postgres in geco DB like this
-# docker exec -it i2b2postgresql psql -U postgres
-# CREATE ROLE i2b2 LOGIN PASSWORD 'i2b2';
-# ALTER USER i2b2 CREATEDB;
+.PHONY: test clean
+test: go-imports go-lint go-unit-tests i2b2-test
+clean:
+	rm -f ./build/geco-i2b2-data-source.so
 
-# todo: make clean swagger-gen
-# todo pushd third_party/geco && make clean swagger-gen && popd
+# --- GeCo
+.PHONY: geco-start-dev-local-3nodes geco-swagger-gen
+geco-docker-compose:
+	make -C third_party/geco/deployments/dev-local-3nodes docker-compose ARGS="$(ARGS)"
+geco-swagger-gen:
+	cd third_party/geco && make go-swagger-gen
 
-start-geco-dev-local-3nodes:
-	make -C third_party/geco/deployments/dev-local-3nodes docker-compose ARGS="up -d postgresql"
-	# todo: only the DB at the moment
-
-# use ARGS to pass to docker-compose arguments, e.g. make docker-compose ARGS="up -d"
-i2b2-docker-compose:
-	cd test/i2b2 && docker-compose -f docker-compose.yml $(ARGS)
-	# todo: version etc. to pass
-
-test-i2b2:
+# --- i2b2 docker
+.PHONY: i2b2-docker-compose i2b2-test
+i2b2-docker-compose: # use ARGS to pass to docker-compose arguments, e.g. make docker-compose ARGS="up -d"
+	cd deployments && docker-compose -f i2b2.yml $(ARGS)
+i2b2-test:
 	cd test/i2b2 && ./test_i2b2_docker.sh
 
-# --- go source code
-.PHONY: build-bin test-go test clean
-build-plugin:
+# --- go sources
+.PHONY:	go-build-plugin go-imports go-lint go-unit-tests
+go-build-plugin:
 	go build -buildmode=plugin -v -o ./build/ ./cmd/...
-test-go: go-imports go-lint go-unit-tests
-clean: go-swagger-clean
-	rm -f ./build/geco-cli ./build/geco-server
 
-.PHONY:	go-imports go-lint go-unit-tests
 go-imports:
 	@echo Checking correct formatting of files
 	@{ \

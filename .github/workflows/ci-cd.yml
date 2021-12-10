@@ -15,14 +15,14 @@ jobs:
         uses: webfactory/ssh-agent@v0.4.1
         with:
           ssh-private-key: |
-            ${{ secrets.GECO_SSH_DEPLOY_KEY }}
             ${{ secrets.SPINDLE_SSH_DEPLOY_KEY }}
-
-      - name: TEST cloning geco
-        run: git clone git@github.com:ldsec/geco.git
+            ${{ secrets.GECO_SSH_DEPLOY_KEY }}
 
       - name: TEST cloning spindle
         run: git clone git@github.com:ldsec/spindle.git
+
+      - name: TEST cloning geco
+        run: git clone git@github.com:ldsec/geco.git
 
       - name: Set up Go
         uses: actions/setup-go@v2

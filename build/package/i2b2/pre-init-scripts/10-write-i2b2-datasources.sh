@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeuo pipefail
+# write all the wildfly data sources for the i2b2 cells
 
 cat > "$JBOSS_HOME/standalone/deployments/pm-ds.xml" <<EOL
 <?xml version="1.0" encoding="UTF-8"?>

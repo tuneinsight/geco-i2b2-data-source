@@ -14,7 +14,9 @@ jobs:
       - name: Setup SSH deploy key for private repositories
         uses: webfactory/ssh-agent@v0.4.1
         with:
-          ssh-private-key: ${{ secrets.GECO_SSH_DEPLOY_KEY }}
+          ssh-private-key: |
+            ${{ secrets.GECO_SSH_DEPLOY_KEY }}
+            ${{ secrets.SPINDLE_SSH_DEPLOY_KEY }}
 
       - name: Set up Go
         uses: actions/setup-go@v2

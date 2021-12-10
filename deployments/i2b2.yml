@@ -1,9 +1,9 @@
 version: '3.9'
 services:
   i2b2:
-    image: ghcr.io/ldsec/i2b2-geco
+    image: ${I2B2_DOCKER_IMAGE:?}
     build:
-      context: ../../build/package/i2b2
+      context: ../build/package/i2b2
     ports:
       - "8080:8080"
     environment:
@@ -16,7 +16,7 @@ services:
       - I2B2_DOMAIN_NAME=i2b2demo
       - I2B2_SERVICE_PASSWORD=changeme
       - DEFAULT_USER_PASSWORD=changeme
-      - AXIS2_LOGLEVEL=INFO
+      - AXIS2_LOGLEVEL=DEBUG
 
 networks:
   default:

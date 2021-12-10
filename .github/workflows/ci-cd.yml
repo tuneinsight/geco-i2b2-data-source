@@ -34,6 +34,11 @@ jobs:
           pushd third_party/geco && ./scripts/version.sh && popd
           env
 
+      - name: Setup Git and Golang environment for private repositories
+        run: |
+          git config --global url."git@github.com:".insteadOf "https://github.com/"
+          go env -w GOPRIVATE=github.com/ldsec/geco,github.com/ldsec/spindle,github.com/ldsec/geco-i2b2-data-source
+
       - name: Generate GeCo Swagger files
         run: make geco-swagger-gen
 

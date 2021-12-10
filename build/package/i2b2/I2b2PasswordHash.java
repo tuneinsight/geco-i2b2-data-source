@@ -1,5 +1,9 @@
 import java.security.MessageDigest;
 
+/**
+ * This Java tool implements the hash algorithm of i2b2.
+ * This enables setting i2b2 password for users directly in the database.
+ */
 public final class I2b2PasswordHash {
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {

@@ -58,7 +58,8 @@ func TestQuery(t *testing.T) {
 	t.Logf("result: %+v", res)
 	t.Logf("result: %T", res["SearchResults"])
 
-	t.Logf(res["SearchResults"].([]interface{})[0].(string))
+	// todo
+	//t.Logf(res["SearchResults"].([]interface{})[0].(string))
 	// require.EqualValues(t, )
 
 	//res["searchResult"]

@@ -37,6 +37,9 @@ func TestPlugin(t *testing.T) {
 	err = (*ds).Init(dm, logrus.StandardLogger(), config)
 	require.NoError(t, err)
 
-	_, err = (*ds).Query("", "", nil, nil)
+	params := make(map[string]interface{})
+	params["path"] = "/"
+	params["operation"] = "children"
+	_, err = (*ds).Query("test", "searchConcept", params, nil)
 	require.NoError(t, err)
 }

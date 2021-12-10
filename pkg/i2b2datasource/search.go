@@ -38,6 +38,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 			if resp, err = ds.i2b2Client.OntGetCategories(&req); err != nil {
 				return nil, fmt.Errorf("requesting categories: %v", err)
 			}
+			break
 		}
 
 		req := i2b2apimodels.NewOntReqGetChildrenMessageBody(ds.i2b2OntMaxElements, i2b2FormatPath)

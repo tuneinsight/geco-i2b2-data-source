@@ -47,3 +47,20 @@ func TestDataManager(t *testing.T) {
 	require.NoError(t, err)
 	require.InDeltaSlice(t, []float64{0, 1, 2, 3, 4}, data, 0.0001)
 }
+
+func TestQuery(t *testing.T) {
+	ds := getTestDataSource(t)
+	params := make(map[string]interface{})
+	params["path"] = "/"
+	params["operation"] = "children"
+	res, err := ds.Query("testUser", "searchConcept", params, nil)
+	require.NoError(t, err)
+	t.Logf("result: %+v", res)
+	t.Logf("result: %T", res["SearchResults"])
+
+	t.Logf(res["SearchResults"].([]interface{})[0].(string))
+	// require.EqualValues(t, )
+
+	//res["searchResult"]
+
+}

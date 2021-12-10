@@ -8,7 +8,7 @@ import (
 )
 
 func TestSearchConceptInfo(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	searchResults, err := ds.SearchConcept(&models.SearchConceptParameters{
 		Path:      "/",
@@ -37,7 +37,7 @@ func TestSearchConceptInfo(t *testing.T) {
 }
 
 func TestSearchConceptChildren(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	searchResults, err := ds.SearchConcept(&models.SearchConceptParameters{
 		Path:      "/",
@@ -67,7 +67,7 @@ func TestSearchConceptChildren(t *testing.T) {
 }
 
 func TestSearchConceptError(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	_, err := ds.SearchConcept(&models.SearchConceptParameters{
 		Path:      "",
@@ -92,7 +92,7 @@ func TestSearchConceptError(t *testing.T) {
 }
 
 func TestSearchModifierConcept(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	searchResults, err := ds.SearchModifier(&models.SearchModifierParameters{
 		SearchConceptParameters: models.SearchConceptParameters{
@@ -123,7 +123,7 @@ func TestSearchModifierConcept(t *testing.T) {
 }
 
 func TestSearchModifierInfo(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	searchResults, err := ds.SearchModifier(&models.SearchModifierParameters{
 		SearchConceptParameters: models.SearchConceptParameters{
@@ -151,7 +151,7 @@ func TestSearchModifierInfo(t *testing.T) {
 }
 
 func TestSearchModifierChildren(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	searchResults, err := ds.SearchModifier(&models.SearchModifierParameters{
 		SearchConceptParameters: models.SearchConceptParameters{
@@ -192,7 +192,7 @@ func TestSearchModifierChildren(t *testing.T) {
 }
 
 func TestSearchModifierError(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	_, err := ds.SearchModifier(&models.SearchModifierParameters{
 		SearchConceptParameters: models.SearchConceptParameters{

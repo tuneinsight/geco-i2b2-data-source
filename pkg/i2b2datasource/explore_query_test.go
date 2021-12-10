@@ -8,7 +8,7 @@ import (
 )
 
 func TestExploreQueryConcept(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
 		Id:         "0",
@@ -43,7 +43,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.Subset(t, []uint64{1, 2, 3, 4}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "1",
+		Id:         "2",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not:          false,
@@ -69,7 +69,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.Subset(t, []uint64{1, 2, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "1",
+		Id:         "3",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
 				Not:          false,
@@ -88,7 +88,7 @@ func TestExploreQueryConcept(t *testing.T) {
 }
 
 func TestExploreQueryConceptValue(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
 		Id:         "0",
@@ -132,30 +132,10 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 2, count)
 	require.Subset(t, []uint64{1, 4}, patientList)
-
-	// todo: maybe it's because of modifier!!!
-	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
-		Id:         "1",
-		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
-				Not:          false,
-				ConceptItems: []models.ConceptItem{{
-					QueryTerm: "/TEST/test/3/",
-					Operator:  "LIKE[contains]",
-					Value:     "c",
-					Type:      "TEXT",
-				}},
-			}},
-		},
-	})
-	require.NoError(t, err)
-	t.Logf("results: count=%v, patientList=%v", count, patientList)
-	require.EqualValues(t, 2, count)
-	require.Subset(t, []uint64{1, 4}, patientList)
 }
 
 func TestExploreQueryModifier(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
 		Id:         "0",
@@ -214,7 +194,7 @@ func TestExploreQueryModifier(t *testing.T) {
 }
 
 func TestExploreQueryModifierValue(t *testing.T) {
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
 		Id:         "0",

@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func GetTestDataSource(t *testing.T) I2b2DataSource {
+func getTestDataSource(t *testing.T) I2b2DataSource {
 	ds := I2b2DataSource{}
 
 	dm, err := datamanager.NewDataManager(configuration.NewTestDataManagerConfig())
@@ -32,7 +32,7 @@ func GetTestDataSource(t *testing.T) I2b2DataSource {
 
 func TestDataManager(t *testing.T) {
 
-	ds := GetTestDataSource(t)
+	ds := getTestDataSource(t)
 
 	doId, err := ds.dm.AddDataObject(datamanager.NewFloatVector([]float64{0, 1, 2, 3, 4}), false)
 	require.NoError(t, err)

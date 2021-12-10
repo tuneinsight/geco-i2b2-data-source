@@ -54,9 +54,11 @@ type SearchResult struct {
 }
 
 type SearchResultMetadata struct {
-	DataType string // PosInteger | Integer | Float | PosFloat | Enum | String
-	Oktousevalues string // Y
-	UnitValues struct {
-		NormalUnits string
-	}
+	DataType      string // PosInteger | Integer | Float | PosFloat | Enum | String
+	OkToUseValues string // Y
+	UnitValues    MetadataUnitValues
+}
+
+type MetadataUnitValues struct {
+	NormalUnits string
 }

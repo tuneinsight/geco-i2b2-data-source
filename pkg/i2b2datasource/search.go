@@ -74,12 +74,8 @@ func parseI2b2Concept(concept i2b2apimodels.Concept) models.SearchResult {
 	if concept.Metadataxml != nil {
 		parsed.Metadata = models.SearchResultMetadata{
 			DataType:      concept.Metadataxml.DataType,
-			Oktousevalues: concept.Metadataxml.Oktousevalues,
-			UnitValues: struct {
-				NormalUnits string
-			}{
-				NormalUnits: concept.Metadataxml.UnitValues.NormalUnits,
-			},
+			OkToUseValues: concept.Metadataxml.Oktousevalues,
+			UnitValues: models.MetadataUnitValues{NormalUnits: concept.Metadataxml.UnitValues.NormalUnits},
 		}
 	}
 

@@ -11,19 +11,6 @@ jobs:
 #      PUSH: ${{ github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/tags') }} todo: also put if manual trigger
 
     steps:
-      - name: Setup SSH deploy key for private repositories
-        uses: webfactory/ssh-agent@v0.4.1
-        with:
-          ssh-private-key: |
-            ${{ secrets.SPINDLE_SSH_DEPLOY_KEY }}
-            ${{ secrets.GECO_SSH_DEPLOY_KEY }}
-
-      - name: TEST cloning spindle
-        run: git clone git@github.com:ldsec/spindle.git
-
-      - name: TEST cloning geco
-        run: git clone git@github.com:ldsec/geco.git
-
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -31,9 +18,16 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Setup SSH deploy key for private repositories
+        uses: webfactory/ssh-agent@v0.5.4
         with:
-          token: ${{ secrets.LDS_PKG_PAT }}
-          submodules: true
+          ssh-private-key: |
+            ${{ secrets.SPINDLE_SSH_DEPLOY_KEY }}
+            ${{ secrets.GECO_SSH_DEPLOY_KEY }}
+
+      - name: Get submodules
+        run: git submodule update --init --recursive
 
       - name: Environment
         run: |
@@ -45,7 +39,7 @@ jobs:
       - name: Setup Git and Golang environment for private repositories
         run: |
           git config --global url."git@github.com:".insteadOf "https://github.com/"
-          go env -w GOPRIVATE=github.com/ldsec/geco,github.com/ldsec/spindle,github.com/ldsec/geco-i2b2-data-source
+          go env -w GOPRIVATE=github.com/ldsec
 
       - name: Generate GeCo Swagger files
         run: make geco-swagger-gen

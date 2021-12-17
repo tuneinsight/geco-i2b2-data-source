@@ -5,7 +5,9 @@ go 1.17
 replace github.com/ldsec/geco => ./third_party/geco
 
 require (
-	github.com/ldsec/geco v0.0.1
+	github.com/ldsec/geco v0.0.2-0.20211215101444-5aa7d423be0d
+	github.com/mitchellh/mapstructure v1.4.3
+	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 )
 
@@ -40,7 +42,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/ldsec/lattigo/v2 v2.0.0 // indirect
-	github.com/ldsec/spindle v0.0.0-20210923091257-7bc102eb03c0 // indirect
+	github.com/ldsec/spindle v1.0.1-0.20211101151719-eecd1e98a4e4 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lestrrat-go/backoff/v2 v2.0.8 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.0 // indirect
@@ -50,7 +52,6 @@ require (
 	github.com/lestrrat-go/option v1.0.0 // indirect
 	github.com/lib/pq v1.9.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/montanaflynn/stats v0.6.3 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
@@ -63,7 +64,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/segmentio/ksuid v1.0.3 // indirect
-	github.com/sirupsen/logrus v1.8.1 // indirect
 	go.dedis.ch/fixbuf v1.0.3 // indirect
 	go.dedis.ch/kyber/v3 v3.0.13 // indirect
 	go.dedis.ch/onet/v3 v3.2.3 // indirect

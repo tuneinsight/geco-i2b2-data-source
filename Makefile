@@ -2,6 +2,7 @@ export DATASOURCE_VERSION := $(shell scripts/version.sh)
 export USER_GROUP := $(shell id -u):$(shell id -g)
 export I2B2_DOCKER_IMAGE ?= ghcr.io/ldsec/i2b2-geco:$(DATASOURCE_VERSION)
 export COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1
+export GIT_LFS_SKIP_SMUDGE=1
 
 .PHONY: test clean
 test: go-imports go-lint go-unit-tests i2b2-test

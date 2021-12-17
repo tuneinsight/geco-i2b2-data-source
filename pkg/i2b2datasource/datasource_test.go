@@ -3,6 +3,8 @@ package i2b2datasource
 import (
 	"testing"
 
+	gecomodels "github.com/ldsec/geco/pkg/models"
+	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
@@ -26,7 +28,7 @@ func getTestDataSource(t *testing.T) *I2b2DataSource {
 func TestQuery(t *testing.T) {
 	ds := getTestDataSource(t)
 	params := `{"path": "/", "operation": "children"}`
-	res, _, err := ds.Query("testUser", "searchConcept", []byte(params))
+	res, _, err := ds.Query("testUser", "searchConcept", []byte(params), nil)
 	require.NoError(t, err)
 	t.Logf("result: %v", string(res))
 }
@@ -34,10 +36,18 @@ func TestQuery(t *testing.T) {
 func TestQueryDataObject(t *testing.T) {
 	ds := getTestDataSource(t)
 	params := `{"id": "0", "definition": {"panels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`
-	res, do, err := ds.Query("testUser", "exploreQuery", []byte(params))
+	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{outputNameExploreQueryCount: "countSharedID", outputNameExploreQueryPatientList: "patientListSharedID"}
+	res, do, err := ds.Query("testUser", "exploreQuery", []byte(params), sharedIDs)
 	require.NoError(t, err)
-	require.EqualValues(t, 3, *do["count"].IntValue)
-	require.InDeltaSlice(t, []int64{1, 2, 3}, do["patientList"].IntVector, 0.001)
+
+	require.EqualValues(t, 3, *do[0].IntValue)
+	require.EqualValues(t, "countSharedID", do[0].SharedID)
+	require.EqualValues(t, outputNameExploreQueryCount, do[0].OutputName)
+
+	require.InDeltaSlice(t, []int64{1, 2, 3}, do[1].IntVector, 0.001)
+	require.EqualValues(t, "patientListSharedID", do[1].SharedID)
+	require.EqualValues(t, outputNameExploreQueryPatientList, do[1].OutputName)
+
 	t.Logf("result: %v", string(res))
 	t.Logf("do: %+v", do)
 }

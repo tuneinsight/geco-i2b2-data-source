@@ -8,6 +8,7 @@ import (
 	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api"
 	i2b2apimodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api/models"
 	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2datasource/models"
+	gecomodels "github.com/ldsec/geco/pkg/models"
 	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/sirupsen/logrus"
 )
@@ -15,10 +16,10 @@ import (
 // compile-time check that I2b2DataSource implements the interface sdk.DataSourcePlugin
 var _ gecosdk.DataSourcePlugin = (*I2b2DataSource)(nil)
 
-// Names of result data objects.
+// Names of output data objects.
 const (
-	resultNameExploreQueryCount       string = "count"
-	resultNameExploreQueryPatientList string = "patientList"
+	outputNameExploreQueryCount       gecosdk.OutputDataObjectName = "count"
+	outputNameExploreQueryPatientList gecosdk.OutputDataObjectName = "patientList"
 )
 
 // NewI2b2DataSource creates an i2b2 data source.
@@ -71,7 +72,7 @@ type I2b2DataSource struct {
 }
 
 // Query implements the data source interface Query function.
-func (ds I2b2DataSource) Query(userID string, operation string, jsonParameters []byte) (jsonResults []byte, resultDataObjects map[string]gecosdk.DataObject, err error) {
+func (ds I2b2DataSource) Query(userID string, operation string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
 	ds.logger.Infof("executing operation %v for user %v", operation, userID)
 	ds.logger.Debugf("parameters: %v", string(jsonParameters))
 
@@ -97,6 +98,10 @@ func (ds I2b2DataSource) Query(userID string, operation string, jsonParameters [
 		}
 
 	case OperationExploreQuery:
+		if outputDataObjectsSharedIDs[outputNameExploreQueryCount] == "" || outputDataObjectsSharedIDs[outputNameExploreQueryPatientList] == "" {
+			return nil, nil, ds.logError("missing output data object name", nil)
+		}
+
 		var count int64
 		var patientList []int64
 		decodedParams := &models.ExploreQueryParameters{}
@@ -106,9 +111,17 @@ func (ds I2b2DataSource) Query(userID string, operation string, jsonParameters [
 			return nil, nil, ds.logError("executing query", err)
 		}
 
-		resultDataObjects = make(map[string]gecosdk.DataObject, 2)
-		resultDataObjects[resultNameExploreQueryCount] = gecosdk.DataObject{IntValue: &count}
-		resultDataObjects[resultNameExploreQueryPatientList] = gecosdk.DataObject{IntVector: patientList}
+		outputDataObjects = []gecosdk.DataObject{
+			{
+				OutputName: outputNameExploreQueryCount,
+				SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryCount],
+				IntValue:   &count,
+			}, {
+				OutputName: outputNameExploreQueryPatientList,
+				SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryPatientList],
+				IntVector:  patientList,
+			},
+		}
 
 	default:
 		return nil, nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)

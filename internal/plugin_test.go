@@ -36,7 +36,7 @@ func TestPlugin(t *testing.T) {
 	require.NoError(t, err)
 
 	params := `{"path": "/", "operation": "children"}`
-	res, _, err := ds.Query("testUser", "searchConcept", []byte(params))
+	res, _, err := ds.Query("testUser", "searchConcept", []byte(params), nil)
 	require.NoError(t, err)
 	t.Logf("result: %v", string(res))
 }

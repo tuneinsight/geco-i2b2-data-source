@@ -9,17 +9,17 @@ import (
 )
 
 // ExploreQuery makes an explore query, i.e. two i2b2 CRC queries, a PSM and a PDO query.
-func (ds I2b2DataSource) ExploreQuery(params *models.ExploreQueryParameters) (patientCount uint64, patientList []uint64, err error) {
+func (ds I2b2DataSource) ExploreQuery(params *models.ExploreQueryParameters) (patientCount int64, patientList []int64, err error) {
 
 	if i2b2PatientCount, i2b2PatientSetID, err := ds.doExploreQuery(params); err != nil {
 		return 0, nil, err
 	} else if i2b2PatientIDs, err := ds.getPatientIDs(i2b2PatientSetID); err != nil {
 		return 0, nil, err
-	} else if patientCount, err = strconv.ParseUint(i2b2PatientCount, 10, 64); err != nil {
+	} else if patientCount, err = strconv.ParseInt(i2b2PatientCount, 10, 64); err != nil {
 		return 0, nil, fmt.Errorf("parsing patient count: %v", err)
 	} else {
 		for _, patientID := range i2b2PatientIDs {
-			parsedPatientID, err := strconv.ParseUint(patientID, 10, 64)
+			parsedPatientID, err := strconv.ParseInt(patientID, 10, 64)
 			if err != nil {
 				return 0, nil, fmt.Errorf("parsing patient ID: %v", err)
 			}

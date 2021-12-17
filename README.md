@@ -17,7 +17,7 @@ make go-build-plugin
 ```
 
 ## Test
-### Start depdencies
+### Start dependencies
 Start GeCo (only the database for the moment):
 ```shell
 make geco-docker-compose ARGS="up -d postgresql"

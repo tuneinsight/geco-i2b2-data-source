@@ -1,62 +1,30 @@
 package i2b2datasource
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api"
 	i2b2apimodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api/models"
 	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2datasource/models"
-	"github.com/ldsec/geco/pkg/datamanager"
-	"github.com/mitchellh/mapstructure"
+	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/sirupsen/logrus"
 )
 
-// Operation is an operation of the data source supported by I2b2DataSource.Query.
-type Operation string
+// compile-time check that I2b2DataSource implements the interface sdk.DataSourcePlugin
+var _ gecosdk.DataSourcePlugin = (*I2b2DataSource)(nil)
 
-// Enumerated values for Operation.
+// Names of result data objects.
 const (
-	OperationSearchConcept  Operation = "searchConcept"
-	OperationSearchModifier Operation = "searchModifier"
-	OperationExploreQuery   Operation = "exploreQuery"
-	OperationGetCohorts     Operation = "getCohorts"
-	OperationAddCohort      Operation = "addCohort"
-	OperationDeleteCohort   Operation = "deleteCohort"
-	OperationSurvivalQuery  Operation = "survivalQuery"
-	OperationSearchOntology Operation = "searchOntology"
+	resultNameExploreQueryCount       string = "count"
+	resultNameExploreQueryPatientList string = "patientList"
 )
 
-// Values of identifiers for data objects shared IDs.
-const (
-	sharedIDExploreQueryCount       string = "count"
-	sharedIDExploreQueryPatientList string = "patientList"
-)
-
-// I2b2DataSource is an i2b2 data source for GeCo. It implements the data source interface.
-type I2b2DataSource struct {
-
-	// init is true if the I2b2DataSource has been initialized.
-	init bool
-
-	// dm is the GeCo data manager
-	dm *datamanager.DataManager
-
-	// logger is the logger from GeCo
-	logger logrus.FieldLogger
-
-	// i2b2Client is the i2b2 client
-	i2b2Client i2b2api.Client
-
-	// i2b2OntMaxElements is the configuration for the maximum number of ontology elements to return from i2b2
-	i2b2OntMaxElements string
-}
-
-// Init implements the data source interface Init function.
-func (ds *I2b2DataSource) Init(dm *datamanager.DataManager, logger logrus.FieldLogger, config map[string]string) (err error) {
-	fmt.Println("called init")
-
-	ds.dm = dm
+// NewI2b2DataSource creates an i2b2 data source.
+// Implements sdk.DataSourcePluginFactory.
+func NewI2b2DataSource(logger logrus.FieldLogger, config map[string]string) (plugin gecosdk.DataSourcePlugin, err error) {
+	ds := new(I2b2DataSource)
 	ds.logger = logger
 
 	// todo: config keys
@@ -76,7 +44,7 @@ func (ds *I2b2DataSource) Init(dm *datamanager.DataManager, logger logrus.FieldL
 	if ci.WaitTime, err = time.ParseDuration(config["i2b2.api.wait-time"]); err != nil {
 		err = fmt.Errorf("parsing i2b2 wait time: %v", err)
 		logger.Error(err)
-		return err
+		return nil, err
 	}
 
 	ds.i2b2Client = i2b2api.Client{
@@ -85,64 +53,65 @@ func (ds *I2b2DataSource) Init(dm *datamanager.DataManager, logger logrus.FieldL
 	}
 	ds.i2b2OntMaxElements = config["i2b2.api.ont-max-elements"]
 
-	ds.init = true
 	ds.logger.Infof("initialized i2b2 data source for %v", ci.HiveURL)
-	return nil
+	return ds, nil
+}
+
+// I2b2DataSource is an i2b2 data source for GeCo. It implements the data source interface.
+type I2b2DataSource struct {
+
+	// logger is the logger from GeCo
+	logger logrus.FieldLogger
+
+	// i2b2Client is the i2b2 client
+	i2b2Client i2b2api.Client
+
+	// i2b2OntMaxElements is the configuration for the maximum number of ontology elements to return from i2b2
+	i2b2OntMaxElements string
 }
 
 // Query implements the data source interface Query function.
-func (ds I2b2DataSource) Query(userID string, operation string, parameters map[string]interface{}, resultsSharedIds map[string]string) (results map[string]interface{}, err error) {
-	if !ds.init {
-		panic(fmt.Errorf("data source is not initialized"))
-	}
+func (ds I2b2DataSource) Query(userID string, operation string, jsonParameters []byte) (jsonResults []byte, resultDataObjects map[string]gecosdk.DataObject, err error) {
 	ds.logger.Infof("executing operation %v for user %v", operation, userID)
-	ds.logger.Debugf("parameters: %+v", parameters)
-	ds.logger.Debugf("resultsSharedIds: %+v", resultsSharedIds)
+	ds.logger.Debugf("parameters: %v", string(jsonParameters))
 
-	// todo: decoder might need squash param set
-
-	results = make(map[string]interface{})
 	switch Operation(operation) {
 	case OperationSearchConcept:
 		decodedParams := &models.SearchConceptParameters{}
-		if err := mapstructure.Decode(parameters, decodedParams); err != nil {
-			return nil, ds.logError("decoding parameters", err)
+		if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
+			return nil, nil, ds.logError("decoding parameters", err)
 		} else if searchResults, err := ds.SearchConcept(decodedParams); err != nil {
-			return nil, ds.logError("executing query", err)
-		} else if err := mapstructure.Decode(searchResults, &results); err != nil {
-			return nil, ds.logError("encoding results", err)
+			return nil, nil, ds.logError("executing query", err)
+		} else if jsonResults, err = json.Marshal(searchResults); err != nil {
+			return nil, nil, ds.logError("encoding results", err)
 		}
 
 	case OperationSearchModifier:
 		decodedParams := &models.SearchModifierParameters{}
-		if err := mapstructure.Decode(parameters, decodedParams); err != nil {
-			return nil, ds.logError("decoding parameters", err)
+		if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
+			return nil, nil, ds.logError("decoding parameters", err)
 		} else if searchResults, err := ds.SearchModifier(decodedParams); err != nil {
-			return nil, ds.logError("executing query", err)
-		} else if err := mapstructure.Decode(searchResults, &results); err != nil {
-			return nil, ds.logError("encoding results", err)
+			return nil, nil, ds.logError("executing query", err)
+		} else if jsonResults, err = json.Marshal(searchResults); err != nil {
+			return nil, nil, ds.logError("encoding results", err)
 		}
 
 	case OperationExploreQuery:
-		countSharedID, countOK := resultsSharedIds[sharedIDExploreQueryCount]
-		patientListSharedID, patientListOK := resultsSharedIds[sharedIDExploreQueryPatientList]
-		if !countOK || !patientListOK {
-			return nil, ds.logError("missing results shared ID", nil)
+		var count int64
+		var patientList []int64
+		decodedParams := &models.ExploreQueryParameters{}
+		if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
+			return nil, nil, ds.logError("decoding parameters", err)
+		} else if count, patientList, err = ds.ExploreQuery(decodedParams); err != nil {
+			return nil, nil, ds.logError("executing query", err)
 		}
 
-		decodedParams := &models.ExploreQueryParameters{}
-		if err := mapstructure.Decode(parameters, decodedParams); err != nil {
-			return nil, ds.logError("decoding parameters", err)
-		} else if count, patientList, err := ds.ExploreQuery(decodedParams); err != nil {
-			return nil, ds.logError("executing query", err)
-		} else if err := ds.storeIntValue(count, countSharedID); err != nil {
-			return nil, ds.logError("storing count", err)
-		} else if err := ds.storeIntVector(patientList, patientListSharedID); err != nil {
-			return nil, ds.logError("storing patient list", err)
-		}
+		resultDataObjects = make(map[string]gecosdk.DataObject, 2)
+		resultDataObjects[resultNameExploreQueryCount] = gecosdk.DataObject{IntValue: &count}
+		resultDataObjects[resultNameExploreQueryPatientList] = gecosdk.DataObject{IntVector: patientList}
 
 	default:
-		return nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)
+		return nil, nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)
 	}
 	return
 }

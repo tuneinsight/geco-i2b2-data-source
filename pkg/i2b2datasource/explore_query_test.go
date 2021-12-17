@@ -24,7 +24,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 3, count)
-	require.Subset(t, []uint64{1, 2, 3}, patientList)
+	require.Subset(t, []int64{1, 2, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "1",
@@ -40,7 +40,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 4, count)
-	require.Subset(t, []uint64{1, 2, 3, 4}, patientList)
+	require.Subset(t, []int64{1, 2, 3, 4}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "2",
@@ -66,7 +66,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 3, count)
-	require.Subset(t, []uint64{1, 2, 3}, patientList)
+	require.Subset(t, []int64{1, 2, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "3",
@@ -84,7 +84,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 4, count)
-	require.Subset(t, []uint64{1, 2, 3, 4}, patientList)
+	require.Subset(t, []int64{1, 2, 3, 4}, patientList)
 }
 
 func TestExploreQueryConceptValue(t *testing.T) {
@@ -107,7 +107,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 1, count)
-	require.Subset(t, []uint64{1}, patientList)
+	require.Subset(t, []int64{1}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "1",
@@ -131,7 +131,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 2, count)
-	require.Subset(t, []uint64{1, 4}, patientList)
+	require.Subset(t, []int64{1, 4}, patientList)
 }
 
 func TestExploreQueryModifier(t *testing.T) {
@@ -158,7 +158,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 2, count)
-	require.Subset(t, []uint64{1, 3}, patientList)
+	require.Subset(t, []int64{1, 3}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "1",
@@ -190,7 +190,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 3, count)
-	require.Subset(t, []uint64{1, 2, 3}, patientList)
+	require.Subset(t, []int64{1, 2, 3}, patientList)
 }
 
 func TestExploreQueryModifierValue(t *testing.T) {
@@ -220,7 +220,7 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 1, count)
-	require.Subset(t, []uint64{1}, patientList)
+	require.Subset(t, []int64{1}, patientList)
 
 	count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "1",
@@ -261,5 +261,5 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 1, count)
-	require.Subset(t, []uint64{2}, patientList)
+	require.Subset(t, []int64{2}, patientList)
 }

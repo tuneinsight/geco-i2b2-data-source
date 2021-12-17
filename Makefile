@@ -10,7 +10,7 @@ clean:
 	rm -f ./build/geco-i2b2-data-source.so
 
 # --- GeCo
-.PHONY: geco-start-dev-local-3nodes geco-swagger-gen
+.PHONY: geco-docker-compose geco-swagger-gen
 geco-docker-compose:
 	make -C third_party/geco/deployments/dev-local-3nodes docker-compose ARGS="$(ARGS)"
 geco-swagger-gen:

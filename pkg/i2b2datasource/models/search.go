@@ -4,35 +4,11 @@ import i2b2apimodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api/models"
 
 // --- parameters
 
-// func NewSearchConceptParameters(params map[string]interface{}) (model SearchConceptParameters, retErr error) {
-// 	defer recoverParseError(&retErr)
-//
-// 	return SearchConceptParameters{
-// 		Path:      getString(params, "path"),
-// 		Operation: getString(params, "operation"),
-// 	}, nil
-// }
-
 // SearchConceptParameters is the parameter for the SearchConcept operation.
 type SearchConceptParameters struct {
 	Path      string
 	Operation string // children | info | concept
 }
-
-// func NewSearchModifierParameters(params map[string]interface{}) (model SearchModifierParameters, retErr error) {
-// 	defer recoverParseError(&retErr)
-//
-// 	return SearchModifierParameters{
-// 		SearchConceptParameters: SearchConceptParameters{
-// 			Path: getString(params, "path"),
-// 			Operation: getString(params, "operation"),
-// 		},
-// 		AppliedPath:             getString(params, "appliedPath"),
-// 		AppliedConcept:          getString(params, "appliedConcept"),
-// 	}, nil
-// }
-
-// todo: maybe squash model together if OK with serializing etc.
 
 // SearchModifierParameters is the parameter for the SearchModifier operation.
 type SearchModifierParameters struct {

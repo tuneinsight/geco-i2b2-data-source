@@ -2,14 +2,10 @@ package database
 
 import "fmt"
 
-const ddlLoaded = `
-SELECT EXISTS (
-	SELECT 1 FROM pg_namespace WHERE nspname = $1
-);
-`
+const ddlLoaded = `SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = $1);`
 
-const createSchemaFunction = `
-CREATE OR REPLACE FUNCTION public.create_schema(schema_name NAME, user_name NAME)
+const createDeleteSchemaFunctions = `
+CREATE OR REPLACE FUNCTION public.create_gecoi2b2datasource_schema(schema_name NAME, user_name NAME)
 RETURNS BOOL AS '
 	BEGIN
 		EXECUTE ''CREATE SCHEMA '' || schema_name;
@@ -18,7 +14,19 @@ RETURNS BOOL AS '
 		RETURN true;
 	END;
 ' LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION public.delete_gecoi2b2datasource_schema(schema_name NAME)
+RETURNS BOOL AS '
+	BEGIN
+		EXECUTE ''DROP SCHEMA '' || schema_name || '' CASCADE'';
+		RETURN true;
+	END;
+' LANGUAGE PLPGSQL;
 `
+
+const createSchemaStatement = `SELECT public.create_gecoi2b2datasource_schema($1::name, $2::name);`
+
+const deleteSchemaStatement = `SELECT public.delete_gecoi2b2datasource_schema($1::name);`
 
 const ddlStatement = `
 BEGIN;
@@ -66,11 +74,12 @@ func (db PostgresDatabase) loadDdl(schemaName, userLogin string) (err error) {
 
 	// load DDL if not already loaded
 	if !isDdlLoaded {
-		if _, err = db.handle.Exec(createSchemaFunction); err != nil {
-			return fmt.Errorf("executing createSchemaFunction: %v", err)
+		db.logger.Infof("database structure does not exist, loading DDL")
+		if _, err = db.handle.Exec(createDeleteSchemaFunctions); err != nil {
+			return fmt.Errorf("executing createDeleteSchemaFunctions: %v", err)
 		}
-		if _, err = db.handle.Exec("SELECT public.create_schema($1::name, $2::name);", schemaName, userLogin); err != nil {
-			return fmt.Errorf("executing create_schema: %v", err)
+		if _, err = db.handle.Exec(createSchemaStatement, schemaName, userLogin); err != nil {
+			return fmt.Errorf("executing createSchemaStatement: %v", err)
 		}
 		if _, err = db.handle.Exec(ddlStatement); err != nil {
 			return fmt.Errorf("executing ddlStatement: %v", err)

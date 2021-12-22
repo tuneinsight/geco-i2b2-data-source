@@ -29,7 +29,7 @@ func NewPostgresDatabase(logger logrus.FieldLogger, host, port, databaseName, sc
 	return db, db.loadDdl(schemaName, userLogin)
 }
 
-// PostgresDatabase is TBD
+// PostgresDatabase wraps the Postgres database of the data source.
 type PostgresDatabase struct {
 	logger logrus.FieldLogger
 

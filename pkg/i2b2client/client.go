@@ -1,4 +1,4 @@
-package i2b2api
+package i2b2client
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api/models"
+	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client/models"
 	"github.com/sirupsen/logrus"
 )
 

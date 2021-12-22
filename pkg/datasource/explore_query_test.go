@@ -1,14 +1,18 @@
 package datasource
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/models"
+	gecomodels "github.com/ldsec/geco/pkg/models"
+	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/stretchr/testify/require"
 )
 
 func TestExploreQueryConcept(t *testing.T) {
-	ds := getTestDataSource(t)
+	ds := getDataSource(t)
+	defer dataSourceCleanUp(t, ds)
 
 	_, count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "0",
@@ -88,7 +92,8 @@ func TestExploreQueryConcept(t *testing.T) {
 }
 
 func TestExploreQueryConceptValue(t *testing.T) {
-	ds := getTestDataSource(t)
+	ds := getDataSource(t)
+	defer dataSourceCleanUp(t, ds)
 
 	_, count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "0",
@@ -135,7 +140,8 @@ func TestExploreQueryConceptValue(t *testing.T) {
 }
 
 func TestExploreQueryModifier(t *testing.T) {
-	ds := getTestDataSource(t)
+	ds := getDataSource(t)
+	defer dataSourceCleanUp(t, ds)
 
 	_, count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "0",
@@ -194,7 +200,8 @@ func TestExploreQueryModifier(t *testing.T) {
 }
 
 func TestExploreQueryModifierValue(t *testing.T) {
-	ds := getTestDataSource(t)
+	ds := getDataSource(t)
+	defer dataSourceCleanUp(t, ds)
 
 	_, count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
 		ID: "0",
@@ -262,4 +269,27 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 1, count)
 	require.Subset(t, []int64{2}, patientList)
+}
+
+func TestExploreQueryDatabase(t *testing.T) {
+	ds := getDataSource(t)
+	defer dataSourceCleanUp(t, ds)
+
+	queryID := "44444444-7777-4444-4444-444444444442"
+	countSharedID := "44444444-7777-8888-4444-444444444444"
+	patientListSharedID := "44444444-7777-4444-7121-444444444444"
+
+	params := fmt.Sprintf(`{"id": "%v", "definition": {"panels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`, queryID)
+	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{
+		outputNameExploreQueryCount:       gecomodels.DataObjectSharedID(countSharedID),
+		outputNameExploreQueryPatientList: gecomodels.DataObjectSharedID(patientListSharedID),
+	}
+	_, _, err := ds.Query("testUser", "exploreQuery", []byte(params), sharedIDs)
+	require.NoError(t, err)
+
+	query, err := ds.db.GetExploreQuery(queryID)
+	require.NoError(t, err)
+	require.EqualValues(t, "success", query.Status)
+	require.EqualValues(t, countSharedID, query.ResultGecoSharedIDCount.String)
+	require.EqualValues(t, patientListSharedID, query.ResultGecoSharedIDPatientList.String)
 }

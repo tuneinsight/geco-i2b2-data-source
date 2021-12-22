@@ -31,6 +31,13 @@ func TestPlugin(t *testing.T) {
 	config["i2b2.api.wait-time"] = "10s"
 	config["i2b2.api.ont-max-elements"] = "200"
 
+	config["db.host"] = "localhost"
+	config["db.port"] = "5432"
+	config["db.db-name"] = "i2b2"
+	config["db.schema-name"] = "gecodatasourceplugintest"
+	config["db.user"] = "postgres"
+	config["db.password"] = "postgres"
+
 	logrus.StandardLogger().SetLevel(logrus.DebugLevel)
 	ds, err := (*pluginFactory)(logrus.StandardLogger(), config)
 	require.NoError(t, err)

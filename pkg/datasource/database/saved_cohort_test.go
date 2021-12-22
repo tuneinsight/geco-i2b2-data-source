@@ -8,8 +8,7 @@ import (
 
 func TestGetCohort(t *testing.T) {
 	db := getDB(t)
-	dbLoadTestData(t, db)
-	defer dbCleanup(t, db)
+	defer dbCleanUp(t, db)
 
 	cohort1, err := db.GetCohort("cohort1", "11111111-1111-1111-1111-111111111111")
 	require.NoError(t, err)
@@ -30,25 +29,23 @@ func TestGetCohort(t *testing.T) {
 
 func TestGetCohorts(t *testing.T) {
 	db := getDB(t)
-	dbLoadTestData(t, db)
-	defer dbCleanup(t, db)
+	defer dbCleanUp(t, db)
 
-	cohorts1, err := db.GetCohorts("testuser1")
+	cohorts1, err := db.GetCohorts("testuser1", 5)
 	require.NoError(t, err)
 	require.EqualValues(t, 1, len(cohorts1))
 	require.EqualValues(t, "cohort1", cohorts1[0].Name)
 
-	cohorts2, err := db.GetCohorts("testuser2")
+	cohorts2, err := db.GetCohorts("testuser2", 5)
 	require.NoError(t, err)
 	require.EqualValues(t, 2, len(cohorts2))
-	require.EqualValues(t, "cohort3", cohorts2[0].Name)
-	require.EqualValues(t, "cohort4", cohorts2[1].Name)
+	require.EqualValues(t, "cohort4", cohorts2[0].Name)
+	require.EqualValues(t, "cohort3", cohorts2[1].Name)
 }
 
 func TestAddCohort(t *testing.T) {
 	db := getDB(t)
-	dbLoadTestData(t, db)
-	defer dbCleanup(t, db)
+	defer dbCleanUp(t, db)
 
 	err := db.AddCohort("notvalid", "cohort0", "00000000-0000-0000-0000-000000000000")
 	require.Error(t, err)
@@ -70,8 +67,7 @@ func TestAddCohort(t *testing.T) {
 
 func TestDeleteCohort(t *testing.T) {
 	db := getDB(t)
-	dbLoadTestData(t, db)
-	defer dbCleanup(t, db)
+	defer dbCleanUp(t, db)
 
 	cohortFound, err := db.GetCohort("cohort1", "11111111-1111-1111-1111-111111111111")
 	require.NoError(t, err)

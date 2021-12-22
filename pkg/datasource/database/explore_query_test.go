@@ -8,8 +8,7 @@ import (
 
 func TestGetExploreQuery(t *testing.T) {
 	db := getDB(t)
-	dbLoadTestData(t, db)
-	defer dbCleanup(t, db)
+	defer dbCleanUp(t, db)
 
 	query1, err := db.GetExploreQuery("11111111-1111-1111-1111-111111111111")
 	require.NoError(t, err)
@@ -28,8 +27,7 @@ func TestGetExploreQuery(t *testing.T) {
 
 func TestExploreQuery(t *testing.T) {
 	db := getDB(t)
-	dbLoadTestData(t, db)
-	defer dbCleanup(t, db)
+	defer dbCleanUp(t, db)
 
 	queryID := "11111111-7777-9999-1111-111111111111"
 	err := db.AddExploreQuery("testUser5", queryID, "{}")

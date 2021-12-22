@@ -32,7 +32,7 @@ func TestExploreQuery(t *testing.T) {
 	defer dbCleanup(t, db)
 
 	queryID := "11111111-7777-9999-1111-111111111111"
-	err := db.AddExploreQuery("testUser5",queryID, "{}")
+	err := db.AddExploreQuery("testUser5", queryID, "{}")
 	require.NoError(t, err)
 
 	query, err := db.GetExploreQuery(queryID)

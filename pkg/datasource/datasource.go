@@ -1,13 +1,12 @@
 package i2b2datasource
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api"
-	i2b2apimodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2api/models"
-	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2datasource/models"
+	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client"
+	i2b2clientmodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client/models"
+	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2datasource/database"
 	gecomodels "github.com/ldsec/geco/pkg/models"
 	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/sirupsen/logrus"
@@ -22,19 +21,23 @@ const (
 	outputNameExploreQueryPatientList gecosdk.OutputDataObjectName = "patientList"
 )
 
-// NewI2b2DataSource creates an i2b2 data source.
-// Implements sdk.DataSourcePluginFactory.
+// NewI2b2DataSource creates an i2b2 data source. Implements sdk.DataSourcePluginFactory.
+// Configuration keys:
+// - I2b2: i2b2.api.url, i2b2.api.domain, i2b2.api.username, i2b2.api.password, i2b2.api.project, i2b2.api.wait-time, i2b2.api.ont-max-elements
+// - Database: db.host, db.port, db.db-name, db.schema-name, db.user, db.password
 func NewI2b2DataSource(logger logrus.FieldLogger, config map[string]string) (plugin gecosdk.DataSourcePlugin, err error) {
 	ds := new(I2b2DataSource)
 	ds.logger = logger
 
-	// todo: config keys
-	// i2b2.api.username
-	// i2b2.db.xxx
-	// datasource.db.xxx
+	// initialize database connection
+	ds.db, err = database.NewPostgresDatabase(logger, config["db.host"], config["db.port"],
+		config["db.db-name"], config["db.schema-name"], config["db.user"], config["db.password"])
+	if err != nil {
+		return nil, ds.logError("initializing database connection", err)
+	}
 
 	// parse i2b2 API connection info and initialize i2b2 client
-	ci := i2b2apimodels.ConnectionInfo{
+	ci := i2b2clientmodels.ConnectionInfo{
 		HiveURL:  config["i2b2.api.url"],
 		Domain:   config["i2b2.api.domain"],
 		Username: config["i2b2.api.username"],
@@ -43,12 +46,10 @@ func NewI2b2DataSource(logger logrus.FieldLogger, config map[string]string) (plu
 	}
 
 	if ci.WaitTime, err = time.ParseDuration(config["i2b2.api.wait-time"]); err != nil {
-		err = fmt.Errorf("parsing i2b2 wait time: %v", err)
-		logger.Error(err)
-		return nil, err
+		return nil, ds.logError("parsing i2b2 wait time", err)
 	}
 
-	ds.i2b2Client = i2b2api.Client{
+	ds.i2b2Client = i2b2client.Client{
 		Logger: logger,
 		Ci:     ci,
 	}
@@ -64,8 +65,11 @@ type I2b2DataSource struct {
 	// logger is the logger from GeCo
 	logger logrus.FieldLogger
 
+	// db is the database handler of the data source
+	db *database.PostgresDatabase
+
 	// i2b2Client is the i2b2 client
-	i2b2Client i2b2api.Client
+	i2b2Client i2b2client.Client
 
 	// i2b2OntMaxElements is the configuration for the maximum number of ontology elements to return from i2b2
 	i2b2OntMaxElements string
@@ -76,61 +80,39 @@ func (ds I2b2DataSource) Query(userID string, operation string, jsonParameters [
 	ds.logger.Infof("executing operation %v for user %v", operation, userID)
 	ds.logger.Debugf("parameters: %v", string(jsonParameters))
 
+	var handler OperationHandler
 	switch Operation(operation) {
 	case OperationSearchConcept:
-		decodedParams := &models.SearchConceptParameters{}
-		if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
-			return nil, nil, ds.logError("decoding parameters", err)
-		} else if searchResults, err := ds.SearchConcept(decodedParams); err != nil {
-			return nil, nil, ds.logError("executing query", err)
-		} else if jsonResults, err = json.Marshal(searchResults); err != nil {
-			return nil, nil, ds.logError("encoding results", err)
-		}
-
+		handler = ds.SearchConceptHandler
 	case OperationSearchModifier:
-		decodedParams := &models.SearchModifierParameters{}
-		if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
-			return nil, nil, ds.logError("decoding parameters", err)
-		} else if searchResults, err := ds.SearchModifier(decodedParams); err != nil {
-			return nil, nil, ds.logError("executing query", err)
-		} else if jsonResults, err = json.Marshal(searchResults); err != nil {
-			return nil, nil, ds.logError("encoding results", err)
-		}
-
+		handler = ds.SearchModifierHandler
 	case OperationExploreQuery:
-		if outputDataObjectsSharedIDs[outputNameExploreQueryCount] == "" || outputDataObjectsSharedIDs[outputNameExploreQueryPatientList] == "" {
-			return nil, nil, ds.logError("missing output data object name", nil)
-		}
-
-		var count int64
-		var patientList []int64
-		decodedParams := &models.ExploreQueryParameters{}
-		if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
-			return nil, nil, ds.logError("decoding parameters", err)
-		} else if count, patientList, err = ds.ExploreQuery(decodedParams); err != nil {
-			return nil, nil, ds.logError("executing query", err)
-		}
-
-		outputDataObjects = []gecosdk.DataObject{
-			{
-				OutputName: outputNameExploreQueryCount,
-				SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryCount],
-				IntValue:   &count,
-			}, {
-				OutputName: outputNameExploreQueryPatientList,
-				SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryPatientList],
-				IntVector:  patientList,
-			},
-		}
+		handler = ds.ExploreQueryHandler
+	case OperationGetCohorts:
+		handler = ds.GetCohortsHandler
+	case OperationAddCohort:
+		handler = ds.AddCohortHandler
+	case OperationDeleteCohort:
+		handler = ds.DeleteCohortHandler
+	case OperationSurvivalQuery:
+		return nil, nil, ds.logError("operation survivalQuery not implemented", nil) // todo
+	case OperationSearchOntology:
+		return nil, nil, ds.logError("operation searchOntology not implemented", nil) // todo
 
 	default:
 		return nil, nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)
 	}
+
+	if jsonResults, outputDataObjects, err = handler(userID, jsonParameters, outputDataObjectsSharedIDs); err != nil {
+		return nil, nil, ds.logError(fmt.Sprintf("executing operation %v", operation), err)
+	}
+
+	ds.logger.Infof("successfully executed operation %v for user %v", operation, userID)
+	ds.logger.Debugf("results: %v", string(jsonResults))
 	return
 }
 
 // logError creates and logs an error.
-// todo: exists in GeCo, can be exposed by SDK code
 func (ds I2b2DataSource) logError(errMsg string, causedBy error) (err error) {
 	if causedBy == nil {
 		err = fmt.Errorf("%v", errMsg)

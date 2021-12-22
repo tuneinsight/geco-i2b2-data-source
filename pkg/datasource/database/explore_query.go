@@ -3,8 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 // GetExploreQuery retrieves an explore query from the database.
@@ -53,15 +51,14 @@ func (db PostgresDatabase) GetExploreQuery(id string) (query *ExploreQuery, err 
 }
 
 // AddExploreQuery adds an explore query with the requested status.
-func (db PostgresDatabase) AddExploreQuery(userID, queryDefinition string) (queryID string, err error) {
+func (db PostgresDatabase) AddExploreQuery(userID, queryID, queryDefinition string) (err error) {
 	const addExploreQueryStatement = `
 		INSERT INTO explore_query(id, create_date, user_id, status, definition, result_i2b2_patient_set_id,
 		result_geco_shared_id_count, result_geco_shared_id_patient_list) VALUES
 		($1, NOW(), $2, 'requested', $3, NULL, NULL, NULL);`
 
-	queryID = uuid.NewString()
 	if _, err = db.handle.Exec(addExploreQueryStatement, queryID, userID, queryDefinition); err != nil {
-		return "", fmt.Errorf("executing addExploreQueryStatement: %v", err)
+		return fmt.Errorf("executing addExploreQueryStatement: %v", err)
 	}
 	db.logger.Infof("added explore query (ID: %v)", queryID)
 	return
@@ -78,7 +75,7 @@ func (db PostgresDatabase) SetExploreQueryError(userID, queryID string) error {
 }
 
 // SetExploreQuerySuccess sets the success status to an explore query and stores its results.
-func (db PostgresDatabase) SetExploreQuerySuccess(userID, queryID, i2b2PatientSetID, gecoSharedIDCount, gecoSharedIDPatientList string) error {
+func (db PostgresDatabase) SetExploreQuerySuccess(userID, queryID string, i2b2PatientSetID int64, gecoSharedIDCount, gecoSharedIDPatientList string) error {
 	const setExploreQuerySuccessStatement = `
 		UPDATE explore_query SET 
 			result_i2b2_patient_set_id = $3,

@@ -31,10 +31,9 @@ func TestExploreQuery(t *testing.T) {
 	dbLoadTestData(t, db)
 	defer dbCleanup(t, db)
 
-	queryID, err := db.AddExploreQuery("testUser5", "{}")
+	queryID := "11111111-7777-9999-1111-111111111111"
+	err := db.AddExploreQuery("testUser5",queryID, "{}")
 	require.NoError(t, err)
-	require.NotEmpty(t, queryID)
-	t.Logf("%v", queryID)
 
 	query, err := db.GetExploreQuery(queryID)
 	require.NoError(t, err)
@@ -55,7 +54,7 @@ func TestExploreQuery(t *testing.T) {
 	require.NoError(t, err)
 	require.EqualValues(t, "error", query.Status)
 
-	err = db.SetExploreQuerySuccess("testUser5", queryID, "7", "31133333-3333-3333-3333-333333333333", "33333333-3333-3333-3333-333333333223")
+	err = db.SetExploreQuerySuccess("testUser5", queryID, 7, "31133333-3333-3333-3333-333333333333", "33333333-3333-3333-3333-333333333223")
 	require.NoError(t, err)
 	query, err = db.GetExploreQuery(queryID)
 	require.NoError(t, err)

@@ -19,6 +19,13 @@ func getTestDataSource(t *testing.T) *I2b2DataSource {
 	config["i2b2.api.wait-time"] = "10s"
 	config["i2b2.api.ont-max-elements"] = "200"
 
+	config["db.host"] = "localhost"
+	config["db.port"] = "5432"
+	config["db.db-name"] = "i2b2"
+	config["db.schema-name"] = "gecodatasource"
+	config["db.user"] = "postgres"
+	config["db.password"] = "postgres"
+
 	logrus.StandardLogger().SetLevel(logrus.DebugLevel)
 	ds, err := NewI2b2DataSource(logrus.StandardLogger(), config)
 	require.NoError(t, err)
@@ -50,4 +57,8 @@ func TestQueryDataObject(t *testing.T) {
 
 	t.Logf("result: %v", string(res))
 	t.Logf("do: %+v", do)
+}
+
+func TestWorkflow(t *testing.T) {
+	// todo: impl. workflow full
 }

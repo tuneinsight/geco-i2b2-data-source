@@ -1,6 +1,6 @@
 package models
 
-import i2b2apimodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client/models"
+import i2b2clientmodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client/models"
 
 // --- parameters
 
@@ -25,12 +25,12 @@ type SearchResults struct {
 }
 
 // NewSearchResultFromI2b2Concept creates a new SearchResult from an i2b2 concept.
-func NewSearchResultFromI2b2Concept(concept i2b2apimodels.Concept) SearchResult {
+func NewSearchResultFromI2b2Concept(concept i2b2clientmodels.Concept) SearchResult {
 	parsed := SearchResult{
 		Name:        concept.Name,
 		DisplayName: concept.Name,
 		Code:        concept.Basecode,
-		Path:        i2b2apimodels.ConvertPathFromI2b2Format(concept.Key),
+		Path:        i2b2clientmodels.ConvertPathFromI2b2Format(concept.Key),
 		AppliedPath: "@",
 		Comment:     concept.Comment,
 	}
@@ -76,9 +76,9 @@ func NewSearchResultFromI2b2Concept(concept i2b2apimodels.Concept) SearchResult 
 }
 
 // NewSearchResultFromI2b2Modifier creates a new SearchResult from an i2b2 modifier.
-func NewSearchResultFromI2b2Modifier(modifier i2b2apimodels.Modifier) SearchResult {
+func NewSearchResultFromI2b2Modifier(modifier i2b2clientmodels.Modifier) SearchResult {
 	res := NewSearchResultFromI2b2Concept(modifier.Concept)
-	res.AppliedPath = i2b2apimodels.ConvertPathFromI2b2Format(modifier.AppliedPath)
+	res.AppliedPath = i2b2clientmodels.ConvertPathFromI2b2Format(modifier.AppliedPath)
 	return res
 }
 

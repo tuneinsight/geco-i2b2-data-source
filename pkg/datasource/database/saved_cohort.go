@@ -57,7 +57,7 @@ func (db PostgresDatabase) GetCohort(cohortName string, exploreQueryID string) (
 }
 
 // GetCohorts retrieves the saved cohorts of a user from the database.
-func (db PostgresDatabase) GetCohorts(userID string) (cohorts []*SavedCohort, err error) {
+func (db PostgresDatabase) GetCohorts(userID string, limit int) (cohorts []SavedCohort, err error) {
 	const getCohortsStatement = `
 		SELECT
 			saved_cohort.name AS cohort_name,
@@ -75,17 +75,17 @@ func (db PostgresDatabase) GetCohorts(userID string) (cohorts []*SavedCohort, er
 			INNER JOIN saved_cohort ON explore_query.id = saved_cohort.explore_query_id
 		
 		WHERE explore_query.user_id = $1 AND explore_query.status = 'success'
-		ORDER BY saved_cohort.create_date DESC;`
+		ORDER BY saved_cohort.create_date DESC
+		LIMIT $2;`
 
 	var rows *sql.Rows
-	if rows, err = db.handle.Query(getCohortsStatement, userID); err != nil {
+	if rows, err = db.handle.Query(getCohortsStatement, userID, limit); err != nil {
 		return nil, fmt.Errorf("querying getCohortsStatement: %v", err)
 	}
 	defer closeRows(rows, db.logger)
 
 	for rows.Next() {
-		c := new(SavedCohort)
-
+		c := SavedCohort{}
 		err = rows.Scan(
 			&c.Name,
 			&c.CreateDate,
@@ -107,7 +107,8 @@ func (db PostgresDatabase) GetCohorts(userID string) (cohorts []*SavedCohort, er
 	return
 }
 
-// AddCohort adds a saved cohort for a user. Returns an error (due to foreign key violation) if the explore query does not exist.
+// AddCohort adds a saved cohort for a user. Returns an error (due to foreign key violation) if the explore query does
+// not exist, or if the provided user does not match.
 func (db PostgresDatabase) AddCohort(userID, cohortName, exploreQueryID string) (err error) {
 	const addCohortStatement = `
 		INSERT INTO saved_cohort(name, create_date, explore_query_id)

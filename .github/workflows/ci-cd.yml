@@ -67,7 +67,7 @@ jobs:
           build-args: BUILD=docker
           load: true
           ssh: default
-          tags: ${{ steps.get_version.outputs.i2b2_docker_image }}
+          tags: ${{ steps.get_versions.outputs.i2b2_docker_image }}
           cache-from: type=gha,scope=buildkit
           cache-to: type=gha,scope=buildkit,mode=max
 
@@ -102,4 +102,4 @@ jobs:
 
 #      - name: Push GeCo Docker image
 #        if: ${{ env.PUSH }}
-#        run: docker push ${{ steps.get_version.outputs.i2b2_docker_image }}
+#        run: docker push ${{ steps.get_versions.outputs.i2b2_dockerss_image }}

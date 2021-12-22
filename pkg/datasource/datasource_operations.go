@@ -1,4 +1,4 @@
-package i2b2datasource
+package datasource
 
 import (
 	gecomodels "github.com/ldsec/geco/pkg/models"
@@ -22,7 +22,7 @@ const (
 
 // OperationHandler is a handler function for an operation of the data source supported by I2b2DataSource.Query.
 type OperationHandler func(
-		userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID,
-	) (
-		jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error,
-	)
+	userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID,
+) (
+	jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error,
+)

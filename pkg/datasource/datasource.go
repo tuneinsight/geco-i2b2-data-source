@@ -1,12 +1,12 @@
-package i2b2datasource
+package datasource
 
 import (
 	"fmt"
 	"time"
 
+	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/database"
 	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client"
 	i2b2clientmodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client/models"
-	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2datasource/database"
 	gecomodels "github.com/ldsec/geco/pkg/models"
 	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/sirupsen/logrus"

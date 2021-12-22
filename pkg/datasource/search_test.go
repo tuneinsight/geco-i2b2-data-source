@@ -1,9 +1,9 @@
-package i2b2datasource
+package datasource
 
 import (
 	"testing"
 
-	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2datasource/models"
+	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/models"
 	"github.com/stretchr/testify/require"
 )
 

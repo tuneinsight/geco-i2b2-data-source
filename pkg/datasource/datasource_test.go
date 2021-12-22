@@ -1,4 +1,4 @@
-package i2b2datasource
+package datasource
 
 import (
 	"testing"

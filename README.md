@@ -44,8 +44,9 @@ make go-unit tests
 - `build/package/i2b2/`: i2b2 docker image definition
 - `cmd/geco-i2b2-data-source/`: go main package for the plugin
 - `pkg/`: exported go code
-  - `i2b2api/`: client for i2b2 HTTP XML API
-  - `i2b2datasource/`: definition of the i2b2 GeCo data source
+  - `i2b2client/`: client for i2b2 HTTP XML API
+  - `datasource/`: definition of the i2b2 GeCo data source
+    - `database/`: database wrapper for the datasource
 - `scripts/`: utility scripts
 - `test/i2b2/`: test files for the i2b2 docker image
 - `third_party/geco/`: git submodule for the GeCo source code

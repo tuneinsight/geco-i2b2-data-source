@@ -7,14 +7,14 @@ import i2b2clientmodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client/m
 // SearchConceptParameters is the parameter for the SearchConcept operation.
 type SearchConceptParameters struct {
 	Path      string
-	Operation string // children | info | concept
+	Operation string // children | info
 }
 
 // SearchModifierParameters is the parameter for the SearchModifier operation.
 type SearchModifierParameters struct {
-	SearchConceptParameters
-	AppliedPath    string
-	AppliedConcept string
+	SearchConceptParameters // Operation: children | info | concept
+	AppliedPath             string
+	AppliedConcept          string
 }
 
 // --- results

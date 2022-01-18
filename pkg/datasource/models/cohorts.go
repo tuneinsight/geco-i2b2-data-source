@@ -31,11 +31,11 @@ type Cohort struct {
 	Name         string
 	CreationDate string
 	ExploreQuery struct {
-		ID              string
-		CreationDate    string
-		Status          string
-		Definition      ExploreQueryDefinition
-		ResultSharedIDs struct {
+		ID                         string
+		CreationDate               string
+		Status                     string
+		Definition                 ExploreQueryDefinition
+		OutputDataObjectsSharedIDs struct {
 			Count       string
 			PatientList string
 		}
@@ -50,8 +50,8 @@ func NewCohortFromDbModel(dbCohort database.SavedCohort) (cohort Cohort) {
 	cohort.ExploreQuery.ID = dbCohort.ExploreQuery.ID
 	cohort.ExploreQuery.Status = dbCohort.ExploreQuery.Status
 	cohort.ExploreQuery.CreationDate = dbCohort.ExploreQuery.CreateDate
-	cohort.ExploreQuery.ResultSharedIDs.Count = dbCohort.ExploreQuery.ResultGecoSharedIDCount.String
-	cohort.ExploreQuery.ResultSharedIDs.PatientList = dbCohort.ExploreQuery.ResultGecoSharedIDPatientList.String
+	cohort.ExploreQuery.OutputDataObjectsSharedIDs.Count = dbCohort.ExploreQuery.ResultGecoSharedIDCount.String
+	cohort.ExploreQuery.OutputDataObjectsSharedIDs.PatientList = dbCohort.ExploreQuery.ResultGecoSharedIDPatientList.String
 
 	_ = json.Unmarshal([]byte(dbCohort.ExploreQuery.Definition), &cohort.ExploreQuery.Definition)
 	return cohort

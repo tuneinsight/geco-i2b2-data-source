@@ -1,5 +1,8 @@
 # GeCo i2b2 Data Source Plugin
 
+## GeCo Data Source Plugin API Operations
+[The operations are documented here.](API.md)
+
 ## Build
 Retrieve git submodule of GeCo:
 ```shell

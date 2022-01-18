@@ -36,7 +36,7 @@ make i2b2-test
 
 Run go unit tests i2b2 docker:
 ```shell
-make go-unit tests
+make go-unit-tests
 ```
 
 ## Development

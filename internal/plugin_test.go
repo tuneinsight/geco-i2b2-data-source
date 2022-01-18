@@ -15,7 +15,7 @@ const pluginPath = "../build/geco-i2b2-data-source.so"
 
 func getTestConfig() map[string]string {
 	config := make(map[string]string)
-	config["i2b2.api.url"] = "http://localhost:8080/i2b2/services"
+	config["i2b2.api.url"] = "http://localhost:8081/i2b2/services"
 	config["i2b2.api.domain"] = "i2b2demo"
 	config["i2b2.api.username"] = "demo"
 	config["i2b2.api.password"] = "changeme"

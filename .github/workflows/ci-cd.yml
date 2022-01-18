@@ -87,10 +87,9 @@ jobs:
         if: always()
         run: make geco-docker-compose ARGS="logs"
 
-      # disabled because takes ~1 minute
-      #- name: Show i2b2 deployment logs
-      #  if: always()
-      #  run: make i2b2-docker-compose ARGS="logs"
+      - name: Show i2b2 deployment logs (only in case of failure)
+        if: failure()
+        run: make i2b2-docker-compose ARGS="logs"
 
       - name: Login to GitHub Container Registry
         if: ${{ env.PUSH == 'true' }}

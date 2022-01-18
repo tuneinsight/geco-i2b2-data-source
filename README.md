@@ -3,7 +3,7 @@
 ## Build
 Retrieve git submodule of GeCo:
 ```shell
-make git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
 Generate GeCo Swagger files:

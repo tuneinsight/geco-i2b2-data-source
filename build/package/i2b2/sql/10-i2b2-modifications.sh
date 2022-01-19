@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeuo pipefail
 source "$(dirname "$0")/common.sh"
-# set up common medco ontology
+# update structure of default i2b2 DB
 
 psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
 

@@ -4,16 +4,6 @@
 [The operations are documented here.](API.md)
 
 ## Build
-Retrieve git submodule of GeCo:
-```shell
-git submodule update --init --recursive
-```
-
-Generate GeCo Swagger files:
-```shell
-make geco-swagger-gen
-```
-
 Build plugin to `build/geco-i2b2-data-source.so`:
 ```shell
 make go-build-plugin

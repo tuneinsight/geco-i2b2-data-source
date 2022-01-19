@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/models"
-	gecomodels "github.com/ldsec/geco/pkg/models"
-	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/stretchr/testify/require"
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 func TestExploreQueryConcept(t *testing.T) {

@@ -1,8 +1,8 @@
 package datasource
 
 import (
-	gecomodels "github.com/ldsec/geco/pkg/models"
-	gecosdk "github.com/ldsec/geco/pkg/sdk"
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 // Operation is an operation of the data source supported by I2b2DataSource.Query.

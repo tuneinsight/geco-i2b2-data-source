@@ -7,9 +7,9 @@ import (
 	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/database"
 	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client"
 	i2b2clientmodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client/models"
-	gecomodels "github.com/ldsec/geco/pkg/models"
-	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/sirupsen/logrus"
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 // compile-time check that I2b2DataSource implements the interface sdk.DataSourcePlugin

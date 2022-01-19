@@ -9,13 +9,6 @@ test: go-imports go-lint go-unit-tests i2b2-test
 clean:
 	rm -f ./build/geco-i2b2-data-source.so
 
-# --- GeCo
-.PHONY: geco-docker-compose geco-swagger-gen
-geco-docker-compose:
-	make -C third_party/geco/deployments/dev-local-3nodes docker-compose ARGS="$(ARGS)"
-geco-swagger-gen:
-	cd third_party/geco && make go-swagger-gen
-
 # --- i2b2 docker
 .PHONY: i2b2-docker-compose i2b2-test
 i2b2-docker-compose: # use ARGS to pass to docker-compose arguments, e.g. make docker-compose ARGS="up -d"
@@ -24,9 +17,17 @@ i2b2-test:
 	cd test/i2b2 && ./test_i2b2_docker.sh
 
 # --- go sources
-.PHONY:	go-build-plugin go-imports go-lint go-unit-tests
+.PHONY:	go-build-plugin go-build-plugin-docker go-imports go-lint go-unit-tests
+go-build-plugin: export CGO_ENABLED=1
+go-build-plugin: export GOOS=linux
 go-build-plugin:
-	go build -buildmode=plugin -v -o ./build/ ./cmd/...
+	go build -buildmode=plugin -trimpath -v -o ./build/ ./cmd/...
+
+#to be tested
+go-build-plugin-docker: export CGO_ENABLED=1
+go-build-plugin-docker: export GOOS=linux
+go-build-plugin-docker:
+	docker run --rm -v "$(PWD)":/usr/src/geco-i2b2-data-source -w /usr/src/geco-i2b2-data-source golang:1.17-alpine /bin/sh -c "apk add --no-cache git make build-base gcompat && go build -buildmode=plugin -v -o ./build/ ./cmd/..."
 
 go-imports:
 	@echo Checking correct formatting of files

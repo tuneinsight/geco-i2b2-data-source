@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/database"
-	gecomodels "github.com/ldsec/geco/pkg/models"
-	gecosdk "github.com/ldsec/geco/pkg/sdk"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 func getDataSource(t *testing.T) *I2b2DataSource {

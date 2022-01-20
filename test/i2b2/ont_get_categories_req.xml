@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<msgns:request
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:msgns="http://www.i2b2.org/xsd/hive/msg/1.1/"
+        xmlns:ontns="http://www.i2b2.org/xsd/cell/ont/1.1/">
+    <message_header>
+        <i2b2_version_compatible>0.3</i2b2_version_compatible>
+        <hl7_version_compatible>2.4</hl7_version_compatible>
+        <sending_application>
+            <application_name>Test</application_name>
+            <application_version>0.2</application_version>
+        </sending_application>
+        <sending_facility>
+            <facility_name>Test</facility_name>
+        </sending_facility>
+        <receiving_application>
+            <application_name>i2b2 cell</application_name>
+            <application_version>1.7</application_version>
+        </receiving_application>
+        <receiving_facility>
+            <facility_name>i2b2 hive</facility_name>
+        </receiving_facility>
+        <datetime_of_message>2000-01 31T20:59:59.222</datetime_of_message>
+        <security>
+            <domain>i2b2demo</domain>
+            <username>demo</username>
+            <password>changeme</password>
+        </security>
+        <message_type>
+            <message_code>Q04</message_code>
+            <event_type>EQQ</event_type>
+        </message_type>
+        <message_control_id>
+            <session_id>2000-01 31T20:59:59.222</session_id>
+            <message_num>123</message_num>
+            <instance_num>0</instance_num>
+        </message_control_id>
+        <processing_id>
+            <processing_id>P</processing_id>
+            <processing_mode>I</processing_mode>
+        </processing_id>
+        <accept_acknowledgement_type>messageId</accept_acknowledgement_type>
+        <application_acknowledgement_type/>
+        <country_code>CH</country_code>
+        <project_id>Demo</project_id>
+    </message_header>
+    <request_header>
+        <result_waittime_ms>180000</result_waittime_ms>
+    </request_header>
+    <message_body>
+        <ontns:get_categories type="core" blob="false" hiddens="true" synonyms="false"/>
+    </message_body>
+</msgns:request>

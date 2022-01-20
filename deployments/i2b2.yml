@@ -1,0 +1,24 @@
+version: '3.9'
+services:
+  i2b2:
+    image: ${I2B2_DOCKER_IMAGE:?}
+    build:
+      context: ../build/package/i2b2
+    ports:
+      - "8081:8080"
+    environment:
+      - I2B2_DB_HOST=postgresql
+      - I2B2_DB_PORT=5432
+      - I2B2_DB_USER=postgres
+      - I2B2_DB_PW=postgres
+      - I2B2_DB_NAME=i2b2
+      - WILDFLY_ADMIN_PASSWORD=admin
+      - I2B2_DOMAIN_NAME=i2b2demo
+      - I2B2_SERVICE_PASSWORD=changeme
+      - DEFAULT_USER_PASSWORD=changeme
+      - AXIS2_LOGLEVEL=DEBUG
+
+networks:
+  default:
+    external: true
+    name: dev-local-3nodes_inter-nodes # join all containers to the GeCo dev-local-3nodes inter-nodes network

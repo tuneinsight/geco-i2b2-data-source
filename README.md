@@ -10,11 +10,9 @@ make go-build-plugin
 ```
 
 ## Test
+### Prerequisite
+Having a running GeCo instance (dev-local-3nodes deployment) with `i2b2-geco` plugin installed.
 ### Start dependencies
-Start GeCo (only the database for the moment):
-```shell
-make geco-docker-compose ARGS="up -d postgresql"
-```
 
 Start i2b2:
 ```shell
@@ -42,15 +40,9 @@ make go-unit-tests
     - `database/`: database wrapper for the datasource
 - `scripts/`: utility scripts
 - `test/i2b2/`: test files for the i2b2 docker image
-- `third_party/geco/`: git submodule for the GeCo source code
 
 ### Useful commands
 Start psql in the running postgresql container:
 ```shell
 make geco-docker-compose ARGS="exec postgresql psql -U postgres"
 ```
-
-### About the GeCo dependency
-- GeCo is included in the repository as a submodule (in `third_party/geco`) and the `go.mod` file includes a `replace` directive in order to use it.
-- This is notably due to the use of the development deployment of GeCo to be used for the testing of this plugin.
-- Ultimately, some definitions from this plugin (e.g. DataSource interface) and from GeCo (e.g. dev deployment) need to be extracted to a public repository to serve as an SDK for data source plugins.

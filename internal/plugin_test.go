@@ -42,7 +42,7 @@ func TestPlugin(t *testing.T) {
 
 	dsType, ok := dsTypeSymbol.(*gecosdk.DataSourceType)
 	require.True(t, ok)
-	require.EqualValues(t, "i2b2", *dsType)
+	require.EqualValues(t, "i2b2-geco", *dsType)
 
 	dsSymbol, err := p.Lookup("DataSourcePluginFactory")
 	require.NoError(t, err)
@@ -72,7 +72,7 @@ func TestPluginDataManager(t *testing.T) {
 	require.NoError(t, err)
 
 	config := getTestConfig()
-	ds, err := dm.NewDataSource("", "i2b2-medco-test", "test", "i2b2-medco", config, false)
+	ds, err := dm.NewDataSource("", "i2b2-geco-test", "test", "i2b2-geco", config, false)
 	require.NoError(t, err)
 
 	params := `{"path": "/", "operation": "children"}`

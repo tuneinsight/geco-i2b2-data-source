@@ -17,8 +17,18 @@ services:
       - I2B2_SERVICE_PASSWORD=changeme
       - DEFAULT_USER_PASSWORD=changeme
       - AXIS2_LOGLEVEL=DEBUG
+    networks:
+      intra-node:
+
+  postgresql:
+    image: postgres:13.1
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      intra-node:
 
 networks:
-  default:
-    external: true
-    name: dev-local-3nodes_inter-nodes # join all containers to the GeCo dev-local-3nodes inter-nodes network
+  intra-node:
+    driver: bridge

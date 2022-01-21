@@ -11,7 +11,7 @@ func getDB(t *testing.T) *PostgresDatabase {
 	log := logrus.StandardLogger()
 	log.SetLevel(logrus.DebugLevel)
 
-	db, err := NewPostgresDatabase(log, "localhost", "5432", "i2b2", TestSchemaName, "postgres", "postgres")
+	db, err := NewPostgresDatabase(log, "localhost", "5433", "i2b2", TestSchemaName, "postgres", "postgres")
 	require.NoError(t, err)
 
 	err = db.TestLoadData()

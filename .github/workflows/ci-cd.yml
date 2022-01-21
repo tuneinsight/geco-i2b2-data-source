@@ -18,6 +18,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup SSH deploy key for private repositories
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: |
+            ${{ secrets.SDK_DATASOURCE_SSH_DEPLOY_KEY }}
+
       - name: Environment
         run: |
           go version
@@ -56,26 +62,20 @@ jobs:
           cache-from: type=gha,scope=buildkit
           cache-to: type=gha,scope=buildkit,mode=max
 
-      #- name: Start deployments
-      #  run: |
-      #    make geco-docker-compose ARGS="up -d postgresql"
-      #    make i2b2-docker-compose ARGS="up -d"
+      - name: Start i2b2 + DB
+        run: make i2b2-docker-compose ARGS="up -d"
 
-      #- name: Run i2b2 docker image test
-      #  run: |
-      #    sudo apt-get install -y libxml2-utils
-      #    make i2b2-test
+      - name: Run i2b2 docker image test
+        run: |
+          sudo apt-get install -y libxml2-utils
+          make i2b2-test
 
       - name: Run go unit tests
         run: make go-unit-tests
 
-      #- name: Show GeCo deployment logs
-      #  if: always()
-      #  run: make geco-docker-compose ARGS="logs"
-
-      #- name: Show i2b2 deployment logs (only in case of failure)
-      #  if: failure()
-      #  run: make i2b2-docker-compose ARGS="logs"
+      - name: Show i2b2 deployment logs (only in case of failure)
+        if: failure()
+        run: make i2b2-docker-compose ARGS="logs"
 
       - name: Login to GitHub Container Registry
         if: ${{ env.PUSH == 'true' }}
@@ -83,7 +83,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.TI_PKG_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push i2b2 Docker image
         if: ${{ env.PUSH == 'true' }}

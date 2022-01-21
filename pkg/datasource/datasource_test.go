@@ -22,7 +22,7 @@ func getDataSource(t *testing.T) *I2b2DataSource {
 	config["i2b2.api.ont-max-elements"] = "200"
 
 	config["db.host"] = "localhost"
-	config["db.port"] = "5432"
+	config["db.port"] = "5433"
 	config["db.db-name"] = "i2b2"
 	config["db.schema-name"] = database.TestSchemaName
 	config["db.user"] = "postgres"

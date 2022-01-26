@@ -40,9 +40,3 @@ make go-unit-tests
     - `database/`: database wrapper for the datasource
 - `scripts/`: utility scripts
 - `test/i2b2/`: test files for the i2b2 docker image
-
-### Useful commands
-Start psql in the running postgresql container:
-```shell
-make geco-docker-compose ARGS="exec postgresql psql -U postgres"
-```

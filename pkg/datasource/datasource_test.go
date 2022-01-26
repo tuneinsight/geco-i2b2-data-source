@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/database"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
+	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
@@ -29,7 +29,7 @@ func getDataSource(t *testing.T) *I2b2DataSource {
 	config["db.password"] = "postgres"
 
 	logrus.StandardLogger().SetLevel(logrus.DebugLevel)
-	ds, err := NewI2b2DataSource(logrus.StandardLogger(), config)
+	ds, err := NewI2b2DataSource("", "test", "test-geco-i2b2-ds", logrus.StandardLogger(), config)
 	require.NoError(t, err)
 
 	err = ds.(*I2b2DataSource).db.TestLoadData()

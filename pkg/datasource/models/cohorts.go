@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/database"
+	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 )
 
 // --- parameters

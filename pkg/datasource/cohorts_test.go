@@ -3,8 +3,8 @@ package datasource
 import (
 	"testing"
 
-	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/models"
 	"github.com/stretchr/testify/require"
+	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
 )
 
 func TestGetCohorts(t *testing.T) {

@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/database"
-	"github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client"
-	i2b2clientmodels "github.com/ldsec/geco-i2b2-data-source/pkg/i2b2client/models"
 	"github.com/sirupsen/logrus"
+	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
+	"github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client"
+	i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
-// compile-time check that I2b2DataSource implements the interface sdk.DataSourcePlugin
-var _ gecosdk.DataSourcePlugin = (*I2b2DataSource)(nil)
+// compile-time check that I2b2DataSource implements the interface sdk.DataSource.
+var _ gecosdk.DataSource = (*I2b2DataSource)(nil)
+
+// DataSourceType is the type of the data source.
+var DataSourceType gecosdk.DataSourceType = "i2b2-geco"
 
 // Names of output data objects.
 const (
@@ -21,12 +24,15 @@ const (
 	outputNameExploreQueryPatientList gecosdk.OutputDataObjectName = "patientList"
 )
 
-// NewI2b2DataSource creates an i2b2 data source. Implements sdk.DataSourcePluginFactory.
+// NewI2b2DataSource creates an i2b2 data source. Implements sdk.DataSourceFactory.
 // Configuration keys:
 // - I2b2: i2b2.api.url, i2b2.api.domain, i2b2.api.username, i2b2.api.password, i2b2.api.project, i2b2.api.wait-time, i2b2.api.ont-max-elements
 // - Database: db.host, db.port, db.db-name, db.schema-name, db.user, db.password
-func NewI2b2DataSource(logger logrus.FieldLogger, config map[string]string) (plugin gecosdk.DataSourcePlugin, err error) {
+func NewI2b2DataSource(id gecomodels.DataSourceID, owner, name string, logger logrus.FieldLogger, config map[string]string) (plugin gecosdk.DataSource, err error) {
 	ds := new(I2b2DataSource)
+
+	ds.DataSourceModel = *gecosdk.NewDataSourceModel(id, owner, name, DataSourceType)
+
 	ds.logger = logger
 
 	// initialize database connection
@@ -61,6 +67,7 @@ func NewI2b2DataSource(logger logrus.FieldLogger, config map[string]string) (plu
 
 // I2b2DataSource is an i2b2 data source for GeCo. It implements the data source interface.
 type I2b2DataSource struct {
+	gecosdk.DataSourceModel
 
 	// logger is the logger from GeCo
 	logger logrus.FieldLogger
@@ -73,6 +80,28 @@ type I2b2DataSource struct {
 
 	// i2b2OntMaxElements is the configuration for the maximum number of ontology elements to return from i2b2
 	i2b2OntMaxElements string
+}
+
+// FromModel sets the fields of the local data source given a model.
+func (ds I2b2DataSource) FromModel(model *gecosdk.DataSourceModel) {
+	logrus.Error("not implemented")
+}
+
+// GetData returns the csv data stored in the data source.
+func (ds I2b2DataSource) GetData(query string) ([]string, [][]float64) {
+	logrus.Error("not implemented")
+	return nil, nil
+}
+
+// LoadData loads a csv into the local data source, saving it in the datamanager and updating the data source.
+func (ds I2b2DataSource) LoadData(columns []string, data interface{}) error {
+	return fmt.Errorf("not implemented")
+}
+
+// Data returns a map of the data values stored along this data source
+func (ds I2b2DataSource) Data() map[string]interface{} {
+	logrus.Error("not implemented")
+	return nil
 }
 
 // Query implements the data source interface Query function.

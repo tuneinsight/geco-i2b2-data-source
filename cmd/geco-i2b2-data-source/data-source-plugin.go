@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource"
+	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 // DataSourceType is the type of the data source.
-var DataSourceType sdk.DataSourceType = "i2b2-geco"
+var DataSourceType = datasource.DataSourceType
 
 // DataSourcePluginFactory exports a factory function compatible with GeCo data source plugin SDK.
-var DataSourcePluginFactory sdk.DataSourcePluginFactory = datasource.NewI2b2DataSource
+var DataSourcePluginFactory sdk.DataSourceFactory = datasource.NewI2b2DataSource

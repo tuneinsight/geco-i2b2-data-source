@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ldsec/geco-i2b2-data-source/pkg/datasource/models"
 	"github.com/stretchr/testify/require"
+	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )

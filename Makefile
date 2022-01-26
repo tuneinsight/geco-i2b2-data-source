@@ -1,6 +1,6 @@
 export DATASOURCE_VERSION := $(shell scripts/version.sh)
 export USER_GROUP := $(shell id -u):$(shell id -g)
-export I2B2_DOCKER_IMAGE ?= ghcr.io/ldsec/i2b2-geco:$(DATASOURCE_VERSION)
+export I2B2_DOCKER_IMAGE ?= ghcr.io/tuneinsight/i2b2-geco:$(DATASOURCE_VERSION)
 export COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1
 export GIT_LFS_SKIP_SMUDGE=1
 
@@ -21,7 +21,7 @@ i2b2-test:
 go-build-plugin: export CGO_ENABLED=1
 go-build-plugin: export GOOS=linux
 go-build-plugin:
-	go build -buildmode=plugin -trimpath -v -o ./build/ ./cmd/...
+	go build -buildmode=plugin -v -o ./build/ ./cmd/...
 
 #to be tested
 go-build-plugin-docker: export CGO_ENABLED=1

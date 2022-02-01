@@ -12,7 +12,7 @@ import (
 )
 
 func getDataSource(t *testing.T) *I2b2DataSource {
-	config := make(map[string]string)
+	config := make(map[string]interface{})
 	config["i2b2.api.url"] = "http://localhost:8081/i2b2/services"
 	config["i2b2.api.domain"] = "i2b2demo"
 	config["i2b2.api.username"] = "demo"
@@ -29,7 +29,9 @@ func getDataSource(t *testing.T) *I2b2DataSource {
 	config["db.password"] = "postgres"
 
 	logrus.StandardLogger().SetLevel(logrus.DebugLevel)
-	ds, err := NewI2b2DataSource("", "test", "test-geco-i2b2-ds", logrus.StandardLogger(), config)
+	ds, err := NewI2b2DataSource("", "test", "test-geco-i2b2-ds")
+	require.NoError(t, err)
+	err = ds.Config(logrus.StandardLogger(), config)
 	require.NoError(t, err)
 
 	err = ds.(*I2b2DataSource).db.TestLoadData()

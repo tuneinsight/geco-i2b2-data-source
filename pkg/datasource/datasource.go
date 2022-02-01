@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -8,66 +9,36 @@ import (
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client"
 	i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
-	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
-	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
+	sdkmodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	sdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 // compile-time check that I2b2DataSource implements the interface sdk.DataSource.
-var _ gecosdk.DataSource = (*I2b2DataSource)(nil)
+var _ sdk.DataSource = (*I2b2DataSource)(nil)
 
 // DataSourceType is the type of the data source.
-var DataSourceType gecosdk.DataSourceType = "i2b2-geco"
+var DataSourceType sdk.DataSourceType = "i2b2-geco"
 
 // Names of output data objects.
 const (
-	outputNameExploreQueryCount       gecosdk.OutputDataObjectName = "count"
-	outputNameExploreQueryPatientList gecosdk.OutputDataObjectName = "patientList"
+	outputNameExploreQueryCount       sdk.OutputDataObjectName = "count"
+	outputNameExploreQueryPatientList sdk.OutputDataObjectName = "patientList"
 )
 
 // NewI2b2DataSource creates an i2b2 data source. Implements sdk.DataSourceFactory.
-// Configuration keys:
-// - I2b2: i2b2.api.url, i2b2.api.domain, i2b2.api.username, i2b2.api.password, i2b2.api.project, i2b2.api.wait-time, i2b2.api.ont-max-elements
-// - Database: db.host, db.port, db.db-name, db.schema-name, db.user, db.password
-func NewI2b2DataSource(id gecomodels.DataSourceID, owner, name string, logger logrus.FieldLogger, config map[string]string) (plugin gecosdk.DataSource, err error) {
+func NewI2b2DataSource(id sdkmodels.DataSourceID, owner, name string) (plugin sdk.DataSource, err error) {
 	ds := new(I2b2DataSource)
 
-	ds.DataSourceModel = *gecosdk.NewDataSourceModel(id, owner, name, DataSourceType)
+	ds.DataSourceModel = *sdk.NewDataSourceModel(id, owner, name, DataSourceType)
+	ds.dbConfig = new(dbConfig)
+	ds.i2b2Config = new(i2b2Config)
 
-	ds.logger = logger
-
-	// initialize database connection
-	ds.db, err = database.NewPostgresDatabase(logger, config["db.host"], config["db.port"],
-		config["db.db-name"], config["db.schema-name"], config["db.user"], config["db.password"])
-	if err != nil {
-		return nil, ds.logError("initializing database connection", err)
-	}
-
-	// parse i2b2 API connection info and initialize i2b2 client
-	ci := i2b2clientmodels.ConnectionInfo{
-		HiveURL:  config["i2b2.api.url"],
-		Domain:   config["i2b2.api.domain"],
-		Username: config["i2b2.api.username"],
-		Password: config["i2b2.api.password"],
-		Project:  config["i2b2.api.project"],
-	}
-
-	if ci.WaitTime, err = time.ParseDuration(config["i2b2.api.wait-time"]); err != nil {
-		return nil, ds.logError("parsing i2b2 wait time", err)
-	}
-
-	ds.i2b2Client = i2b2client.Client{
-		Logger: logger,
-		Ci:     ci,
-	}
-	ds.i2b2OntMaxElements = config["i2b2.api.ont-max-elements"]
-
-	ds.logger.Infof("initialized i2b2 data source for %v", ci.HiveURL)
 	return ds, nil
 }
 
 // I2b2DataSource is an i2b2 data source for GeCo. It implements the data source interface.
 type I2b2DataSource struct {
-	gecosdk.DataSourceModel
+	sdk.DataSourceModel
 
 	// logger is the logger from GeCo
 	logger logrus.FieldLogger
@@ -78,34 +49,173 @@ type I2b2DataSource struct {
 	// i2b2Client is the i2b2 client
 	i2b2Client i2b2client.Client
 
-	// i2b2OntMaxElements is the configuration for the maximum number of ontology elements to return from i2b2
-	i2b2OntMaxElements string
+	// dbConfig contains the DB configuration
+	dbConfig *dbConfig
+
+	// i2b2Config contains the i2b2 configuration
+	i2b2Config *i2b2Config
+}
+
+type dbConfig struct {
+	// Host contains the DBMS host.
+	Host string
+	// Port contains the DBMS port.
+	Port string
+	// Name contains the DB name.
+	Name string
+	// Schema contains the used DB schema.
+	Schema string
+	// User contains the DB login user.
+	User string
+	// Password contains the DB login password.
+	Password string //TODO: is it safe?
+}
+
+// MarshalBinary marshals the db config.
+func (db *dbConfig) MarshalBinary() (data []byte, err error) {
+	return json.Marshal(db)
+}
+
+// UnmarshalBinary unmarshals the db config.
+func (db *dbConfig) UnmarshalBinary(data []byte) (err error) {
+	return json.Unmarshal(data, db)
+}
+
+type i2b2Config struct {
+	// URL contains the i2b2 hive url.
+	URL string
+	// Domain contains the i2b2 login domain.
+	Domain string
+	// Username contains the i2b2 login username.
+	Username string
+	// Password contains the i2b2 login password.
+	Password string //TODO: is it safe?
+	// Project contains the i2b2 project ID.
+	Project string
+	// WaitTime contains the maximum amount of time in milliseconds to wait for i2b2 to provide a synchronous result.
+	WaitTime time.Duration
+	// OntMaxElements contains the maximum number of ontology elements returned by a request.
+	OntMaxElements string
+}
+
+// MarshalBinary marshals the i2b2 config.
+func (i2b2 *i2b2Config) MarshalBinary() (data []byte, err error) {
+	return json.Marshal(i2b2)
+}
+
+// UnmarshalBinary unmarshals the i2b2 config.
+func (i2b2 *i2b2Config) UnmarshalBinary(data []byte) (err error) {
+	return json.Unmarshal(data, i2b2)
 }
 
 // FromModel sets the fields of the local data source given a model.
-func (ds I2b2DataSource) FromModel(model *gecosdk.DataSourceModel) {
-	logrus.Error("not implemented")
+func (ds *I2b2DataSource) FromModel(model *sdk.DataSourceModel) {
+	ds.DataSourceModel = *model
+}
+
+// Config configures the datasource.
+// Configuration keys:
+// - I2b2: i2b2.api.url, i2b2.api.domain, i2b2.api.username, i2b2.api.password, i2b2.api.project, i2b2.api.wait-time, i2b2.api.ont-max-elements
+// - Database: db.host, db.port, db.db-name, db.schema-name, db.user, db.password
+func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]interface{}) (err error) {
+	ds.logger = logger
+
+	// store db config
+	ds.dbConfig.Host = (config["db.host"].(string))
+	ds.dbConfig.Port = config["db.port"].(string)
+	ds.dbConfig.Name = config["db.db-name"].(string)
+	ds.dbConfig.Schema = config["db.schema-name"].(string)
+	ds.dbConfig.User = config["db.user"].(string)
+	ds.dbConfig.Password = config["db.password"].(string)
+
+	// store i2b2 config
+	ds.i2b2Config.URL = config["i2b2.api.url"].(string)
+	ds.i2b2Config.Domain = config["i2b2.api.domain"].(string)
+	ds.i2b2Config.Username = config["i2b2.api.username"].(string)
+	ds.i2b2Config.Password = config["i2b2.api.password"].(string)
+	ds.i2b2Config.Project = config["i2b2.api.project"].(string)
+	ds.i2b2Config.OntMaxElements = config["i2b2.api.ont-max-elements"].(string)
+	if ds.i2b2Config.WaitTime, err = time.ParseDuration(config["i2b2.api.wait-time"].(string)); err != nil {
+		return ds.logError("parsing i2b2 wait time", err)
+	}
+
+	// initialize database connection
+	ds.db, err = database.NewPostgresDatabase(ds.logger, ds.dbConfig.Host, ds.dbConfig.Port,
+		ds.dbConfig.Name, ds.dbConfig.Schema, ds.dbConfig.User, ds.dbConfig.Password)
+	if err != nil {
+		return ds.logError("initializing database connection", err)
+	}
+
+	// initialize i2b2 client
+	ds.i2b2Client = i2b2client.Client{
+		Logger: ds.logger,
+		Ci: i2b2clientmodels.ConnectionInfo{
+			HiveURL:  ds.i2b2Config.URL,
+			Domain:   ds.i2b2Config.Domain,
+			Username: ds.i2b2Config.Username,
+			Password: ds.i2b2Config.Password,
+			Project:  ds.i2b2Config.Project,
+			WaitTime: ds.i2b2Config.WaitTime,
+		},
+	}
+
+	ds.logger.Infof("initialized i2b2 data source for %v", ds.i2b2Config.URL)
+
+	return
+}
+
+// ConfigFromDB configures the data source retrieved from the DB.
+func (ds *I2b2DataSource) ConfigFromDB(logger logrus.FieldLogger) (err error) {
+	ds.logger = logger
+
+	fmt.Println(ds.dbConfig.Host, ds.dbConfig.Port,
+		ds.dbConfig.Name, ds.dbConfig.Schema, ds.dbConfig.User, ds.dbConfig.Password)
+
+	// initialize database connection
+	ds.db, err = database.NewPostgresDatabase(ds.logger, ds.dbConfig.Host, ds.dbConfig.Port,
+		ds.dbConfig.Name, ds.dbConfig.Schema, ds.dbConfig.User, ds.dbConfig.Password)
+	if err != nil {
+		return ds.logError("initializing database connection", err)
+	}
+
+	// initialize i2b2 client
+	ds.i2b2Client = i2b2client.Client{
+		Logger: ds.logger,
+		Ci: i2b2clientmodels.ConnectionInfo{
+			HiveURL:  ds.i2b2Config.URL,
+			Domain:   ds.i2b2Config.Domain,
+			Username: ds.i2b2Config.Username,
+			Password: ds.i2b2Config.Password,
+			Project:  ds.i2b2Config.Project,
+			WaitTime: ds.i2b2Config.WaitTime,
+		},
+	}
+
+	ds.logger.Infof("initialized i2b2 data source for %v", ds.i2b2Config.URL)
+
+	return
 }
 
 // GetData returns the csv data stored in the data source.
-func (ds I2b2DataSource) GetData(query string) ([]string, [][]float64) {
-	logrus.Error("not implemented")
+func (ds *I2b2DataSource) GetData(query string) ([]string, [][]float64) {
 	return nil, nil
 }
 
 // LoadData loads a csv into the local data source, saving it in the datamanager and updating the data source.
-func (ds I2b2DataSource) LoadData(columns []string, data interface{}) error {
-	return fmt.Errorf("not implemented")
-}
-
-// Data returns a map of the data values stored along this data source
-func (ds I2b2DataSource) Data() map[string]interface{} {
-	logrus.Error("not implemented")
+func (ds *I2b2DataSource) LoadData(_ []string, _ interface{}) error {
 	return nil
 }
 
+// Data returns a map of the data values stored along this data source
+func (ds *I2b2DataSource) Data() map[string]interface{} {
+	return map[string]interface{}{
+		"dbConfig":   ds.dbConfig,
+		"i2b2Config": ds.i2b2Config,
+	}
+}
+
 // Query implements the data source interface Query function.
-func (ds I2b2DataSource) Query(userID string, operation string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) Query(userID string, operation string, jsonParameters []byte, outputDataObjectsSharedIDs map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []sdk.DataObject, err error) {
 	ds.logger.Infof("executing operation %v for user %v", operation, userID)
 	ds.logger.Debugf("parameters: %v", string(jsonParameters))
 

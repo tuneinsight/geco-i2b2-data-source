@@ -8,5 +8,5 @@ require (
 	github.com/lib/pq v1.10.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
-	github.com/tuneinsight/sdk-datasource v0.0.0-20220126190829-e02a731bbf5e
+	github.com/tuneinsight/sdk-datasource v0.0.0-20220131221450-d3aa80f5dd77
 )

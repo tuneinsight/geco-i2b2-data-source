@@ -43,7 +43,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 			return &models.SearchResults{SearchResults: make([]models.SearchResult, 0)}, nil
 		}
 
-		req := i2b2clientmodels.NewOntReqGetTermInfoMessageBody(ds.i2b2OntMaxElements, i2b2FormatPath)
+		req := i2b2clientmodels.NewOntReqGetTermInfoMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath)
 		if resp, err = ds.i2b2Client.OntGetTermInfo(&req); err != nil {
 			return nil, fmt.Errorf("requesting term info: %v", err)
 		}
@@ -57,7 +57,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 			break
 		}
 
-		req := i2b2clientmodels.NewOntReqGetChildrenMessageBody(ds.i2b2OntMaxElements, i2b2FormatPath)
+		req := i2b2clientmodels.NewOntReqGetChildrenMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath)
 		if resp, err = ds.i2b2Client.OntGetChildren(&req); err != nil {
 			return nil, fmt.Errorf("requesting children: %v", err)
 		}
@@ -129,7 +129,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 
 		i2b2FormatAppliedPath := i2b2clientmodels.ConvertAppliedPathToI2b2Format(strings.TrimSpace(params.AppliedPath))
 		i2b2FormatAppliedConcept := i2b2clientmodels.ConvertPathToI2b2Format(strings.TrimSpace(params.AppliedConcept))
-		req := i2b2clientmodels.NewOntReqGetModifierChildrenMessageBody(ds.i2b2OntMaxElements, i2b2FormatPath, i2b2FormatAppliedPath, i2b2FormatAppliedConcept)
+		req := i2b2clientmodels.NewOntReqGetModifierChildrenMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath, i2b2FormatAppliedPath, i2b2FormatAppliedConcept)
 		if resp, err = ds.i2b2Client.OntGetModifierChildren(&req); err != nil {
 			return nil, fmt.Errorf("requesting children of modifier: %v", err)
 		}

@@ -10,8 +10,7 @@ make go-build-plugin
 ```
 
 ## Test
-### Prerequisite
-Having a running GeCo instance (dev-local-3nodes deployment) with `i2b2-geco` plugin installed.
+
 ### Start dependencies
 
 Start i2b2:

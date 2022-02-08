@@ -168,9 +168,6 @@ func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]in
 func (ds *I2b2DataSource) ConfigFromDB(logger logrus.FieldLogger) (err error) {
 	ds.logger = logger
 
-	fmt.Println(ds.dbConfig.Host, ds.dbConfig.Port,
-		ds.dbConfig.Name, ds.dbConfig.Schema, ds.dbConfig.User, ds.dbConfig.Password)
-
 	// initialize database connection
 	ds.db, err = database.NewPostgresDatabase(ds.logger, ds.dbConfig.Host, ds.dbConfig.Port,
 		ds.dbConfig.Name, ds.dbConfig.Schema, ds.dbConfig.User, ds.dbConfig.Password)

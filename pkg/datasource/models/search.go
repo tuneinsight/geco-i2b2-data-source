@@ -21,7 +21,7 @@ type SearchModifierParameters struct {
 
 // SearchResults is the result of the Search operations.
 type SearchResults struct {
-	SearchResults []SearchResult
+	SearchResults []SearchResult `json:"searchResults,omitempty"`
 }
 
 // NewSearchResultFromI2b2Concept creates a new SearchResult from an i2b2 concept.
@@ -97,12 +97,12 @@ type SearchResult struct {
 
 // SearchResultMetadata is part of SearchResult.
 type SearchResultMetadata struct {
-	DataType      string // PosInteger | Integer | Float | PosFloat | Enum | String
-	OkToUseValues string // Y
-	UnitValues    MetadataUnitValues
+	DataType      string `json:"dataType,omitempty"` // PosInteger | Integer | Float | PosFloat | Enum | String
+	OkToUseValues string `json:"okToUseValues,omitempty"` // Y
+	UnitValues    MetadataUnitValues `json:"unitValues,omitempty"`
 }
 
 // MetadataUnitValues is part of SearchResultMetadata.
 type MetadataUnitValues struct {
-	NormalUnits string
+	NormalUnits string `json:"normalUnits,omitempty"`
 }

@@ -84,21 +84,21 @@ func NewSearchResultFromI2b2Modifier(modifier i2b2clientmodels.Modifier) SearchR
 
 // SearchResult is a result part of SearchResults.
 type SearchResult struct {
-	Path        string `json:"path,omitempty"`
-	AppliedPath string `json:"appliedPath,omitempty"`
-	Name        string `json:"name,omitempty"`
-	DisplayName string `json:"displayName,omitempty"`
-	Code        string `json:"code,omitempty"`
-	Comment     string `json:"comment,omitempty"`
-	Type        string `json:"type,omitempty"` // concept | concept_container | concept_folder | modifier | modifier_container | modifier_folder | genomic_annotation 
-	Leaf        bool `json:"leaf,omitempty"`
+	Path        string               `json:"path,omitempty"`
+	AppliedPath string               `json:"appliedPath,omitempty"`
+	Name        string               `json:"name,omitempty"`
+	DisplayName string               `json:"displayName,omitempty"`
+	Code        string               `json:"code,omitempty"`
+	Comment     string               `json:"comment,omitempty"`
+	Type        string               `json:"type,omitempty"` // concept | concept_container | concept_folder | modifier | modifier_container | modifier_folder | genomic_annotation
+	Leaf        bool                 `json:"leaf,omitempty"`
 	Metadata    SearchResultMetadata `json:"metadata,omitempty"`
 }
 
 // SearchResultMetadata is part of SearchResult.
 type SearchResultMetadata struct {
-	DataType      string `json:"dataType,omitempty"` // PosInteger | Integer | Float | PosFloat | Enum | String
-	OkToUseValues string `json:"okToUseValues,omitempty"` // Y
+	DataType      string             `json:"dataType,omitempty"`      // PosInteger | Integer | Float | PosFloat | Enum | String
+	OkToUseValues string             `json:"okToUseValues,omitempty"` // Y
 	UnitValues    MetadataUnitValues `json:"unitValues,omitempty"`
 }
 

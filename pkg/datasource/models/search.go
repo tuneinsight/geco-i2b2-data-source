@@ -21,7 +21,7 @@ type SearchModifierParameters struct {
 
 // SearchResults is the result of the Search operations.
 type SearchResults struct {
-	SearchResults []SearchResult
+	SearchResults []SearchResult `json:"searchResults,omitempty"`
 }
 
 // NewSearchResultFromI2b2Concept creates a new SearchResult from an i2b2 concept.
@@ -84,25 +84,25 @@ func NewSearchResultFromI2b2Modifier(modifier i2b2clientmodels.Modifier) SearchR
 
 // SearchResult is a result part of SearchResults.
 type SearchResult struct {
-	Path        string
-	AppliedPath string
-	Name        string
-	DisplayName string
-	Code        string
-	Comment     string
-	Type        string // concept | concept_container | concept_folder | modifier | modifier_container | modifier_folder | genomic_annotation
-	Leaf        bool
-	Metadata    SearchResultMetadata
+	Path        string               `json:"path,omitempty"`
+	AppliedPath string               `json:"appliedPath,omitempty"`
+	Name        string               `json:"name,omitempty"`
+	DisplayName string               `json:"displayName,omitempty"`
+	Code        string               `json:"code,omitempty"`
+	Comment     string               `json:"comment,omitempty"`
+	Type        string               `json:"type,omitempty"` // concept | concept_container | concept_folder | modifier | modifier_container | modifier_folder | genomic_annotation
+	Leaf        bool                 `json:"leaf,omitempty"`
+	Metadata    SearchResultMetadata `json:"metadata,omitempty"`
 }
 
 // SearchResultMetadata is part of SearchResult.
 type SearchResultMetadata struct {
-	DataType      string // PosInteger | Integer | Float | PosFloat | Enum | String
-	OkToUseValues string // Y
-	UnitValues    MetadataUnitValues
+	DataType      string             `json:"dataType,omitempty"`      // PosInteger | Integer | Float | PosFloat | Enum | String
+	OkToUseValues string             `json:"okToUseValues,omitempty"` // Y
+	UnitValues    MetadataUnitValues `json:"unitValues,omitempty"`
 }
 
 // MetadataUnitValues is part of SearchResultMetadata.
 type MetadataUnitValues struct {
-	NormalUnits string
+	NormalUnits string `json:"normalUnits,omitempty"`
 }

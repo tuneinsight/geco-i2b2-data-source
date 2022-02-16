@@ -233,7 +233,7 @@ func (ds *I2b2DataSource) Query(userID string, operation string, jsonParameters 
 	case OperationSurvivalQuery:
 		return nil, nil, ds.logError("operation survivalQuery not implemented", nil) // todo
 	case OperationSearchOntology:
-		return nil, nil, ds.logError("operation searchOntology not implemented", nil) // todo
+		handler = ds.SearchOntologyHandler
 
 	default:
 		return nil, nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)

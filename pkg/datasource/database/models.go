@@ -20,3 +20,15 @@ type ExploreQuery struct {
 	ResultGecoSharedIDCount       sql.NullString
 	ResultGecoSharedIDPatientList sql.NullString
 }
+
+// OntologyElement is an i2b2 ontology element as stored in the database.
+type OntologyElement struct {
+	FullName         string
+	Name             string
+	VisualAttributes string
+	BaseCode         string
+	MetaDataXML      sql.NullString
+	Comment          string
+	AppliedPath      string
+	ID               int
+}

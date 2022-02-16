@@ -29,6 +29,19 @@ services:
     networks:
       intra-node:
 
+  pgadmin:
+    image: ghcr.io/tuneinsight/pgadmin-geco:${DATASOURCE_VERSION:?}
+    build:
+      context: ../build/package/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@tuneinsight.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_CONFIG_CONSOLE_LOG_LEVEL=50
+    ports:
+      - "8033:80"
+    networks:
+      intra-node:
+
 networks:
   intra-node:
     driver: bridge

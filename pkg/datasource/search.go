@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"strings"
 
@@ -24,8 +25,8 @@ func (ds I2b2DataSource) SearchConceptHandler(_ string, jsonParameters []byte, _
 	return
 }
 
-// SearchConcept retrieves the info about or the children of the concept identified by path.
-func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (*models.SearchResults, error) {
+// SearchConcept retrieves the info about or the children of the concept identified by the params.
+func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (*models.SearchResult, error) {
 
 	// make the appropriate request to i2b2
 	path := strings.TrimSpace(params.Path)
@@ -40,7 +41,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 	switch params.Operation {
 	case "info":
 		if path == "/" {
-			return &models.SearchResults{SearchResults: make([]models.SearchResult, 0)}, nil
+			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}
 
 		req := i2b2clientmodels.NewOntReqGetTermInfoMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath)
@@ -67,11 +68,11 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 	}
 
 	// generate result from response
-	searchResults := make([]models.SearchResult, 0, len(resp.Concepts))
+	searchResultElements := make([]*models.SearchResultElement, 0, len(resp.Concepts))
 	for _, concept := range resp.Concepts {
-		searchResults = append(searchResults, models.NewSearchResultFromI2b2Concept(concept))
+		searchResultElements = append(searchResultElements, models.NewSearchResultFromI2b2Concept(concept))
 	}
-	return &models.SearchResults{SearchResults: searchResults}, nil
+	return &models.SearchResult{SearchResultElements: searchResultElements}, nil
 }
 
 // SearchModifierHandler is the OperationHandler for the searchModifier Operation.
@@ -87,8 +88,8 @@ func (ds I2b2DataSource) SearchModifierHandler(_ string, jsonParameters []byte, 
 	return
 }
 
-// SearchModifier retrieves the info about or the children of the modifier identified by path.
-func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters) (*models.SearchResults, error) {
+// SearchModifier retrieves the info about or the children of the modifier identified by params.
+func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters) (*models.SearchResult, error) {
 
 	// make the appropriate request to i2b2
 	path := strings.TrimSpace(params.Path)
@@ -103,7 +104,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 	switch params.Operation {
 	case "concept":
 		if path == "/" {
-			return &models.SearchResults{SearchResults: make([]models.SearchResult, 0)}, nil
+			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}
 
 		req := i2b2clientmodels.NewOntReqGetModifiersMessageBody(i2b2FormatPath)
@@ -113,7 +114,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 
 	case "info":
 		if path == "/" {
-			return &models.SearchResults{SearchResults: make([]models.SearchResult, 0)}, nil
+			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}
 
 		i2b2FormatAppliedPath := i2b2clientmodels.ConvertAppliedPathToI2b2Format(strings.TrimSpace(params.AppliedPath))
@@ -124,7 +125,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 
 	case "children":
 		if path == "/" {
-			return &models.SearchResults{SearchResults: make([]models.SearchResult, 0)}, nil
+			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}
 
 		i2b2FormatAppliedPath := i2b2clientmodels.ConvertAppliedPathToI2b2Format(strings.TrimSpace(params.AppliedPath))
@@ -139,9 +140,75 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 	}
 
 	// generate result from response
-	searchResults := make([]models.SearchResult, 0, len(resp.Modifiers))
+	searchResults := make([]*models.SearchResultElement, 0, len(resp.Modifiers))
 	for _, modifier := range resp.Modifiers {
 		searchResults = append(searchResults, models.NewSearchResultFromI2b2Modifier(modifier))
 	}
-	return &models.SearchResults{SearchResults: searchResults}, nil
+	return &models.SearchResult{SearchResultElements: searchResults}, nil
+}
+
+// SearchOntologyHandler is the OperationHandler for the searchOntology Operation.
+func (ds I2b2DataSource) SearchOntologyHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
+	decodedParams := &models.SearchOntologyParameters{}
+	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
+		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
+	} else if searchResults, err := ds.SearchOntology(decodedParams); err != nil {
+		return nil, nil, fmt.Errorf("executing query: %v", err)
+	} else if jsonResults, err = json.Marshal(searchResults); err != nil {
+		return nil, nil, fmt.Errorf("encoding results: %v", err)
+	}
+	return
+}
+
+// SearchOntology retrieves the info about the concepts and modifiers identified by params.
+func (ds I2b2DataSource) SearchOntology(params *models.SearchOntologyParameters) (*models.SearchResult, error) {
+
+	if len(*params.SearchString) == 0 {
+		return nil, fmt.Errorf("empty search string")
+	}
+
+	ontologyElements, err := ds.db.SearchOntology(*params.SearchString, params.Limit)
+	if err != nil {
+		return nil, fmt.Errorf("while searching ontology: %v", err)
+	}
+
+	currentID := 0
+	results := make([]*models.SearchResultElement, 0)
+	var currentElement *models.SearchResultElement
+
+	for _, ontologyElement := range ontologyElements {
+
+		ontologyElementParsed := i2b2clientmodels.OntologyElement{
+			Key:              ontologyElement.FullName,
+			Name:             ontologyElement.Name,
+			Visualattributes: ontologyElement.VisualAttributes,
+			Basecode:         ontologyElement.BaseCode,
+			Comment:          ontologyElement.Comment,
+			AppliedPath:      ontologyElement.AppliedPath,
+		}
+
+		if ontologyElement.MetaDataXML.Valid {
+			ontologyElementParsed.Metadataxml = new(i2b2clientmodels.MetadataXML)
+			err = xml.Unmarshal([]byte(ontologyElement.MetaDataXML.String), ontologyElementParsed.Metadataxml)
+			if err != nil {
+				return nil, fmt.Errorf("while unmarshalling xml metadata of ontology element %s: %v", ontologyElement.FullName, err)
+			}
+		}
+
+		searchResultElement := models.NewSearchResultFromI2b2OntologyElement(ontologyElementParsed)
+
+		// a found element and its ancestors have the same ID (ID starts from 1)
+		// the result of the query is ordered, i.e. element at position i have its father at position i+1
+		if ontologyElement.ID != currentID {
+			currentID = ontologyElement.ID
+			results = append(results, searchResultElement)
+		} else {
+			currentElement.Parent = searchResultElement
+		}
+
+		currentElement = searchResultElement
+
+	}
+
+	return &models.SearchResult{SearchResultElements: results}, nil
 }

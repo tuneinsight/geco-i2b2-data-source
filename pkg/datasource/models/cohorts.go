@@ -10,36 +10,36 @@ import (
 
 // GetCohortsParameters is the parameter for the GetCohorts operation.
 type GetCohortsParameters struct {
-	Limit int
+	Limit int `json:"limit"`
 }
 
 // AddDeleteCohortParameters is the parameter for the AddCohort and DeleteCohort operations.
 type AddDeleteCohortParameters struct {
-	Name           string
-	ExploreQueryID string
+	Name           string `json:"name"`
+	ExploreQueryID string `json:"exploreQueryID"`
 }
 
 // --- results
 
 // CohortResults is the result of the GetCohorts operation.
 type CohortResults struct {
-	Cohorts []Cohort
+	Cohorts []Cohort `json:"cohorts"`
 }
 
 // Cohort is a result part of the GetCohorts operation.
 type Cohort struct {
-	Name         string
-	CreationDate string
+	Name         string `json:"name"`
+	CreationDate string `json:"CreationDate"`
 	ExploreQuery struct {
-		ID                         string
-		CreationDate               string
-		Status                     string
-		Definition                 ExploreQueryDefinition
+		ID                         string                 `json:"id"`
+		CreationDate               string                 `json:"creationDate"`
+		Status                     string                 `json:"status"`
+		Definition                 ExploreQueryDefinition `json:"definition"`
 		OutputDataObjectsSharedIDs struct {
-			Count       string
-			PatientList string
-		}
-	}
+			Count       string `json:"count"`
+			PatientList string `json:"patientList"`
+		} `json:"outputDataObjectsSharedIDs"`
+	} `json:"exploreQuery"`
 }
 
 // NewCohortFromDbModel creates a new Cohort from a database.SavedCohort.

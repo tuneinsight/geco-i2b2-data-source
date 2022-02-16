@@ -85,7 +85,7 @@ func TestWorkflow(t *testing.T) {
 
 	user := "testUser"
 
-	// search the ontology
+	// search the ontology by browsing it
 	params := `{"path": "/", "operation": "children"}`
 	res, do, err := ds.Query(user, "searchConcept", []byte(params), nil)
 	require.NoError(t, err)
@@ -104,8 +104,9 @@ func TestWorkflow(t *testing.T) {
 	require.Empty(t, do)
 	require.Contains(t, string(res), "Modifier 1")
 
-	params = `{"path": "/TEST/modifiers/", "operation": "children", "appliedPath": "/test/%", "appliedConcept": "/TEST/test/1/"}`
-	res, do, err = ds.Query(user, "searchModifier", []byte(params), nil)
+	// OR search the ontology by searching for a specific item.
+	params = `{"searchString": "Modifier 1", "limit": "10"}`
+	res, do, err = ds.Query(user, string(OperationSearchOntology), []byte(params), nil)
 	require.NoError(t, err)
 	require.Empty(t, do)
 	require.Contains(t, string(res), "Modifier 1")

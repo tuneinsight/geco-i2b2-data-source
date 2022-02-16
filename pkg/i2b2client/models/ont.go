@@ -169,8 +169,8 @@ type OntRespModifiersMessageBody struct {
 	Modifiers []Modifier `xml:"modifiers>modifier"`
 }
 
-// Concept is an i2b2 XML concept
-type Concept struct {
+// OntologyElement is an i2b2 XML ontology element
+type OntologyElement struct {
 	Level            string       `xml:"level"`
 	Key              string       `xml:"key"`
 	Name             string       `xml:"name"`
@@ -192,25 +192,26 @@ type Concept struct {
 	ImportDate       string       `xml:"import_date"`
 	SourcesystemCd   string       `xml:"sourcesystem_cd"`
 	ValuetypeCd      string       `xml:"valuetype_cd"`
+	AppliedPath      string       `xml:"applied_path"`
 }
+
+// Concept is an i2b2 XML concept.
+type Concept OntologyElement
 
 // Modifier is an i2b2 XML modifier.
-type Modifier struct {
-	Concept
-	AppliedPath string `xml:"applied_path"`
-}
+type Modifier OntologyElement
 
-// MetadataXML is the metadata of a Concept.
+// MetadataXML is the metadata of an OntologyElement.
 type MetadataXML struct {
-	CreationDateTime string                  `xml:"ValueMetadata>CreationDateTime"`
-	DataType         string                  `xml:"ValueMetadata>DataType"`
-	EnumValues       string                  `xml:"ValueMetadata>EnumValues"`
-	Flagstouse       string                  `xml:"ValueMetadata>Flagstouse"`
-	Oktousevalues    string                  `xml:"ValueMetadata>Oktousevalues"`
-	TestID           string                  `xml:"ValueMetadata>TestID"`
-	TestName         string                  `xml:"ValueMetadata>TestName"`
-	UnitValues       ValueMetadataUnitValues `xml:"ValueMetadata>UnitValues"`
-	Version          string                  `xml:"ValueMetadata>Version"`
+	CreationDateTime string                    `xml:"ValueMetadata>CreationDateTime"`
+	DataType         string                    `xml:"ValueMetadata>DataType"`
+	EnumValues       string                    `xml:"ValueMetadata>EnumValues"`
+	Flagstouse       string                    `xml:"ValueMetadata>Flagstouse"`
+	Oktousevalues    string                    `xml:"ValueMetadata>Oktousevalues"`
+	TestID           string                    `xml:"ValueMetadata>TestID"`
+	TestName         string                    `xml:"ValueMetadata>TestName"`
+	UnitValues       []ValueMetadataUnitValues `xml:"ValueMetadata>UnitValues"`
+	Version          string                    `xml:"ValueMetadata>Version"`
 }
 
 // ValueMetadataUnitValues is part of MetadataXML.

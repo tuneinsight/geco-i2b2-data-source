@@ -6,34 +6,34 @@ import i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2cl
 
 // ExploreQueryParameters is the parameter for the ExploreQuery operation.
 type ExploreQueryParameters struct {
-	ID         string
-	Definition ExploreQueryDefinition
+	ID         string                 `json:"id"`
+	Definition ExploreQueryDefinition `json:"definition"`
 }
 
 // ExploreQueryDefinition is the query definition of ExploreQueryParameters.
 type ExploreQueryDefinition struct {
-	Timing string // any | samevisit | sameinstancenum
-	Panels []Panel
+	Timing string  `json:"timing"` // any | samevisit | sameinstancenum
+	Panels []Panel `json:"panels"`
 }
 
 // Panel is part of an ExploreQueryDefinition.
 type Panel struct {
-	Not          bool
-	Timing       string // any | samevisit | sameinstancenum
-	CohortItems  []string
-	ConceptItems []ConceptItem
+	Not          bool          `json:"not"`
+	Timing       string        `json:"timing"` // any | samevisit | sameinstancenum
+	CohortItems  []string      `json:"cohortItems"`
+	ConceptItems []ConceptItem `json:"conceptItems"`
 }
 
 // ConceptItem is part of a Panel.
 type ConceptItem struct {
-	QueryTerm string
-	Operator  string // EQ | NE | GT | GE | LT | LE | BETWEEN | IN | LIKE[exact] | LIKE[begin] | LIKE[end] | LIKE[contains]
-	Value     string
-	Type      string // NUMBER | TEXT
+	QueryTerm string `json:"queryTerm"`
+	Operator  string `json:"operator"` // EQ | NE | GT | GE | LT | LE | BETWEEN | IN | LIKE[exact] | LIKE[begin] | LIKE[end] | LIKE[contains]
+	Value     string `json:"value"`
+	Type      string `json:"type"` // NUMBER | TEXT
 	Modifier  struct {
-		Key         string
-		AppliedPath string
-	}
+		Key         string `json:"key"`
+		AppliedPath string `json:"appliedPath"`
+	} `json:"modifier"`
 }
 
 // ToI2b2APIModel converts this query definition in the i2b2 API format.

@@ -8,47 +8,64 @@ Exploration of the concepts of the tree-like ontology.
 ## Parameters
 ```json
 {
-  "Path": "/TEST/test",
-  "Operation": "children|info"
+  "path": "/TEST/test",
+  "operation": "children|info"
 }
 ```
 
-- `Path`: path to the requested concept
-- `Operation`:
+- `path`: path to the requested concept
+- `operation`:
     - `info`: request metadata about the concept itself
     - `children`: request children of the concept
 
 ## Results
 ```json
 {
-  "SearchResults": [{
-    "Path": "/TEST/test",
-    "AppliedPath": "x",
-    "Name": "x",
-    "DisplayName": "x",
-    "Code": "x",
-    "Comment": "x",
-    "Type": "concept|concept_container|concept_folder|modifier|modifier_container|modifier_folder|genomic_annotation",
-    "Leaf": true,
-    "Metadata": {
-      "DataType": "PosInteger|Integer|Float|PosFloat|Enum|String",
-      "OkToUseValues": "Y",
-      "UnitValues": {
-        "NormalUnits": "x"
+  "searchResult": [{
+    "path": "/TEST/test",
+    "appliedPath": "x",
+    "name": "x",
+    "displayName": "x",
+    "code": "x",
+    "comment": "x",
+    "type": "concept|concept_container|concept_folder|modifier|modifier_container|modifier_folder|genomic_annotation",
+    "leaf": true,
+    "metadata": {
+      "valueMetadata": {
+        "creationDateTime": "x",
+        "dataType": "PosInteger|Integer|Float|PosFloat|Enum|String",
+        "enumValues": "x",
+        "flagsToUse": "x",
+        "OkToUseValues": "Y",
+        "testID": "x",
+        "testName": "x",
+        "unitValues": [
+          {
+            "convertingUnits": [
+              {
+                "multiplyingFactor": "x",
+                "units": "x"
+              }
+            ],
+            "equalUnits": "x",
+            "excludingUnits": "x",
+            "normalUnits": "x"
+          }
+        ]
       }
     }
   }]
 }
 ```
 
-- `SearchResults`: array of results, either concepts or modifiers
-  - `Path`: path to the modifier or concept
-  - `AppliedPath`:  path(s) onto which the modifier applies (if a modifier)
-  - `Name`: name of the element
-  - `DisplayName`: nicely formatted name of the element
-  - `Code`: i2b2 two-elements code
-  - `Comment`: comment that can be used as tooltip 
-  - `Type`: type of the element
+- `searchResult`: array of results, either concepts or modifiers
+  - `path`: path to the modifier or concept
+  - `appliedPath`:  path(s) onto which the modifier applies (if a modifier)
+  - `name`: name of the element
+  - `displayName`: nicely formatted name of the element
+  - `code`: i2b2 two-elements code
+  - `comment`: comment that can be used as tooltip 
+  - `type`: type of the element
     - `concept`: concept
     - `concept_container`: concept with children, queryable
     - `concept_folder`: concept with children, not queryable
@@ -56,18 +73,8 @@ Exploration of the concepts of the tree-like ontology.
     - `modifier_container`: modifier with children, queryable
     - `modifier_folder`: modifier with children, not queryable
     - `genomic_annotations`: genomic annotation
-  - `Leaf`: true if element is a leaf, i.e. does not have children
-  - `Metadata`: some additional metadata
-    - `DataType`: detailed type of data
-      - `PosInteger`: positive integers
-      - `Integer`: integers
-      - `PosFloat`: positive floats
-      - `Float`: floats
-      - `Enum`: enumerated values (string)
-      - `String`: free text (string)
-    - `OkToUseValues`: is a "Y" if can use values, a message saying why otherwise
-    - `UnitValues`: metadata about unit of the value
-      - `NormalUnits`: specify the unit of the value
+  - `leaf`: true if element is a leaf, i.e. does not have children
+  - `metadata`: some additional metadata (refer to the (i2b2 doc)[https://community.i2b2.org/wiki/display/DevForum/Metadata+XML+for+Medication+Modifiers] for details.)
 
 # searchModifier
 Exploration of the modifiers of the tree-like ontology.
@@ -75,21 +82,38 @@ Exploration of the modifiers of the tree-like ontology.
 ## Parameters
 ```json
 {
-  "Path": "/TEST/modifiers/",
-  "AppliedPath": "/test/%",
-  "AppliedConcept": "/TEST/test/1/",
-  "Operation": "concept|children|info"
+  "path": "/TEST/modifiers/",
+  "appliedPath": "/test/%",
+  "appliedConcept": "/TEST/test/1/",
+  "operation": "concept|children|info"
 }
 ```
 
-- `Path`: path to the requested modifier or concept
-- `AppliedPath`: path(s) onto which the modifier applies
-- `AppliedConcept`: concept onto which the modifier applies
-- `Operation`:
+- `path`: path to the requested modifier or concept
+- `appliedPath`: path(s) onto which the modifier applies
+- `appliedConcept`: concept onto which the modifier applies
+- `operation`:
   - `info`: request metadata about the modifier itself
   - `children`: request children of the modifier
   - `concept`: request modifiers of the requested concept
   
+## Results
+See results of `searchConcept`.
+
+# searchOntology
+Search the elements (both concepts and modifiers) of the ontology.
+
+## Parameters
+```json
+{
+  "searchString": "xxxx",
+  "limit": "1000"
+}
+```
+
+- `searchString`: string to search for in concepts and modifiers names.
+- `limit`: maximum number of returned ontology elements (default 10).
+
 ## Results
 See results of `searchConcept`.
 
@@ -100,40 +124,40 @@ Retrieve patient IDs from i2b2 based on explore query terms.
 ## Parameters
 ```json
 {
-  "ID": "99999999-9999-9999-9999-999999999999",
-  "Definition": {
-    "Panels": [{
-      "Not": false,
-      "Timing": "any|samevisit|sameinstancenum",
-      "CohortItems": ["cohortName0", "cohortName1"],
-      "ConceptItems": [{
-        "QueryTerm": "/TEST/test/1/",
-        "Operator": "EQ|NE|GT|GE|LT||LE|BETWEEN|IN|LIKE[exact]|LIKE[begin]|LIKE[end]|LIKE[contains]",
-        "Value": "xxx",
-        "Type": "NUMBER|TEXT",
-        "Modifier": {
-          "AppliedPath": "/test/1/",
-          "Key": "/TEST/modifiers/1/"
+  "id": "99999999-9999-9999-9999-999999999999",
+  "definition": {
+    "panels": [{
+      "not": false,
+      "timing": "any|samevisit|sameinstancenum",
+      "cohortItems": ["cohortName0", "cohortName1"],
+      "conceptItems": [{
+        "queryTerm": "/TEST/test/1/",
+        "operator": "EQ|NE|GT|GE|LT||LE|BETWEEN|IN|LIKE[exact]|LIKE[begin]|LIKE[end]|LIKE[contains]",
+        "value": "xxx",
+        "type": "NUMBER|TEXT",
+        "modifier": {
+          "appliedPath": "/test/1/",
+          "key": "/TEST/modifiers/1/"
         }
       }]
     }],
-    "Timing": "any|samevisit|sameinstancenum"
+    "timing": "any|samevisit|sameinstancenum"
   }
 }
 ```
 
-- `ID`: ID of the query, must be an UUID
-- `Definition`: definition of the explore query
-  - `Panels`: panels of the explore query (linked together by an AND)
-    - `Not`: true if the panel is inverted
-    - `Timing`: timing of the panel
+- `id`: ID of the query, must be an UUID
+- `definition`: definition of the explore query
+  - `panels`: panels of the explore query (linked together by an AND)
+    - `not`: true if the panel is inverted
+    - `timing`: timing of the panel
       - `any`: no constrain (default)
       - `samevisit`: constrain to the same visit
       - `sameinstancenum`: constrain to the same instance number
-    - `CohortItems`: array of cohort names if querying for cohorts (linked together by an OR)
-    - `ConceptItems`: array of concepts if querying for concepts (linked together by an OR)
-      - `QueryTerm`: path to the queried concept
-      - `Operator`: apply an operator to the queried concept 
+    - `cohortItems`: array of cohort names if querying for cohorts (linked together by an OR)
+    - `conceptItems`: array of concepts if querying for concepts (linked together by an OR)
+      - `queryTerm`: path to the queried concept
+      - `operator`: apply an operator to the queried concept 
         - `EQ`: equal (type=NUMBER)
         - `NE`: not equal (type=NUMBER)
         - `GT`: greater (type=NUMBER)
@@ -146,14 +170,14 @@ Retrieve patient IDs from i2b2 based on explore query terms.
         - `LIKE[begin]`: string begins with (type=TEXT)
         - `LIKE[end]`: string ends with (type=TEXT)
         - `LIKE[contains]`: string contains (type=TEXT)
-      - `Value`: value to use with operator
-      - `Type`: type of concept
+      - `value`: value to use with operator
+      - `type`: type of concept
         - `NUMBER`: numeric type
         - `TEXT`: string type
-      - `Modifier`: apply a modifier to the queried concept
+      - `modifier`: apply a modifier to the queried concept
         - `AppliedPath`: path(s) onto which the modifier applies
         - `Key`: path of the modifier
-  - `Timing`: timing of the query
+  - `timing`: timing of the query
     - `any`: no constrain (default)
     - `samevisit`: constrain to the same visit
     - `sameinstancenum`: constrain to the same instance number
@@ -168,44 +192,44 @@ Retrieve the list of saved cohorts.
 ## Parameters
 ```json
 {
-  "Limit": 10
+  "limit": 10
 }
 ```
 
-- `Limit`: max number of cohorts to retrieve
+- `limit`: max number of cohorts to retrieve
 
 ## Results
 ```json
 {
-  "Cohorts": [{
-    "Name": "Cohort 1",
-    "CreationDate": "xxx",
-    "ExploreQuery": {
-      "ID": "99999999-9999-9999-9999-999999999999",
-      "CreationDate": "xxx",
-      "Status": "running|success|error",
-      "Definition": {},
-      "OutputDataObjectsSharedIDs": {
-        "Count": "xxx",
-        "PatientList": "xxx"
+  "cohorts": [{
+    "name": "Cohort 1",
+    "creationDate": "xxx",
+    "exploreQuery": {
+      "id": "99999999-9999-9999-9999-999999999999",
+      "creationDate": "xxx",
+      "status": "running|success|error",
+      "definition": {},
+      "outputDataObjectsSharedIDs": {
+        "count": "xxx",
+        "patientList": "xxx"
       }
     }
   }]
 }
 ```
 
-- `Cohorts`: array of cohorts
-  - `Name`: name of the cohort
-  - `CreationDate`: date of the creation of the cohort
-  - `ExploreQuery`: the query tied to the cohort
-    - `ID`: identifier of the query
-    - `CreationDate`: date of the creation of the query
-    - `Status`: status of the query
+- `cohorts`: array of cohorts
+  - `name`: name of the cohort
+  - `creationDate`: date of the creation of the cohort
+  - `exploreQuery`: the query tied to the cohort
+    - `id`: identifier of the query
+    - `creationDate`: date of the creation of the query
+    - `status`: status of the query
       - `running`: query is running
       - `success`: query successfully ran
       - `error`: query has errored
-    - `Definition`: definition of the query (see above for syntax)
-  - `OutputDataObjectsSharedIDs`:
+    - `definition`: definition of the query (see above for syntax)
+  - `outputDataObjectsSharedIDs`:
     - `Count`: data object shared ID of the count
     - `PatientList`: data object shared ID of the patient list 
 
@@ -215,13 +239,13 @@ Add a cohort.
 ## Parameters
 ```json
 {
-  "Name": "Cohort 1",
-  "ExploreQueryID": "99999999-9999-9999-9999-999999999999"
+  "name": "Cohort 1",
+  "exploreQueryID": "99999999-9999-9999-9999-999999999999"
 }
 ```
 
-- `Name`: name of the cohort
-- `ExploreQueryID`: query to associate to the cohort
+- `name`: name of the cohort
+- `exploreQueryID`: query to associate to the cohort
 
 # deleteCohort
 Delete a cohort.
@@ -229,10 +253,10 @@ Delete a cohort.
 ## Parameters
 ```json
 {
-"Name": "Cohort 1",
-"ExploreQueryID": "99999999-9999-9999-9999-999999999999"
+  "name": "Cohort 1",
+  "exploreQueryID": "99999999-9999-9999-9999-999999999999"
 }
 ```
 
-- `Name`: name of the cohort
-- `ExploreQueryID`: query associated to the cohort
+- `name`: name of the cohort
+- `exploreQueryID`: query associated to the cohort

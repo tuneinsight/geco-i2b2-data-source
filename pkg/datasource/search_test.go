@@ -65,7 +65,9 @@ func TestSearchConceptChildren(t *testing.T) {
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResultElements)
-	require.Empty(t, searchResults.SearchResultElements)
+	require.Equal(t, 2, len(searchResults.SearchResultElements))
+	require.Contains(t, searchResults.SearchResultElements[0].Path, "/TEST/modifiers2/2")
+	require.Contains(t, searchResults.SearchResultElements[1].Path, "/TEST/modifiers2/text")
 }
 
 func TestSearchConceptError(t *testing.T) {

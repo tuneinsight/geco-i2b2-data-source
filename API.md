@@ -16,7 +16,7 @@ Exploration of the concepts of the tree-like ontology.
 - `path`: path to the requested concept
 - `operation`:
     - `info`: request metadata about the concept itself
-    - `children`: request children of the concept
+    - `children`: request children of the concept (both concepts and modifiers)
 
 ## Results
 ```json

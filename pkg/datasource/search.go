@@ -31,7 +31,9 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 	// make the appropriate request to i2b2
 	path := strings.TrimSpace(params.Path)
 	i2b2FormatPath := i2b2clientmodels.ConvertPathToI2b2Format(path)
-	var resp *i2b2clientmodels.OntRespConceptsMessageBody
+	var respConcepts *i2b2clientmodels.OntRespConceptsMessageBody
+	respModifiers := new(models.SearchResult)
+
 	var err error
 
 	if len(path) == 0 {
@@ -45,22 +47,29 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 		}
 
 		req := i2b2clientmodels.NewOntReqGetTermInfoMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath)
-		if resp, err = ds.i2b2Client.OntGetTermInfo(&req); err != nil {
+		if respConcepts, err = ds.i2b2Client.OntGetTermInfo(&req); err != nil {
 			return nil, fmt.Errorf("requesting term info: %v", err)
 		}
 
 	case "children":
 		if path == "/" {
 			req := i2b2clientmodels.NewOntReqGetCategoriesMessageBody()
-			if resp, err = ds.i2b2Client.OntGetCategories(&req); err != nil {
+			if respConcepts, err = ds.i2b2Client.OntGetCategories(&req); err != nil {
 				return nil, fmt.Errorf("requesting categories: %v", err)
 			}
 			break
 		}
 
 		req := i2b2clientmodels.NewOntReqGetChildrenMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath)
-		if resp, err = ds.i2b2Client.OntGetChildren(&req); err != nil {
-			return nil, fmt.Errorf("requesting children: %v", err)
+		if respConcepts, err = ds.i2b2Client.OntGetChildren(&req); err != nil {
+			return nil, fmt.Errorf("requesting children (concepts): %v", err)
+		} else if respModifiers, err = ds.SearchModifier(&models.SearchModifierParameters{
+			SearchConceptParameters: models.SearchConceptParameters{
+				Path:      params.Path,
+				Operation: "concept",
+			},
+		}); err != nil {
+			return nil, fmt.Errorf("requesting children (modifiers): %v", err)
 		}
 
 	default:
@@ -68,10 +77,11 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 	}
 
 	// generate result from response
-	searchResultElements := make([]*models.SearchResultElement, 0, len(resp.Concepts))
-	for _, concept := range resp.Concepts {
+	searchResultElements := make([]*models.SearchResultElement, 0, len(respConcepts.Concepts))
+	for _, concept := range respConcepts.Concepts {
 		searchResultElements = append(searchResultElements, models.NewSearchResultFromI2b2Concept(concept))
 	}
+	searchResultElements = append(searchResultElements, respModifiers.SearchResultElements...)
 	return &models.SearchResult{SearchResultElements: searchResultElements}, nil
 }
 

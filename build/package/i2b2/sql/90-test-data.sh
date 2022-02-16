@@ -79,34 +79,44 @@ psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
                 'T', 'LIKE', '\test\3\', 'Concept 3', '\test\3\',
                 'NOW()', 'NOW()', 'NOW()', 'TEST', '@', 'TEST:3', NULL
             ), (
-                '0', '\modifiers\', 'Modifiers test', 'N', 'DA', '0',
+                '0', '\modifiers1\', 'Modifiers 1 test', 'N', 'DA', '0',
                 'modifier_cd', 'modifier_dimension', 'modifier_path',
-                'T', 'LIKE', '\modifiers\', 'Modifiers Test', '\modifiers\',
-                'NOW()', 'NOW()', 'NOW()', 'TEST', '\test\%', 'TEST:4', NULL
+                'T', 'LIKE', '\modifiers1\', 'Modifiers 1 Test', '\modifiers1\',
+                'NOW()', 'NOW()', 'NOW()', 'TEST', '\test\1\', 'TEST:4-1', NULL
             ), (
-                '1', '\modifiers\1\', 'Modifier 1', 'N', 'RA', '0',
+                 '0', '\modifiers2\', 'Modifiers 2 test', 'N', 'DA', '0',
+                 'modifier_cd', 'modifier_dimension', 'modifier_path',
+                 'T', 'LIKE', '\modifiers2\', 'Modifiers 2 Test', '\modifiers2\',
+                 'NOW()', 'NOW()', 'NOW()', 'TEST', '\test\2\', 'TEST:4-2', NULL
+             ), (
+                  '0', '\modifiers3\', 'Modifiers 3 test', 'N', 'DA', '0',
+                  'modifier_cd', 'modifier_dimension', 'modifier_path',
+                  'T', 'LIKE', '\modifiers1\', 'Modifiers 3 Test', '\modifiers3\',
+                  'NOW()', 'NOW()', 'NOW()', 'TEST', '\test\3\', 'TEST:4-3', NULL
+              ), (
+                '1', '\modifiers1\1\', 'Modifier 1', 'N', 'RA', '0',
                 'modifier_cd', 'modifier_dimension', 'modifier_path',
-                'T', 'LIKE', '\modifiers\1\', 'Modifier 1', '\modifiers\1\',
+                'T', 'LIKE', '\modifiers1\1\', 'Modifier 1', '\modifiers1\1\',
                 'NOW()', 'NOW()', 'NOW()', 'TEST', '\test\1\', 'TEST:5', '<?xml version="1.0"?><ValueMetadata></ValueMetadata>'
-            ), (
-                '1', '\modifiers\2\', 'Modifier 2', 'N', 'RA', '0',
+            ),(
+                '1', '\modifiers2\2\', 'Modifier 2', 'N', 'RA', '0',
                 'modifier_cd', 'modifier_dimension', 'modifier_path',
-                'T', 'LIKE', '\modifiers\2\', 'Modifier 2', '\modifiers\2\',
+                'T', 'LIKE', '\modifiers2\2\', 'Modifier 2', '\modifiers2\2\',
                 'NOW()', 'NOW()', 'NOW()', 'TEST', '\test\2\', 'TEST:6', NULL
             ), (
-                '1', '\modifiers\3\', 'Modifier 3', 'N', 'RA', '0',
+                '1', '\modifiers3\3\', 'Modifier 3', 'N', 'RA', '0',
                 'modifier_cd', 'modifier_dimension', 'modifier_path',
-                'T', 'LIKE', '\modifiers\3\', 'Modifier 3', '\modifiers\3\',
+                'T', 'LIKE', '\modifiers3\3\', 'Modifier 3', '\modifiers3\3\',
                 'NOW()', 'NOW()', 'NOW()', 'TEST', '\test\3\', 'TEST:7', NULL
             ), (
-                '1', '\modifiers\2text\', 'Modifier 2 text', 'N', 'RA', '0',
+                '1', '\modifiers2\text\', 'Modifier 2 text', 'N', 'RA', '0',
                 'modifier_cd', 'modifier_dimension', 'modifier_path',
-                'T', 'LIKE', '\modifiers\2text\', 'Modifier 2 text', '\modifiers\2text\',
+                'T', 'LIKE', '\modifiers2\text\', 'Modifier 2 text', '\modifiers2\text\',
                 'NOW()', 'NOW()', 'NOW()', 'T', '\test\2\', 'TEST:8', NULL
             ), (
-                '1', '\modifiers\3text\', 'Modifier 3 text', 'N', 'RA', '0',
+                '1', '\modifiers3\text\', 'Modifier 3 text', 'N', 'RA', '0',
                 'modifier_cd', 'modifier_dimension', 'modifier_path',
-                'T', 'LIKE', '\modifiers\3text\', 'Modifier 3 text', '\modifiers\3text\',
+                'T', 'LIKE', '\modifiers3\text\', 'Modifier 3 text', '\modifiers3\text\',
                 'NOW()', 'NOW()', 'NOW()', 'T', '\test\3\', 'TEST:9', NULL
             );
 
@@ -121,12 +131,14 @@ psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
     -- i2b2demodata.modifier_dimension
     insert into i2b2demodata.modifier_dimension
         (modifier_path, modifier_cd, import_date, upload_id) values
-            ('\modifiers\', 'TEST:4', 'NOW()', '1'),
-            ('\modifiers\1\', 'TEST:5', 'NOW()', '1'),
-            ('\modifiers\2\', 'TEST:6', 'NOW()', '1'),
-            ('\modifiers\3\', 'TEST:7', 'NOW()', '1'),
-            ('\modifiers\2text\', 'TEST:8', 'NOW()', '1'),
-            ('\modifiers\3text\', 'TEST:9', 'NOW()', '1');
+            ('\modifiers1\', 'TEST:4-1', 'NOW()', '1'),
+            ('\modifiers2\', 'TEST:4-2', 'NOW()', '1'),
+            ('\modifiers3\', 'TEST:4-3', 'NOW()', '1'),
+            ('\modifiers1\1\', 'TEST:5', 'NOW()', '1'),
+            ('\modifiers2\2\', 'TEST:6', 'NOW()', '1'),
+            ('\modifiers3\3\', 'TEST:7', 'NOW()', '1'),
+            ('\modifiers2\text\', 'TEST:8', 'NOW()', '1'),
+            ('\modifiers3\text\', 'TEST:9', 'NOW()', '1');
 
     -- i2b2demodata.provider_dimension
     insert into i2b2demodata.provider_dimension
@@ -174,21 +186,21 @@ psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
             ('1', '1', 'TEST:3', 'test', 'NOW()', 'TEST:9', '1', 'NOW()', '1', 'T', 'ab', NULL),
 
             ('2', '2', 'TEST:1', 'test', 'NOW()', '@', '1', 'NOW()', '1', 'N', 'E', '20'),
-            ('2', '2', 'TEST:1', 'test', 'NOW()', 'TEST:4', '1', 'NOW()', '1', 'N', 'E', '20'),
+            ('2', '2', 'TEST:1', 'test', 'NOW()', 'TEST:4-1', '1', 'NOW()', '1', 'N', 'E', '20'),
             ('2', '2', 'TEST:2', 'test', 'NOW()', '@', '1', 'NOW()', '1', 'N', 'E', '50'),
             ('2', '2', 'TEST:2', 'test', 'NOW()', 'TEST:6', '1', 'NOW()', '1', 'N', 'E', '5'),
             ('2', '2', 'TEST:2', 'test', 'NOW()', 'TEST:8', '1', 'NOW()', '1', 'T', 'abc', NULL),
             ('2', '2', 'TEST:3', 'test', 'NOW()', 'TEST:9', '1', 'NOW()', '1', 'T', 'def', NULL),
 
             ('3', '3', 'TEST:1', 'test', 'NOW()', '@', '1', 'NOW()', '1', 'N', 'E', '30'),
-            ('3', '3', 'TEST:1', 'test', 'NOW()', 'TEST:4', '1', 'NOW()', '1', 'N', 'E', '15'),
+            ('3', '3', 'TEST:1', 'test', 'NOW()', 'TEST:4-1', '1', 'NOW()', '1', 'N', 'E', '15'),
             ('3', '3', 'TEST:1', 'test', 'NOW()', 'TEST:5', '1', 'NOW()', '1', 'N', 'E', '15'),
             ('3', '3', 'TEST:2', 'test', 'NOW()', '@', '1', 'NOW()', '1', 'N', 'E', '25'),
-            ('3', '3', 'TEST:2', 'test', 'NOW()', 'TEST:4', '1', 'NOW()', '1', 'N', 'E', '30'),
+            ('3', '3', 'TEST:2', 'test', 'NOW()', 'TEST:4-1', '1', 'NOW()', '1', 'N', 'E', '30'),
             ('3', '3', 'TEST:2', 'test', 'NOW()', 'TEST:6', '1', 'NOW()', '1', 'N', 'E', '15'),
             ('3', '3', 'TEST:2', 'test', 'NOW()', 'TEST:8', '1', 'NOW()', '1', 'T', 'de', NULL),
             ('3', '3', 'TEST:3', 'test', 'NOW()', '@', '1', 'NOW()', '1', 'N', 'E', '77'),
-            ('3', '3', 'TEST:3', 'test', 'NOW()', 'TEST:4', '1', 'NOW()', '1', 'N', 'E', '66'),
+            ('3', '3', 'TEST:3', 'test', 'NOW()', 'TEST:4-1', '1', 'NOW()', '1', 'N', 'E', '66'),
             ('3', '3', 'TEST:3', 'test', 'NOW()', 'TEST:7', '1', 'NOW()', '1', 'N', 'E', '88'),
             ('3', '3', 'TEST:3', 'test', 'NOW()', 'TEST:9', '1', 'NOW()', '1', 'T', 'abcdef', NULL),
 

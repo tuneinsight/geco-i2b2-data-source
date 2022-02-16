@@ -13,7 +13,7 @@ func (db PostgresDatabase) SearchOntology(searchString, limit string) (ontologyE
 		limitInt = 10
 	}
 
-	row, err := db.handle.Query("SELECT * FROM i2b2metadata.get_ontology_elements($1,$2) ORDER BY id, fullpath DESC", searchString, limit)
+	row, err := db.handle.Query("SELECT * FROM i2b2metadata.get_ontology_elements($1,$2) ORDER BY id, fullpath DESC", searchString, limitInt)
 	if err != nil {
 		return nil, fmt.Errorf("while calling i2b2 database for retrieving ontology elements: %v", err)
 	}

@@ -151,10 +151,10 @@ func TestExploreQueryModifier(t *testing.T) {
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 					Modifier: struct {
-						Key         string
-						AppliedPath string
+						Key         string `json:"key"`
+						AppliedPath string `json:"appliedPath"`
 					}{
-						Key:         "/TEST/modifiers/1/",
+						Key:         "/TEST/modifiers1/1/",
 						AppliedPath: "/test/1/",
 					},
 				}},
@@ -174,19 +174,19 @@ func TestExploreQueryModifier(t *testing.T) {
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 					Modifier: struct {
-						Key         string
-						AppliedPath string
+						Key         string `json:"key"`
+						AppliedPath string `json:"appliedPath"`
 					}{
-						Key:         "/TEST/modifiers/1/",
+						Key:         "/TEST/modifiers1/1/",
 						AppliedPath: "/test/1/",
 					},
 				}, {
 					QueryTerm: "/TEST/test/2/",
 					Modifier: struct {
-						Key         string
-						AppliedPath string
+						Key         string `json:"key"`
+						AppliedPath string `json:"appliedPath"`
 					}{
-						Key:         "/TEST/modifiers/2text/",
+						Key:         "/TEST/modifiers2/text/",
 						AppliedPath: "/test/2/",
 					},
 				}},
@@ -214,10 +214,10 @@ func TestExploreQueryModifierValue(t *testing.T) {
 					Value:     "cd",
 					Type:      "TEXT",
 					Modifier: struct {
-						Key         string
-						AppliedPath string
+						Key         string `json:"key"`
+						AppliedPath string `json:"appliedPath"`
 					}{
-						Key:         "/TEST/modifiers/2text/",
+						Key:         "/TEST/modifiers2/text/",
 						AppliedPath: "/test/2/",
 					},
 				}},
@@ -240,10 +240,10 @@ func TestExploreQueryModifierValue(t *testing.T) {
 					Value:     "def",
 					Type:      "TEXT",
 					Modifier: struct {
-						Key         string
-						AppliedPath string
+						Key         string `json:"key"`
+						AppliedPath string `json:"appliedPath"`
 					}{
-						Key:         "/TEST/modifiers/3text/",
+						Key:         "/TEST/modifiers3/text/",
 						AppliedPath: "/test/3/",
 					},
 				}},
@@ -255,10 +255,10 @@ func TestExploreQueryModifierValue(t *testing.T) {
 					Value:     "a",
 					Type:      "TEXT",
 					Modifier: struct {
-						Key         string
-						AppliedPath string
+						Key         string `json:"key"`
+						AppliedPath string `json:"appliedPath"`
 					}{
-						Key:         "/TEST/modifiers/2text/",
+						Key:         "/TEST/modifiers2/text/",
 						AppliedPath: "/test/2/",
 					},
 				}},

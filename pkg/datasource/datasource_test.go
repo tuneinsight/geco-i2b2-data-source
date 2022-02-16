@@ -125,7 +125,7 @@ func TestWorkflow(t *testing.T) {
 							"value": "cd",
 							"type": "TEXT",
 							"modifier": {
-								"key": "/TEST/modifiers/2text/",
+								"key": "/TEST/modifiers2/text/",
 								"appliedPath": "/test/2/"
 							}
 						}

@@ -10,7 +10,7 @@ import (
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client"
 	i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
 	sdkmodels "github.com/tuneinsight/sdk-datasource/pkg/models"
-	sdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 // compile-time check that I2b2DataSource implements the interface sdk.DataSource.
@@ -18,12 +18,6 @@ var _ sdk.DataSource = (*I2b2DataSource)(nil)
 
 // DataSourceType is the type of the data source.
 var DataSourceType sdk.DataSourceType = "i2b2-geco"
-
-// Names of output data objects.
-const (
-	outputNameExploreQueryCount       sdk.OutputDataObjectName = "count"
-	outputNameExploreQueryPatientList sdk.OutputDataObjectName = "patientList"
-)
 
 // NewI2b2DataSource creates an i2b2 data source. Implements sdk.DataSourceFactory.
 func NewI2b2DataSource(id sdkmodels.DataSourceID, owner, name string) (plugin sdk.DataSource, err error) {
@@ -231,7 +225,7 @@ func (ds *I2b2DataSource) Query(userID string, operation string, jsonParameters 
 	case OperationDeleteCohort:
 		handler = ds.DeleteCohortHandler
 	case OperationSurvivalQuery:
-		return nil, nil, ds.logError("operation survivalQuery not implemented", nil) // todo
+		handler = ds.SurvivalQueryHandler
 	case OperationSearchOntology:
 		handler = ds.SearchOntologyHandler
 

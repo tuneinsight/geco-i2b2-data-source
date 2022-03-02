@@ -8,10 +8,17 @@ import (
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
 	i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
-// ExploreQueryHandler is the OperationHandler for the exploreQuery Operation.
+// Names of output data objects.
+const (
+	outputNameExploreQueryCount       sdk.OutputDataObjectName = "count"
+	outputNameExploreQueryPatientList sdk.OutputDataObjectName = "patientList"
+)
+
+// ExploreQueryHandler is the OperationHandler for the OperationExploreQuery Operation.
 func (ds I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
 
 	// parse parameters

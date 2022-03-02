@@ -6,7 +6,7 @@ import (
 
 // --- parameters
 
-// SearchConceptParameters are the parameters for the searchConcept Operation.
+// SearchConceptParameters are the parameters for the searchConcept operation.
 type SearchConceptParameters struct {
 	Path      string `json:"path"`
 	Operation string `json:"operation"` // children | info

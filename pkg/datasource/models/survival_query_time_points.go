@@ -10,13 +10,13 @@ type TimePoint struct {
 	Events Events
 }
 
-// Events contains the number of events of interest and censoring events occuring at the same relative time.
+// Events contains the number of events of interest and censoring events occurring at the same relative time.
 type Events struct {
 	EventsOfInterest int64
 	CensoringEvents  int64
 }
 
-// TimePoints is a slice containing the time points and respectif counts of censoring events and events of interest.
+// TimePoints is a slice containing the time points and respective counts of censoring events and events of interest.
 // TimePoints implements sort.Interface interface.
 type TimePoints []TimePoint
 

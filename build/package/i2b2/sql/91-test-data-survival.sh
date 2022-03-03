@@ -14,7 +14,7 @@ EOSQL
 
 #Ontology for the survival test dataset
 psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
-INSERT INTO i2b2metadata.e2etest(
+INSERT INTO i2b2metadata.test(
 c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_tooltip, update_date, m_applied_path
 )
 VALUES
@@ -42,7 +42,7 @@ EOSQL
 
 
 psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
-INSERT INTO i2b2demodata_i2b2.concept_dimension(
+INSERT INTO i2b2demodata.concept_dimension(
 concept_path, name_char,concept_cd
 )
 VALUES
@@ -55,7 +55,7 @@ EOSQL
 # Modifiers
 
 psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
-INSERT INTO i2b2demodata_i2b2.modifier_dimension(
+INSERT INTO i2b2demodata.modifier_dimension(
 modifier_path,  name_char, modifier_cd
 )
 VALUES
@@ -69,7 +69,7 @@ EOSQL
 # Visits
 
 psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
-INSERT INTO i2b2demodata_i2b2.visit_dimension(
+INSERT INTO i2b2demodata.visit_dimension(
 encounter_num, patient_num, start_date
 )
 VALUES
@@ -763,7 +763,7 @@ EOSQL
 
 psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
 
-INSERT INTO i2b2demodata_i2b2.patient_dimension(
+INSERT INTO i2b2demodata.patient_dimension(
 patient_num, vital_status_cd, birth_date, death_date, sex_cd, age_in_years_num
 )
 VALUES
@@ -1001,7 +1001,7 @@ EOSQL
 # observations
 
 psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
-INSERT INTO i2b2demodata_i2b2.observation_fact (patient_num,encounter_num, concept_cd, provider_id, instance_num, modifier_cd, start_date, end_date)
+INSERT INTO i2b2demodata.observation_fact (patient_num,encounter_num, concept_cd, provider_id, instance_num, modifier_cd, start_date, end_date)
 VALUES
 (1137,483573,'A125','CHE-XXX',1,'@','1972-02-15 01:00:00','1972-02-15 01:00:00'),
 (1137,483573,'A125','CHE-XXX',1,'126:1','1972-02-15 01:00:00','1972-02-15 01:00:00'),

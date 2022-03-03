@@ -32,3 +32,9 @@ type OntologyElement struct {
 	AppliedPath      string
 	ID               int
 }
+
+// Events contains the number of events of interest and censoring events occurring at the same relative time.
+type Events struct {
+	EventsOfInterest int64
+	CensoringEvents  int64
+}

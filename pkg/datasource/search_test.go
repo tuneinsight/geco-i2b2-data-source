@@ -47,8 +47,10 @@ func TestSearchConceptChildren(t *testing.T) {
 	})
 	require.NoError(t, err)
 	t.Logf("%+v", searchResults.SearchResultElements)
-	require.Equal(t, 1, len(searchResults.SearchResultElements))
-	require.Contains(t, searchResults.SearchResultElements[0].Path, "/TEST/test/")
+	require.Equal(t, 3, len(searchResults.SearchResultElements))
+	require.Contains(t, searchResults.SearchResultElements[0].Path, "/I2B2/I2B2/")
+	require.Contains(t, searchResults.SearchResultElements[1].Path, "/SPHN/SPHNv2020.1/")
+	require.Contains(t, searchResults.SearchResultElements[2].Path, "/TEST/test/")
 
 	searchResults, err = ds.SearchConcept(&models.SearchConceptParameters{
 		Path:      "/TEST/test/",

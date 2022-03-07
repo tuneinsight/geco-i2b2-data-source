@@ -12,7 +12,7 @@ import (
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
-// SearchConceptHandler is the OperationHandler for the searchConcept Operation.
+// SearchConceptHandler is the OperationHandler for the OperationSearchConcept Operation.
 func (ds I2b2DataSource) SearchConceptHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.SearchConceptParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
@@ -85,7 +85,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 	return &models.SearchResult{SearchResultElements: searchResultElements}, nil
 }
 
-// SearchModifierHandler is the OperationHandler for the searchModifier Operation.
+// SearchModifierHandler is the OperationHandler for the OperationSearchModifier Operation.
 func (ds I2b2DataSource) SearchModifierHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.SearchModifierParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
@@ -157,7 +157,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 	return &models.SearchResult{SearchResultElements: searchResults}, nil
 }
 
-// SearchOntologyHandler is the OperationHandler for the searchOntology Operation.
+// SearchOntologyHandler is the OperationHandler for the OperationSearchOntology Operation.
 func (ds I2b2DataSource) SearchOntologyHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.SearchOntologyParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {

@@ -19,10 +19,22 @@ type ExploreQueryDefinition struct {
 // Panel is part of an ExploreQueryDefinition.
 type Panel struct {
 	Not          bool          `json:"not"`
-	Timing       string        `json:"timing"` // any | samevisit | sameinstancenum
-	CohortItems  []string      `json:"cohortItems"`
+	Timing       string        `json:"timing"`      // any | samevisit | sameinstancenum
+	CohortItems  []string      `json:"cohortItems"` // contains the patient set IDs
 	ConceptItems []ConceptItem `json:"conceptItems"`
 }
+
+const (
+
+	// TimingAny captures enum value "any"
+	TimingAny string = "any"
+
+	// TimingSamevisit captures enum value "samevisit"
+	TimingSamevisit string = "samevisit"
+
+	// TimingSameinstancenum captures enum value "sameinstancenum"
+	TimingSameinstancenum string = "sameinstancenum"
+)
 
 // ConceptItem is part of a Panel.
 type ConceptItem struct {

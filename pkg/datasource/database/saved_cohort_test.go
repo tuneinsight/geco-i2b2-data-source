@@ -33,8 +33,9 @@ func TestGetCohorts(t *testing.T) {
 
 	cohorts1, err := db.GetCohorts("testuser1", 5)
 	require.NoError(t, err)
-	require.EqualValues(t, 1, len(cohorts1))
-	require.EqualValues(t, "cohort1", cohorts1[0].Name)
+	require.EqualValues(t, 2, len(cohorts1))
+	require.EqualValues(t, "survival-test-cohort", cohorts1[0].Name)
+	require.EqualValues(t, "cohort1", cohorts1[1].Name)
 
 	cohorts2, err := db.GetCohorts("testuser2", 5)
 	require.NoError(t, err)

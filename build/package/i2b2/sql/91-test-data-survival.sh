@@ -2145,7 +2145,7 @@ VALUES
 (1364,484256,'DEM|SEX:m','CHE-XXX',1,'@','1970-10-30 01:00:00','1971-04-25 01:00:00');
 EOSQL
 
-# patient set and cohort
+# patient set
 
 psql $PSQL_PARAMS -d "$I2B2_DB_NAME" <<-EOSQL
 INSERT INTO i2b2demodata.qt_query_master (query_master_id, name, user_id, group_id, master_type_cd, plugin_id, create_date, delete_date, delete_flag, request_xml, generated_sql, i2b2_request_xml, pm_xml)

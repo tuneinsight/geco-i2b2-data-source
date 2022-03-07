@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/base64"
 	"fmt"
 	"strings"
 )
@@ -12,22 +11,22 @@ type SurvivalQueryParameters struct {
 	// ID
 	// Required: true
 	// Pattern: ^[\w:-]+$
-	ID *string `json:"ID"`
+	ID string `json:"ID"`
 
 	// cohort name
 	// Required: true
 	// Pattern: ^\w+$
-	CohortName *string `json:"cohortName"`
+	CohortName string `json:"cohortName"`
 
 	// cohort name
 	// Required: true
 	// Pattern: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
-	CohortQueryID *string `json:"cohortQueryID"`
+	CohortQueryID string `json:"cohortQueryID"`
 
 	// end concept
 	// Required: true
 	// Pattern: ^\/$|^((\/[^\/]+)+\/?)$
-	EndConcept *string `json:"endConcept"`
+	EndConcept string `json:"endConcept"`
 
 	// end modifier
 	EndModifier *SurvivalQueryModifier `json:"endModifier,omitempty"`
@@ -35,12 +34,12 @@ type SurvivalQueryParameters struct {
 	// ends when
 	// Required: true
 	// Enum: [earliest latest]
-	EndsWhen *string `json:"endsWhen"`
+	EndsWhen string `json:"endsWhen"`
 
 	// start concept
 	// Required: true
 	// Pattern: ^\/$|^((\/[^\/]+)+\/?)$
-	StartConcept *string `json:"startConcept"`
+	StartConcept string `json:"startConcept"`
 
 	// start modifier
 	StartModifier *SurvivalQueryModifier `json:"startModifier,omitempty"`
@@ -48,7 +47,7 @@ type SurvivalQueryParameters struct {
 	// starts when
 	// Required: true
 	// Enum: [earliest latest]
-	StartsWhen *string `json:"startsWhen"`
+	StartsWhen string `json:"startsWhen"`
 
 	// sub group definitions
 	// Max Items: 4
@@ -57,17 +56,12 @@ type SurvivalQueryParameters struct {
 	// time granularity
 	// Required: true
 	// Enum: [day week month year]
-	TimeGranularity *string `json:"timeGranularity"`
+	TimeGranularity string `json:"timeGranularity"`
 
 	// time limit
 	// Required: true
 	// Minimum: 1
-	TimeLimit *int64 `json:"timeLimit"`
-
-	// user public key
-	// Required: true
-	// Pattern: ^[\w=-]+$
-	UserPublicKey *string `json:"userPublicKey"`
+	TimeLimit int64 `json:"timeLimit"`
 }
 
 const (
@@ -85,12 +79,12 @@ type SurvivalQueryModifier struct {
 	// applied path
 	// Required: true
 	// Pattern: ^((\/[^\/]+)+\/%?)$
-	AppliedPath *string `json:"appliedPath"`
+	AppliedPath string `json:"appliedPath"`
 
 	// modifier key
 	// Required: true
 	// Pattern: ^((\/[^\/]+)+\/)$
-	ModifierKey *string `json:"modifierKey"`
+	ModifierKey string `json:"modifierKey"`
 }
 
 // SubGroupDefinition is the definition of a subgroup used in a survival query.
@@ -98,80 +92,72 @@ type SubGroupDefinition struct {
 
 	// group name
 	// Pattern: ^\w+$
-	GroupName string `json:"groupName,omitempty"`
+	Name string `json:"name,omitempty"`
 
 	// panels
 	Panels []Panel `json:"panels"`
 
 	// sub group timing
 	// Enum: [any samevisit sameinstance]
-	SubGroupTiming string `json:"subGroupTiming,omitempty"`
+	Timing string `json:"timing,omitempty"`
 }
 
 // Validate validates SurvivalQueryParameters' fields.
 func (params *SurvivalQueryParameters) Validate() error {
 
-	*params.ID = strings.TrimSpace(*params.ID)
-	if *params.ID == "" {
+	params.ID = strings.TrimSpace(params.ID)
+	if params.ID == "" {
 		return fmt.Errorf("empty survival query ID")
 	}
 
-	*params.StartConcept = strings.TrimSpace(*params.StartConcept)
-	if *params.StartConcept == "" {
-		return fmt.Errorf("emtpy start concept path, query ID: %s", *params.ID)
+	params.StartConcept = strings.TrimSpace(params.StartConcept)
+	if params.StartConcept == "" {
+		return fmt.Errorf("emtpy start concept path, query ID: %s", params.ID)
 	}
 	if params.StartModifier != nil {
-		*params.StartModifier.ModifierKey = strings.TrimSpace(*params.StartModifier.ModifierKey)
-		if *params.StartModifier.ModifierKey == "" {
-			return fmt.Errorf("empty start modifier key, query ID: %s, start concept: %s", *params.ID, *params.StartConcept)
+		params.StartModifier.ModifierKey = strings.TrimSpace(params.StartModifier.ModifierKey)
+		if params.StartModifier.ModifierKey == "" {
+			return fmt.Errorf("empty start modifier key, query ID: %s, start concept: %s", params.ID, params.StartConcept)
 		}
-		*params.StartModifier.AppliedPath = strings.TrimSpace(*params.StartModifier.AppliedPath)
-		if *params.StartModifier.AppliedPath == "" {
+		params.StartModifier.AppliedPath = strings.TrimSpace(params.StartModifier.AppliedPath)
+		if params.StartModifier.AppliedPath == "" {
 			return fmt.Errorf(
 				"empty start modifier applied path, queryID: %s, start concept: %s, start modifier key: %s",
-				*params.ID, *params.StartConcept,
-				*params.StartModifier.ModifierKey,
+				params.ID, params.StartConcept,
+				params.StartModifier.ModifierKey,
 			)
 		}
 	}
 
-	*params.EndConcept = strings.TrimSpace(*params.EndConcept)
-	if *params.EndConcept == "" {
-		return fmt.Errorf("empty end concept path, query ID: %s", *params.ID)
+	params.EndConcept = strings.TrimSpace(params.EndConcept)
+	if params.EndConcept == "" {
+		return fmt.Errorf("empty end concept path, query ID: %s", params.ID)
 	}
 	if params.EndModifier != nil {
-		*params.EndModifier.ModifierKey = strings.TrimSpace(*params.EndModifier.ModifierKey)
-		if *params.EndModifier.ModifierKey == "" {
-			return fmt.Errorf("empty end modifier key, query ID: %s, end concept: %s", *params.ID, *params.EndConcept)
+		params.EndModifier.ModifierKey = strings.TrimSpace(params.EndModifier.ModifierKey)
+		if params.EndModifier.ModifierKey == "" {
+			return fmt.Errorf("empty end modifier key, query ID: %s, end concept: %s", params.ID, params.EndConcept)
 		}
-		*params.EndModifier.AppliedPath = strings.TrimSpace(*params.EndModifier.AppliedPath)
-		if *params.EndModifier.AppliedPath == "" {
+		params.EndModifier.AppliedPath = strings.TrimSpace(params.EndModifier.AppliedPath)
+		if params.EndModifier.AppliedPath == "" {
 			return fmt.Errorf(
 				"empty end modifier applied path, query ID: %s, end concept: %s, end modifier key: %s",
-				*params.ID, *params.EndConcept,
-				*params.EndModifier.ModifierKey,
+				params.ID, params.EndConcept,
+				params.EndModifier.ModifierKey,
 			)
 		}
 	}
 
-	*params.TimeGranularity = strings.ToLower(strings.TrimSpace(*params.TimeGranularity))
-	if *params.TimeGranularity == "" {
-		return fmt.Errorf("empty granularity query ID: %s", *params.ID)
+	params.TimeGranularity = strings.ToLower(strings.TrimSpace(params.TimeGranularity))
+	if params.TimeGranularity == "" {
+		return fmt.Errorf("empty granularity query ID: %s", params.ID)
 	}
-	if _, isIn := granularityFunctions[*params.TimeGranularity]; !isIn {
+	if _, isIn := granularityFunctions[params.TimeGranularity]; !isIn {
 		granularities := make([]string, 0, len(granularityFunctions))
 		for name := range granularityFunctions {
 			granularities = append(granularities, name)
 		}
-		return fmt.Errorf("granularity %s not implemented, must be one of %v; query ID: %s", *params.TimeGranularity, granularities, *params.ID)
-	}
-	*params.UserPublicKey = strings.TrimSpace(*params.UserPublicKey)
-	if *params.UserPublicKey == "" {
-		return fmt.Errorf("empty user public key query ID: %s", *params.ID)
-	}
-	_, err := base64.URLEncoding.DecodeString(*params.UserPublicKey)
-	if err != nil {
-		return fmt.Errorf("user public key is not valid against the alternate RFC4648 base64 for URL: %s; queryID: %s", err.Error(), *params.ID)
+		return fmt.Errorf("granularity %s not implemented, must be one of %v; query ID: %s", params.TimeGranularity, granularities, params.ID)
 	}
 	return nil
 
@@ -179,5 +165,5 @@ func (params *SurvivalQueryParameters) Validate() error {
 
 // TimeLimitInDays returns the time limit in days.
 func (params *SurvivalQueryParameters) TimeLimitInDays() int64 {
-	return *params.TimeLimit * int64(granularityValues[*params.TimeGranularity])
+	return params.TimeLimit * int64(granularityValues[params.TimeGranularity])
 }

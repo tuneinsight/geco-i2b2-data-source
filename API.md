@@ -260,3 +260,64 @@ Delete a cohort.
 
 - `name`: name of the cohort
 - `exploreQueryID`: query associated to the cohort
+
+# survivalQuery
+Perform survival query.
+
+## Parameters
+
+```json
+{
+  "id": "99999999-9999-9999-9999-999999999999",
+  "cohortName": "xxxx",
+  "cohortQueryID": "xxxx",
+  "startConcept": "xxxx",
+  "startModifier": {
+    "modifierKey": "xxxx",
+    "appliedPath": "xxxx"
+  },
+  "startsWhen": "earliest|latest",
+  "endConcept": "xxxx",
+  "endModifier": {
+    "modifierKey": "xxxx",
+    "appliedPath": "xxxx"
+  },
+  "endsWhen": "earliest|latest",
+  "timeGranularity": "day|week|month|year",
+  "timeLimit": "10",
+  "subGroupsDefinitions": [
+    {
+      "name": "xxxx",
+      "timing": "any|samevisit|sameinstance",
+      "panels": [
+        {
+          
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `id`: ID of the survival query, must be an UUID
+- `cohortName`: name of the cohort to be used for the survival query
+- `cohortQueryID`: ID of the query which generated the cohort
+- `startConcept/endConcept`: survival start/end concept
+- `startModifier/endModifier`: survival start/end modifier
+  - `modifierKey`: modifier key
+  - `appliedPath`: modifier applied path
+- `startsWhen/endsWhen`: indicates which occurrence of the start/end event to take into account (earliest|latest)
+- `timeGranularity`: granularity of the bins of the survival query (day|week|month|year)
+- `timeLimit`: time limit (how many bins) to consider for the survival query
+- `subGroupsDefinitions`: subgroups definitions
+  - `name`: name of the subgroup
+  - `timing`: timing of the subgroup
+  - `panels`: panels defining the subgroup, as defined in exploreQuery
+
+## Output Data Objects Shared IDs
+- `initialCounts`: vector of integers whose elements are the initial count values for each subgroup
+- `eventsOfInterestCounts`: vector of integers containing the flattened event of interest counts of all subgroups
+- `censoringEventsCounts`: vector of integers containing the flattened censoring event counts of all subgroups
+
+E.g., if `initialCounts` contains 2 elements, and `eventsOfInterestCounts` and `censoringEventsCounts` contain n elements each,
+the elements from 0 to n/2 - 1 refer to subgroup 0, and the elements from n/2 to n-1 refer to subgroup 1.

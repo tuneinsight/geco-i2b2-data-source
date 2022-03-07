@@ -62,29 +62,33 @@ func (ds I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []by
 }
 
 // SurvivalQuery makes a survival query.
+// The returned @initialCounts is a slice whose elements are the initial count values for each subgroup.
+// The returned @eventsOfInterestCounts and @censoringEventsCounts are slices containing the flattened counts of all subgroups.
+// E.g., if @initialCounts contains 2 elements, and @eventsOfInterestCounts and @censoringEventsCounts contain n elements each,
+// the elements from 0 to n/2 - 1 refer to subgroup 0, and the elements from n/2 to n-1 refer to subgroup 1.
 func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQueryParameters) (initialCounts, eventsOfInterestCounts, censoringEventsCounts []int64, err error) {
 
 	// validating params
 	err = params.Validate()
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("while validating parameters for survival query %s: %v", *params.ID, err)
+		return nil, nil, nil, fmt.Errorf("while validating parameters for survival query %s: %v", params.ID, err)
 	}
 
 	// getting cohort
 	logrus.Info("checking cohort's existence")
-	cohort, err := ds.db.GetCohort(*params.CohortName, *params.CohortQueryID)
+	cohort, err := ds.db.GetCohort(params.CohortName, params.CohortQueryID)
 
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("while retrieving cohort (%s, %s) for survival query %s: %v", *params.CohortName, *params.CohortQueryID, *params.ID, err)
+		return nil, nil, nil, fmt.Errorf("while retrieving cohort (%s, %s) for survival query %s: %v", params.CohortName, params.CohortQueryID, params.ID, err)
 	} else if cohort == nil || cohort.ExploreQuery.UserID != userID {
-		return nil, nil, nil, fmt.Errorf("requested cohort (%s, %s) for survival query %s not found", *params.CohortName, *params.CohortQueryID, *params.ID)
+		return nil, nil, nil, fmt.Errorf("requested cohort (%s, %s) for survival query %s not found", params.CohortName, params.CohortQueryID, params.ID)
 	}
 	logrus.Info("cohort found")
 
 	cohortPanel := models.Panel{
 		Not:         false,
 		Timing:      models.TimingAny,
-		CohortItems: []string{strconv.FormatInt(cohort.ExploreQuery.ResultI2b2PatientSetID.Int64, 10)},
+		CohortItems: []string{"patient_set_coll_id:" + strconv.FormatInt(cohort.ExploreQuery.ResultI2b2PatientSetID.Int64, 10)},
 	}
 
 	startConceptPanel := models.Panel{
@@ -92,7 +96,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 		Timing: models.TimingAny,
 		ConceptItems: []models.ConceptItem{
 			{
-				QueryTerm: *params.StartConcept,
+				QueryTerm: params.StartConcept,
 			},
 		},
 	}
@@ -100,7 +104,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	eventGroups := make(models.EventGroups, 0)
 	timeLimitInDays := params.TimeLimitInDays()
 
-	startConceptCodes, startModifierCodes, endConceptCodes, endModifierCodes, err := ds.getEventCodes(*params.StartConcept, params.StartModifier, *params.EndConcept, params.EndModifier)
+	startConceptCodes, startModifierCodes, endConceptCodes, endModifierCodes, err := ds.getEventCodes(params.StartConcept, params.StartModifier, params.EndConcept, params.EndModifier)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("while retrieving concept codes and patient indices: %v", err)
 	}
@@ -109,8 +113,8 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	if subGroupsDefinitions == nil || len(subGroupsDefinitions) == 0 {
 		subGroupsDefinitions = []*models.SubGroupDefinition{
 			{
-				GroupName:      "Full cohort",
-				SubGroupTiming: models.TimingAny,
+				Name:   "Full cohort",
+				Timing: models.TimingAny,
 			},
 		}
 	} else if len(subGroupsDefinitions) > 4 {
@@ -132,16 +136,16 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 		go func(i int, subGroupDefinition *models.SubGroupDefinition) {
 			defer waitGroup.Done()
 
-			newEventGroup := &models.EventGroup{GroupID: subGroupDefinition.GroupName}
+			newEventGroup := &models.EventGroup{GroupID: subGroupDefinition.Name}
 
 			panels := append(subGroupDefinition.Panels, cohortPanel, startConceptPanel)
 
 			logrus.Infof("survival analysis: I2B2 explore for subgroup %d", i)
 			logrus.Tracef("survival analysis: panels %+v", panels)
 			_, _, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
-				ID: *params.ID + "_SUBGROUP_" + strconv.Itoa(i),
+				ID: params.ID + "_SUBGROUP_" + strconv.Itoa(i),
 				Definition: models.ExploreQueryDefinition{
-					Timing: subGroupDefinition.SubGroupTiming,
+					Timing: subGroupDefinition.Timing,
 					Panels: panels,
 				},
 			})
@@ -161,10 +165,10 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 				patientList,
 				startConceptCodes,
 				startModifierCodes,
-				*params.StartsWhen == models.WhenEarliest,
+				params.StartsWhen == models.WhenEarliest,
 				endConceptCodes,
 				endModifierCodes,
-				*params.EndsWhen == models.WhenEarliest,
+				params.EndsWhen == models.WhenEarliest,
 				timeLimitInDays,
 			)
 
@@ -188,16 +192,16 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 			newEventGroup.InitialCount = int64(len(patientList) - len(patientWithoutStartEvent))
 
 			// --- change time granularity
-			sqlTimePoints, err := timePoints.Bin(*params.TimeGranularity)
+			sqlTimePoints, err := timePoints.Bin(params.TimeGranularity)
 			if err != nil {
 				logrus.Error("error while changing granularity")
 				errChan <- err
 			}
-			logrus.Debugf("survival analysis: changed resolution for %s,  got %d timepoints", *params.TimeGranularity, len(sqlTimePoints))
-			logrus.Tracef("survival analysis: time points with resolution %s %+v", *params.TimeGranularity, sqlTimePoints)
+			logrus.Debugf("survival analysis: changed resolution for %s,  got %d timepoints", params.TimeGranularity, len(sqlTimePoints))
+			logrus.Tracef("survival analysis: time points with resolution %s %+v", params.TimeGranularity, sqlTimePoints)
 
 			// --- expand
-			sqlTimePoints, err = sqlTimePoints.Expand(int(timeLimitInDays), *params.TimeGranularity)
+			sqlTimePoints, err = sqlTimePoints.Expand(int(timeLimitInDays), params.TimeGranularity)
 			if err != nil {
 				err = fmt.Errorf("while expanding: %v", err)
 				errChan <- err
@@ -238,7 +242,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	}
 
 	for _, group := range eventGroups {
-		logrus.Tracef("Survival analysis: eventGroup %v", group)
+		logrus.Tracef("survival analysis: eventGroup %v", group)
 	}
 
 	initialCounts, eventsOfInterestCounts, censoringEventsCounts, err = eventGroups.SortAndFlatten()
@@ -262,7 +266,7 @@ func (ds I2b2DataSource) getEventCodes(startConcept string, startModifier *model
 	if startModifier == nil {
 		startModifierCodes = []string{"@"}
 	} else {
-		startModifierCodes, err = ds.db.GetModifierCodes(*startModifier.ModifierKey, *startModifier.AppliedPath)
+		startModifierCodes, err = ds.db.GetModifierCodes(startModifier.ModifierKey, startModifier.AppliedPath)
 	}
 	if err != nil {
 		err = fmt.Errorf("while retrieving start modifier code: %v", err)
@@ -278,7 +282,7 @@ func (ds I2b2DataSource) getEventCodes(startConcept string, startModifier *model
 	if endModifier == nil {
 		endModifierCodes = []string{"@"}
 	} else {
-		endModifierCodes, err = ds.db.GetModifierCodes(*endModifier.ModifierKey, *endModifier.AppliedPath)
+		endModifierCodes, err = ds.db.GetModifierCodes(endModifier.ModifierKey, endModifier.AppliedPath)
 	}
 	if err != nil {
 		err = fmt.Errorf("while retrieving end modifier code: %v", err)

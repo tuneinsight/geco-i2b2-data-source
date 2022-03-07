@@ -28,6 +28,10 @@ BEGIN;
 		result_geco_shared_id_count, result_geco_shared_id_patient_list) VALUES
 		('44444444-4444-4444-4444-444444444444', NOW(), 'testuser2', 'success', '{"query": {}}',
 		 3, '44444444-4444-4444-4444-444444444445', '44444444-4444-4444-4444-444444444446');
+	INSERT INTO explore_query(id, create_date, user_id, status, definition, result_i2b2_patient_set_id,
+		result_geco_shared_id_count, result_geco_shared_id_patient_list) VALUES
+		('55555555-5555-5555-5555-555555555555', NOW(), 'testuser1', 'success', '{"query": {}}',
+		 -101, '55555555-5555-5555-5555-555555555556', '55555555-5555-5555-5555-555555555557');
 
 	INSERT INTO saved_cohort(name, create_date, explore_query_id) VALUES
 		('cohort1', '2021-12-20T13:47:24.015216Z', '11111111-1111-1111-1111-111111111111');
@@ -35,6 +39,8 @@ BEGIN;
 		('cohort3', '2021-12-21T13:47:24.015216Z', '33333333-3333-3333-3333-333333333333');
 	INSERT INTO saved_cohort(name, create_date, explore_query_id) VALUES
 		('cohort4', '2021-12-22T13:47:24.015216Z', '44444444-4444-4444-4444-444444444444');
+	INSERT INTO saved_cohort(name, create_date, explore_query_id) VALUES
+		('survival-test-cohort', '2021-12-22T13:47:24.015216Z', '55555555-5555-5555-5555-555555555555');
 COMMIT;
 `
 

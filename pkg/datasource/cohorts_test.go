@@ -35,9 +35,10 @@ func TestAddCohort(t *testing.T) {
 
 	cohorts, err := ds.GetCohorts("testuser1", &models.GetCohortsParameters{})
 	require.NoError(t, err)
-	require.EqualValues(t, 2, len(cohorts.Cohorts))
+	require.EqualValues(t, 3, len(cohorts.Cohorts))
 	require.EqualValues(t, "cohort0", cohorts.Cohorts[0].Name)
-	require.EqualValues(t, "cohort1", cohorts.Cohorts[1].Name)
+	require.EqualValues(t, "survival-test-cohort", cohorts.Cohorts[1].Name)
+	require.EqualValues(t, "cohort1", cohorts.Cohorts[2].Name)
 
 	err = ds.AddCohort("testuser2", &models.AddDeleteCohortParameters{
 		Name:           "cohort4bis",
@@ -65,7 +66,7 @@ func TestDeleteCohort(t *testing.T) {
 
 	cohorts, err := ds.GetCohorts("testuser1", &models.GetCohortsParameters{})
 	require.NoError(t, err)
-	require.EqualValues(t, 0, len(cohorts.Cohorts))
+	require.EqualValues(t, 1, len(cohorts.Cohorts))
 
 	err = ds.DeleteCohort("testuser2", &models.AddDeleteCohortParameters{
 		Name:           "cohort4",

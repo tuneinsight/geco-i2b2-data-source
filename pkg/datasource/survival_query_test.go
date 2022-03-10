@@ -13,7 +13,6 @@ func TestSurvivalQuery(t *testing.T) {
 
 	params := &models.SurvivalQueryParameters{
 		ID:            "test-survival-query-weeks",
-		CohortName:    "survival-test-cohort",
 		CohortQueryID: "55555555-5555-5555-5555-555555555555",
 		EndConcept:    "/SPHN/SPHNv2020.1/DeathStatus/",
 		EndModifier: &models.SurvivalQueryModifier{

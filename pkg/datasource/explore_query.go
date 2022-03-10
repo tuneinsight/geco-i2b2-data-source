@@ -39,7 +39,7 @@ func (ds I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []byt
 	}
 
 	// run query and update status in DB
-	i2b2PatientSetID, count, patientList, err := ds.ExploreQuery(decodedParams)
+	i2b2PatientSetID, count, patientList, err := ds.ExploreQuery(userID, decodedParams)
 	if err != nil {
 		return nil, nil, fmt.Errorf("executing query: %v", err)
 	} else if err := ds.db.SetExploreQuerySuccess(
@@ -66,9 +66,9 @@ func (ds I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []byt
 }
 
 // ExploreQuery makes an explore query, i.e. two i2b2 CRC queries, a PSM and a PDO query.
-func (ds I2b2DataSource) ExploreQuery(params *models.ExploreQueryParameters) (patientSetID int64, patientCount int64, patientList []int64, err error) {
+func (ds I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQueryParameters) (patientSetID int64, patientCount int64, patientList []int64, err error) {
 
-	if i2b2PatientCount, i2b2PatientSetID, err := ds.doCrcPsmQuery(params); err != nil {
+	if i2b2PatientCount, i2b2PatientSetID, err := ds.doCrcPsmQuery(userID, params); err != nil {
 		return -1, -1, nil, err
 	} else if patientCount, err = strconv.ParseInt(i2b2PatientCount, 10, 64); err != nil {
 		return -1, -1, nil, fmt.Errorf("parsing patient count: %v", err)
@@ -90,10 +90,22 @@ func (ds I2b2DataSource) ExploreQuery(params *models.ExploreQueryParameters) (pa
 }
 
 // doCrcPsmQuery requests a PSM query to the i2b2 CRC and parse its results.
-func (ds I2b2DataSource) doCrcPsmQuery(params *models.ExploreQueryParameters) (patientCount, patientSetID string, err error) {
+func (ds I2b2DataSource) doCrcPsmQuery(userID string, params *models.ExploreQueryParameters) (patientCount, patientSetID string, err error) {
+
+	// retrieve patient set IDs for cohort items and replace them in the panels
+	for _, panel := range params.Definition.Panels {
+		for i, cohortItem := range panel.CohortItems {
+			cohort, err := ds.db.GetCohort(userID, cohortItem)
+			if err != nil {
+				return "", "", fmt.Errorf("while getting cohort for doCrcPsmQuery: %v", err)
+			}
+			panel.CohortItems[i] = "patient_set_coll_id:" + strconv.FormatInt(cohort.ExploreQuery.ResultI2b2PatientSetID.Int64, 10)
+		}
+	}
 
 	// build query
 	panels, timing := params.Definition.ToI2b2APIModel()
+
 	psmReq := i2b2clientmodels.NewCrcPsmReqFromQueryDef(
 		ds.i2b2Client.Ci,
 		params.ID,

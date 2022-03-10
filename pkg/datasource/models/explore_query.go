@@ -20,7 +20,7 @@ type ExploreQueryDefinition struct {
 type Panel struct {
 	Not          bool          `json:"not"`
 	Timing       string        `json:"timing"`      // any | samevisit | sameinstancenum
-	CohortItems  []string      `json:"cohortItems"` // contains the patient set IDs
+	CohortItems  []string      `json:"cohortItems"` // contains the explore query IDs
 	ConceptItems []ConceptItem `json:"conceptItems"`
 }
 
@@ -83,6 +83,7 @@ func (d ExploreQueryDefinition) ToI2b2APIModel() (i2b2ApiPanels []i2b2clientmode
 		}
 
 		for _, cohort := range panel.CohortItems {
+
 			i2b2ApiItems = append(i2b2ApiItems, i2b2clientmodels.Item{ItemKey: cohort})
 		}
 

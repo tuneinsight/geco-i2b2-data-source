@@ -154,8 +154,8 @@ Retrieve patient IDs from i2b2 based on explore query terms.
       - `any`: no constrain (default)
       - `samevisit`: constrain to the same visit
       - `sameinstancenum`: constrain to the same instance number
-    - `cohortItems`: array of cohort names if querying for cohorts (linked together by an OR)
-    - `conceptItems`: array of concepts if querying for concepts (linked together by an OR)
+    - `cohortItems`: array of explore query IDs (linked together by an OR)
+    - `conceptItems`: array of concepts (linked together by an OR)
       - `queryTerm`: path to the queried concept
       - `operator`: apply an operator to the queried concept 
         - `EQ`: equal (type=NUMBER)
@@ -269,7 +269,6 @@ Perform survival query.
 ```json
 {
   "id": "99999999-9999-9999-9999-999999999999",
-  "cohortName": "xxxx",
   "cohortQueryID": "xxxx",
   "startConcept": "xxxx",
   "startModifier": {
@@ -300,7 +299,6 @@ Perform survival query.
 ```
 
 - `id`: ID of the survival query, must be an UUID
-- `cohortName`: name of the cohort to be used for the survival query
 - `cohortQueryID`: ID of the query which generated the cohort
 - `startConcept/endConcept`: survival start/end concept
 - `startModifier/endModifier`: survival start/end modifier

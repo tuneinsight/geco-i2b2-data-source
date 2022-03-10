@@ -7,7 +7,7 @@ import (
 
 // GetCohort retrieves a saved cohort from the database.
 // Returns nil (not an error) if cohort does not exist.
-func (db PostgresDatabase) GetCohort(cohortName string, exploreQueryID string) (cohort *SavedCohort, err error) {
+func (db PostgresDatabase) GetCohort(userID, exploreQueryID string) (cohort *SavedCohort, err error) {
 	const getCohortStatement = `
 		SELECT
 			saved_cohort.name AS cohort_name,
@@ -24,10 +24,10 @@ func (db PostgresDatabase) GetCohort(cohortName string, exploreQueryID string) (
 		FROM explore_query 
 			INNER JOIN saved_cohort ON explore_query.id = saved_cohort.explore_query_id
 		
-		WHERE saved_cohort.name = $1 AND saved_cohort.explore_query_id = $2;`
+		WHERE explore_query.user_id = $1 AND saved_cohort.explore_query_id = $2;`
 
 	var rows *sql.Rows
-	if rows, err = db.handle.Query(getCohortStatement, cohortName, exploreQueryID); err != nil {
+	if rows, err = db.handle.Query(getCohortStatement, userID, exploreQueryID); err != nil {
 		return nil, fmt.Errorf("querying getCohortStatement: %v", err)
 	}
 	defer closeRows(rows, db.logger)
@@ -51,7 +51,7 @@ func (db PostgresDatabase) GetCohort(cohortName string, exploreQueryID string) (
 			return nil, fmt.Errorf("scanning row of getCohortStatement: %v", err)
 		}
 	} else {
-		db.logger.Warnf("cohort not found (name: %v, explore query ID: %v)", cohortName, exploreQueryID)
+		db.logger.Warnf("cohort not found (user ID: %v, explore query ID: %v)", userID, exploreQueryID)
 	}
 	return
 }

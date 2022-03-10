@@ -10,19 +10,19 @@ func TestGetCohort(t *testing.T) {
 	db := getDB(t)
 	defer dbCleanUp(t, db)
 
-	cohort1, err := db.GetCohort("cohort1", "11111111-1111-1111-1111-111111111111")
+	cohort1, err := db.GetCohort("testuser1", "11111111-1111-1111-1111-111111111111")
 	require.NoError(t, err)
 	require.EqualValues(t, "cohort1", cohort1.Name)
 	require.EqualValues(t, "testuser1", cohort1.ExploreQuery.UserID)
 	t.Logf("%+v", cohort1)
 
-	cohort3, err := db.GetCohort("cohort3", "33333333-3333-3333-3333-333333333333")
+	cohort3, err := db.GetCohort("testuser2", "33333333-3333-3333-3333-333333333333")
 	require.NoError(t, err)
 	require.EqualValues(t, "cohort3", cohort3.Name)
 	require.EqualValues(t, "testuser2", cohort3.ExploreQuery.UserID)
 	t.Logf("%+v", cohort3)
 
-	cohortNotFound, err := db.GetCohort("cohort1", "11111111-1111-9999-1111-111111111111")
+	cohortNotFound, err := db.GetCohort("testuser3", "11111111-1111-9999-1111-111111111111")
 	require.NoError(t, err)
 	require.Nil(t, cohortNotFound)
 }
@@ -55,7 +55,7 @@ func TestAddCohort(t *testing.T) {
 	err = db.AddCohort("testuser1", "cohort0", "00000000-0000-0000-0000-000000000000")
 	require.NoError(t, err)
 
-	cohort0, err := db.GetCohort("cohort0", "00000000-0000-0000-0000-000000000000")
+	cohort0, err := db.GetCohort("testuser1", "00000000-0000-0000-0000-000000000000")
 	require.NoError(t, err)
 	require.EqualValues(t, "cohort0", cohort0.Name)
 	require.EqualValues(t, "testuser1", cohort0.ExploreQuery.UserID)
@@ -70,7 +70,7 @@ func TestDeleteCohort(t *testing.T) {
 	db := getDB(t)
 	defer dbCleanUp(t, db)
 
-	cohortFound, err := db.GetCohort("cohort1", "11111111-1111-1111-1111-111111111111")
+	cohortFound, err := db.GetCohort("testuser1", "11111111-1111-1111-1111-111111111111")
 	require.NoError(t, err)
 	require.EqualValues(t, "cohort1", cohortFound.Name)
 
@@ -81,7 +81,7 @@ func TestDeleteCohort(t *testing.T) {
 	err = db.DeleteCohort("testuser1", "cohort1", "11111111-1111-1111-1111-111111111111")
 	require.NoError(t, err)
 
-	cohortNotFound, err := db.GetCohort("cohort1", "11111111-1111-1111-1111-111111111111")
+	cohortNotFound, err := db.GetCohort("testuser1", "11111111-1111-1111-1111-111111111111")
 	require.NoError(t, err)
 	require.Nil(t, cohortNotFound)
 

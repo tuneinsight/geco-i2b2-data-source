@@ -15,11 +15,6 @@ type SurvivalQueryParameters struct {
 
 	// cohort name
 	// Required: true
-	// Pattern: ^\w+$
-	CohortName string `json:"cohortName"`
-
-	// cohort name
-	// Required: true
 	// Pattern: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
 	CohortQueryID string `json:"cohortQueryID"`
 

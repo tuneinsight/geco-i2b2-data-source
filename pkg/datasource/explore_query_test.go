@@ -14,7 +14,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	_, count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -30,7 +30,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.EqualValues(t, 3, count)
 	require.Subset(t, []int64{1, 2, 3}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -46,7 +46,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.EqualValues(t, 4, count)
 	require.Subset(t, []int64{1, 2, 3, 4}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "2",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -72,7 +72,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.EqualValues(t, 3, count)
 	require.Subset(t, []int64{1, 2, 3}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "3",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -95,7 +95,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	_, count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -114,7 +114,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	require.EqualValues(t, 1, count)
 	require.Subset(t, []int64{1}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -143,7 +143,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	_, count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -166,7 +166,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	require.EqualValues(t, 2, count)
 	require.Subset(t, []int64{1, 3}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -203,7 +203,7 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	_, count, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{
@@ -229,7 +229,7 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	require.EqualValues(t, 1, count)
 	require.Subset(t, []int64{1}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery(&models.ExploreQueryParameters{
+	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			Panels: []models.Panel{{

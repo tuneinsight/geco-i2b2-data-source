@@ -76,19 +76,19 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 
 	// getting cohort
 	logrus.Info("checking cohort's existence")
-	cohort, err := ds.db.GetCohort(params.CohortName, params.CohortQueryID)
+	cohort, err := ds.db.GetCohort(userID, params.CohortQueryID)
 
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("while retrieving cohort (%s, %s) for survival query %s: %v", params.CohortName, params.CohortQueryID, params.ID, err)
-	} else if cohort == nil || cohort.ExploreQuery.UserID != userID {
-		return nil, nil, nil, fmt.Errorf("requested cohort (%s, %s) for survival query %s not found", params.CohortName, params.CohortQueryID, params.ID)
+		return nil, nil, nil, fmt.Errorf("while retrieving cohort (%s, %s) for survival query %s: %v", userID, params.CohortQueryID, params.ID, err)
+	} else if cohort == nil {
+		return nil, nil, nil, fmt.Errorf("requested cohort (%s, %s) for survival query %s not found", userID, params.CohortQueryID, params.ID)
 	}
 	logrus.Info("cohort found")
 
 	cohortPanel := models.Panel{
 		Not:         false,
 		Timing:      models.TimingAny,
-		CohortItems: []string{"patient_set_coll_id:" + strconv.FormatInt(cohort.ExploreQuery.ResultI2b2PatientSetID.Int64, 10)},
+		CohortItems: []string{cohort.ExploreQuery.ID},
 	}
 
 	startConceptPanel := models.Panel{
@@ -142,7 +142,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 
 			logrus.Infof("survival analysis: I2B2 explore for subgroup %d", i)
 			logrus.Tracef("survival analysis: panels %+v", panels)
-			_, _, patientList, err := ds.ExploreQuery(&models.ExploreQueryParameters{
+			_, _, patientList, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
 				ID: params.ID + "_SUBGROUP_" + strconv.Itoa(i),
 				Definition: models.ExploreQueryDefinition{
 					Timing: subGroupDefinition.Timing,

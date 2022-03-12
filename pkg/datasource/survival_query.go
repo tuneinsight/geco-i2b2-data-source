@@ -19,18 +19,14 @@ import (
 
 // Names of output data objects.
 const (
-	outputNameSurvivalQueryInitialCounts          sdk.OutputDataObjectName = "initialCounts"
-	outputNameSurvivalQueryEventsOfInterestCounts sdk.OutputDataObjectName = "eventsOfInterestCounts"
-	outputNameSurvivalQueryCensoringEventsCounts  sdk.OutputDataObjectName = "censoringEventsCounts"
+	outputNameSurvivalQueryResult sdk.OutputDataObjectName = "survivalQueryResult"
 )
 
 // SurvivalQueryHandler is the OperationHandler for the OperationSurvivalQuery Operation.
 func (ds I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
 
 	decodedParams := &models.SurvivalQueryParameters{}
-	if outputDataObjectsSharedIDs[outputNameSurvivalQueryInitialCounts] == "" ||
-		outputDataObjectsSharedIDs[outputNameSurvivalQueryEventsOfInterestCounts] == "" ||
-		outputDataObjectsSharedIDs[outputNameSurvivalQueryCensoringEventsCounts] == "" {
+	if outputDataObjectsSharedIDs[outputNameSurvivalQueryResult] == "" {
 		return nil, nil, fmt.Errorf("missing output data object name")
 	} else if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
@@ -38,23 +34,15 @@ func (ds I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []by
 
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
-	} else if initialCounts, eventsOfInterestCounts, censoringEventsCounts, err := ds.SurvivalQuery(userID, decodedParams); err != nil {
+	} else if survivalQueryResult, err := ds.SurvivalQuery(userID, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("executing query: %v", err)
 	} else {
 		// wrap results in data objects
 		outputDataObjects = []gecosdk.DataObject{
 			{
-				OutputName: outputNameSurvivalQueryInitialCounts,
-				SharedID:   outputDataObjectsSharedIDs[outputNameSurvivalQueryInitialCounts],
-				IntVector:  initialCounts,
-			}, {
-				OutputName: outputNameSurvivalQueryEventsOfInterestCounts,
-				SharedID:   outputDataObjectsSharedIDs[outputNameSurvivalQueryEventsOfInterestCounts],
-				IntVector:  eventsOfInterestCounts,
-			}, {
-				OutputName: outputNameSurvivalQueryCensoringEventsCounts,
-				SharedID:   outputDataObjectsSharedIDs[outputNameSurvivalQueryCensoringEventsCounts],
-				IntVector:  censoringEventsCounts,
+				OutputName: outputNameSurvivalQueryResult,
+				SharedID:   outputDataObjectsSharedIDs[outputNameSurvivalQueryResult],
+				IntVector:  survivalQueryResult,
 			},
 		}
 	}
@@ -62,16 +50,13 @@ func (ds I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []by
 }
 
 // SurvivalQuery makes a survival query.
-// The returned @initialCounts is a slice whose elements are the initial count values for each subgroup.
-// The returned @eventsOfInterestCounts and @censoringEventsCounts are slices containing the flattened counts of all subgroups.
-// E.g., if @initialCounts contains 2 elements, and @eventsOfInterestCounts and @censoringEventsCounts contain n elements each,
-// the elements from 0 to n/2 - 1 refer to subgroup 0, and the elements from n/2 to n-1 refer to subgroup 1.
-func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQueryParameters) (initialCounts, eventsOfInterestCounts, censoringEventsCounts []int64, err error) {
+// The returned @survivalQuery result is a slice containing the sorted and flattened EventGroups.
+func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQueryParameters) (survivalQueryResult []int64, err error) {
 
 	// validating params
 	err = params.Validate()
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("while validating parameters for survival query %s: %v", params.ID, err)
+		return nil, fmt.Errorf("while validating parameters for survival query %s: %v", params.ID, err)
 	}
 
 	// getting cohort
@@ -79,9 +64,9 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	cohort, err := ds.db.GetCohort(userID, params.CohortQueryID)
 
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("while retrieving cohort (%s, %s) for survival query %s: %v", userID, params.CohortQueryID, params.ID, err)
+		return nil, fmt.Errorf("while retrieving cohort (%s, %s) for survival query %s: %v", userID, params.CohortQueryID, params.ID, err)
 	} else if cohort == nil {
-		return nil, nil, nil, fmt.Errorf("requested cohort (%s, %s) for survival query %s not found", userID, params.CohortQueryID, params.ID)
+		return nil, fmt.Errorf("requested cohort (%s, %s) for survival query %s not found", userID, params.CohortQueryID, params.ID)
 	}
 	logrus.Info("cohort found")
 
@@ -106,7 +91,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 
 	startConceptCodes, startModifierCodes, endConceptCodes, endModifierCodes, err := ds.getEventCodes(params.StartConcept, params.StartModifier, params.EndConcept, params.EndModifier)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("while retrieving concept codes and patient indices: %v", err)
+		return nil, fmt.Errorf("while retrieving concept codes and patient indices: %v", err)
 	}
 
 	subGroupsDefinitions := params.SubGroupsDefinitions
@@ -118,7 +103,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 			},
 		}
 	} else if len(subGroupsDefinitions) > 4 {
-		return nil, nil, nil, fmt.Errorf("too many subgroups (%d), max: 4", len(subGroupsDefinitions))
+		return nil, fmt.Errorf("too many subgroups (%d), max: 4", len(subGroupsDefinitions))
 	}
 
 	waitGroup := &sync.WaitGroup{}
@@ -232,7 +217,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	}()
 	select {
 	case err := <-errChan:
-		return nil, nil, nil, err
+		return nil, err
 	case <-signal:
 		break
 	}
@@ -245,7 +230,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 		logrus.Tracef("survival analysis: eventGroup %v", group)
 	}
 
-	initialCounts, eventsOfInterestCounts, censoringEventsCounts, err = eventGroups.SortAndFlatten()
+	survivalQueryResult, err = eventGroups.SortAndFlatten()
 	if err != nil {
 		logrus.Errorf("during sorting and flattening: %v", err)
 		err = fmt.Errorf("during aggregation and keyswitch")

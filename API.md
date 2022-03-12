@@ -313,9 +313,9 @@ Perform survival query.
   - `panels`: panels defining the subgroup, as defined in exploreQuery
 
 ## Output Data Objects Shared IDs
-- `initialCounts`: vector of integers whose elements are the initial count values for each subgroup
-- `eventsOfInterestCounts`: vector of integers containing the flattened event of interest counts of all subgroups
-- `censoringEventsCounts`: vector of integers containing the flattened censoring event counts of all subgroups
+- `survivalQueryResult`: vector of integers containing the flattened event groups
 
-E.g., if `initialCounts` contains 2 elements, and `eventsOfInterestCounts` and `censoringEventsCounts` contain n elements each,
-the elements from 0 to n/2 - 1 refer to subgroup 0, and the elements from n/2 to n-1 refer to subgroup 1.
+Each event group is flattened as a vector of 1 + 2n elements, where n is the number of group's time points. 
+The element at position 0 contains the initial count for the group, and each couple of following elements contains
+the aggregated number of events of interest and the aggregated number of censoring events for each time point in the group.
+All flattened event groups are concatenated in `survivalQueryResult`, whose size is then m(1 + 2n), where m is the number of event groups.

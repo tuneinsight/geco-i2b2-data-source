@@ -69,11 +69,15 @@ func (eventGroup EventGroup) Swap(i, j int) {
 	eventGroup.TimePointResults[i], eventGroup.TimePointResults[j] = eventGroup.TimePointResults[j], eventGroup.TimePointResults[i]
 }
 
-// SortAndFlatten orders and flattens and EventGroups.
-func (eventGroups EventGroups) SortAndFlatten() (initialCounts, eventValuesAgg, censoringValuesAgg []int64, err error) {
+// SortAndFlatten orders and flattens an EventGroups.
+// Each event group is flattened as a vector of 1 + 2n elements, where n is the number of group's time points.
+// The element at position 0 contains the initial count for the group, and each couple of following elements contains
+// the aggregated number of events of interest and the aggregated number of censoring events for each time point in the group.
+// All flattened event groups are concatenated in @flatEventGroups, whose size is then m(1 + 2n), where m is the number of event groups.
+func (eventGroups EventGroups) SortAndFlatten() (flatEventGroups []int64, err error) {
 
 	if len(eventGroups) == 0 {
-		return nil, nil, nil, fmt.Errorf("no group")
+		return nil, fmt.Errorf("no group")
 	}
 
 	var cumulativeLength int
@@ -100,24 +104,23 @@ func (eventGroups EventGroups) SortAndFlatten() (initialCounts, eventValuesAgg, 
 	}
 
 	if cumulativeLength == 0 {
-		return nil, nil, nil, fmt.Errorf("all groups are empty")
+		return nil, fmt.Errorf("all groups are empty")
 	}
 
 	sort.Sort(sortedEventGroups)
 
 	// ---------  flattening
-	initialCounts = make([]int64, 0)
-	eventValuesAgg = make([]int64, 0)
-	censoringValuesAgg = make([]int64, 0)
+	flatEventGroups = make([]int64, 0)
+
 	for _, group := range sortedEventGroups {
-		initialCounts = append(initialCounts, group.InitialCount)
+		flatEventGroups = append(flatEventGroups, group.InitialCount)
 		for _, timePoint := range group.TimePointResults {
-			eventValuesAgg = append(eventValuesAgg, timePoint.Result.EventValueAgg)
-			censoringValuesAgg = append(censoringValuesAgg, timePoint.Result.CensoringValueAgg)
+			flatEventGroups = append(flatEventGroups, timePoint.Result.EventValueAgg)
+			flatEventGroups = append(flatEventGroups, timePoint.Result.CensoringValueAgg)
 		}
 	}
 
-	logrus.Debugf("initial counts: %v, event values agg: %v, censoring values agg: %v", initialCounts, eventValuesAgg, censoringValuesAgg)
+	logrus.Debugf("flat inputs: %v", flatEventGroups)
 
 	return
 

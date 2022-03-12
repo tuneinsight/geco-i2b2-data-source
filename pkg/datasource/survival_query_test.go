@@ -31,12 +31,10 @@ func TestSurvivalQuery(t *testing.T) {
 
 		params.TimeGranularity = "day"
 
-		initialCounts, eventsOfInterestCounts, censoringEventsCounts, err := ds.SurvivalQuery("testuser1", params)
-		logrus.Infof("initialCounts = %d, eventsOfInterestCounts = %v, censoringEventsCounts = %v", initialCounts, eventsOfInterestCounts, censoringEventsCounts)
+		survivalQueryResult, err := ds.SurvivalQuery("testuser1", params)
+		logrus.Infof("survivalQueryResult = %v", survivalQueryResult)
 		require.NoError(t, err)
-		require.Equal(t, initialCounts, []int64{228})
-		require.Equal(t, eventsOfInterestCounts, []int64{0, 0, 0, 0, 0, 1})
-		require.Equal(t, censoringEventsCounts, []int64{0, 0, 0, 0, 0, 0})
+		require.Equal(t, survivalQueryResult, []int64{228, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0})
 
 	})
 
@@ -46,12 +44,10 @@ func TestSurvivalQuery(t *testing.T) {
 
 		params.TimeGranularity = "week"
 
-		initialCounts, eventsOfInterestCounts, censoringEventsCounts, err := ds.SurvivalQuery("testuser1", params)
-		logrus.Infof("initialCounts = %d, eventsOfInterestCounts = %v, censoringEventsCounts = %v", initialCounts, eventsOfInterestCounts, censoringEventsCounts)
+		survivalQueryResult, err := ds.SurvivalQuery("testuser1", params)
+		logrus.Infof("survivalQueryResult = %v", survivalQueryResult)
 		require.NoError(t, err)
-		require.Equal(t, initialCounts, []int64{228})
-		require.Equal(t, eventsOfInterestCounts, []int64{0, 1, 6, 1, 1, 2})
-		require.Equal(t, censoringEventsCounts, []int64{0, 0, 0, 0, 0, 0})
+		require.Equal(t, survivalQueryResult, []int64{228, 0, 0, 1, 0, 6, 0, 1, 0, 1, 0, 2, 0})
 
 	})
 
@@ -61,12 +57,10 @@ func TestSurvivalQuery(t *testing.T) {
 
 		params.TimeGranularity = "month"
 
-		initialCounts, eventsOfInterestCounts, censoringEventsCounts, err := ds.SurvivalQuery("testuser1", params)
-		logrus.Infof("initialCounts = %d, eventsOfInterestCounts = %v, censoringEventsCounts = %v", initialCounts, eventsOfInterestCounts, censoringEventsCounts)
+		survivalQueryResult, err := ds.SurvivalQuery("testuser1", params)
+		logrus.Infof("survivalQueryResult = %v", survivalQueryResult)
 		require.NoError(t, err)
-		require.Equal(t, initialCounts, []int64{228})
-		require.Equal(t, eventsOfInterestCounts, []int64{0, 10, 7, 10, 10, 10})
-		require.Equal(t, censoringEventsCounts, []int64{0, 0, 0, 0, 2, 0})
+		require.Equal(t, survivalQueryResult, []int64{228, 0, 0, 10, 0, 7, 0, 10, 0, 10, 2, 10, 0})
 
 	})
 
@@ -76,12 +70,10 @@ func TestSurvivalQuery(t *testing.T) {
 
 		params.TimeGranularity = "year"
 
-		initialCounts, eventsOfInterestCounts, censoringEventsCounts, err := ds.SurvivalQuery("testuser1", params)
-		logrus.Infof("initialCounts = %d, eventsOfInterestCounts = %v, censoringEventsCounts = %v", initialCounts, eventsOfInterestCounts, censoringEventsCounts)
+		survivalQueryResult, err := ds.SurvivalQuery("testuser1", params)
+		logrus.Infof("survivalQueryResult = %v", survivalQueryResult)
 		require.NoError(t, err)
-		require.Equal(t, initialCounts, []int64{228})
-		require.Equal(t, eventsOfInterestCounts, []int64{0, 121, 38, 6, 0, 0})
-		require.Equal(t, censoringEventsCounts, []int64{0, 42, 14, 7, 0, 0})
+		require.Equal(t, survivalQueryResult, []int64{228, 0, 0, 121, 42, 38, 14, 6, 7, 0, 0, 0, 0})
 
 	})
 
@@ -123,12 +115,10 @@ func TestSurvivalQuery(t *testing.T) {
 			},
 		}
 
-		initialCounts, eventsOfInterestCounts, censoringEventsCounts, err := ds.SurvivalQuery("testuser1", params)
-		logrus.Infof("initialCounts = %d, eventsOfInterestCounts = %v, censoringEventsCounts = %v", initialCounts, eventsOfInterestCounts, censoringEventsCounts)
+		survivalQueryResult, err := ds.SurvivalQuery("testuser1", params)
+		logrus.Infof("survivalQueryResult = %v", survivalQueryResult)
 		require.NoError(t, err)
-		require.Equal(t, initialCounts, []int64{138, 90})
-		require.Equal(t, eventsOfInterestCounts, []int64{0, 0, 6, 1, 1, 2, 0, 1, 0, 0, 0, 0})
-		require.Equal(t, censoringEventsCounts, []int64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+		require.Equal(t, survivalQueryResult, []int64{138, 0, 0, 0, 0, 6, 0, 1, 0, 1, 0, 2, 0, 90, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 
 	})
 

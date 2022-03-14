@@ -29,7 +29,11 @@ func getDataSource(t *testing.T) *I2b2DataSource {
 	config["db.password"] = "postgres"
 
 	logrus.StandardLogger().SetLevel(logrus.DebugLevel)
-	ds, err := NewI2b2DataSource("", "test", "test-geco-i2b2-ds")
+	manager := gecosdk.NewDBManager(gecosdk.DBManagerConfig{
+		SleepingTimeBetweenAttemptsSeconds: 5,
+		MaxConnectionAttempts:              3,
+	})
+	ds, err := NewI2b2DataSource("", "test", "test-geco-i2b2-ds", manager)
 	require.NoError(t, err)
 	err = ds.Config(logrus.StandardLogger(), config)
 	require.NoError(t, err)
@@ -42,6 +46,8 @@ func getDataSource(t *testing.T) *I2b2DataSource {
 
 func dataSourceCleanUp(t *testing.T, ds *I2b2DataSource) {
 	err := ds.db.TestCleanUp()
+	require.NoError(t, err)
+	err = ds.Close()
 	require.NoError(t, err)
 }
 

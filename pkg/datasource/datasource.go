@@ -20,11 +20,11 @@ var _ sdk.DataSource = (*I2b2DataSource)(nil)
 var DataSourceType sdk.DataSourceType = "i2b2-geco"
 
 // NewI2b2DataSource creates an i2b2 data source. Implements sdk.DataSourceFactory.
-func NewI2b2DataSource(id sdkmodels.DataSourceID, owner, name string) (plugin sdk.DataSource, err error) {
+func NewI2b2DataSource(id sdkmodels.DataSourceID, owner, name string, manager *sdk.DBManager) (plugin sdk.DataSource, err error) {
 	ds := new(I2b2DataSource)
-
+	ds.manager = manager
 	ds.DataSourceModel = *sdk.NewDataSourceModel(id, owner, name, DataSourceType)
-	ds.dbConfig = new(dbConfig)
+	ds.dbConfig = new(database.PostgresDatabaseConfig)
 	ds.i2b2Config = new(i2b2Config)
 
 	return ds, nil
@@ -37,6 +37,8 @@ type I2b2DataSource struct {
 	// logger is the logger from GeCo
 	logger logrus.FieldLogger
 
+	// manager is the connection manager used to get the database connection
+	manager *sdk.DBManager
 	// db is the database handler of the data source
 	db *database.PostgresDatabase
 
@@ -44,35 +46,10 @@ type I2b2DataSource struct {
 	i2b2Client i2b2client.Client
 
 	// dbConfig contains the DB configuration
-	dbConfig *dbConfig
+	dbConfig *database.PostgresDatabaseConfig
 
 	// i2b2Config contains the i2b2 configuration
 	i2b2Config *i2b2Config
-}
-
-type dbConfig struct {
-	// Host contains the DBMS host.
-	Host string
-	// Port contains the DBMS port.
-	Port string
-	// Name contains the DB name.
-	Name string
-	// Schema contains the used DB schema.
-	Schema string
-	// User contains the DB login user.
-	User string
-	// Password contains the DB login password.
-	Password string //TODO: is it safe?
-}
-
-// MarshalBinary marshals the db config.
-func (db *dbConfig) MarshalBinary() (data []byte, err error) {
-	return json.Marshal(db)
-}
-
-// UnmarshalBinary unmarshals the db config.
-func (db *dbConfig) UnmarshalBinary(data []byte) (err error) {
-	return json.Unmarshal(data, db)
 }
 
 type i2b2Config struct {
@@ -117,7 +94,7 @@ func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]in
 	// store db config
 	ds.dbConfig.Host = (config["db.host"].(string))
 	ds.dbConfig.Port = config["db.port"].(string)
-	ds.dbConfig.Name = config["db.db-name"].(string)
+	ds.dbConfig.Database = config["db.db-name"].(string)
 	ds.dbConfig.Schema = config["db.schema-name"].(string)
 	ds.dbConfig.User = config["db.user"].(string)
 	ds.dbConfig.Password = config["db.password"].(string)
@@ -132,10 +109,15 @@ func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]in
 	if ds.i2b2Config.WaitTime, err = time.ParseDuration(config["i2b2.api.wait-time"].(string)); err != nil {
 		return ds.logError("parsing i2b2 wait time", err)
 	}
-
+	if ds.manager == nil {
+		return fmt.Errorf("manager should be set")
+	}
+	db, err := ds.manager.GetDatabase(ds.dbConfig)
+	if err != nil {
+		return ds.logError("retrieving database", err)
+	}
 	// initialize database connection
-	ds.db, err = database.NewPostgresDatabase(ds.logger, ds.dbConfig.Host, ds.dbConfig.Port,
-		ds.dbConfig.Name, ds.dbConfig.Schema, ds.dbConfig.User, ds.dbConfig.Password)
+	ds.db, err = database.NewPostgresDatabase(ds.logger, *ds.dbConfig, db.DB)
 	if err != nil {
 		return ds.logError("initializing database connection", err)
 	}
@@ -163,8 +145,15 @@ func (ds *I2b2DataSource) ConfigFromDB(logger logrus.FieldLogger) (err error) {
 	ds.logger = logger
 
 	// initialize database connection
-	ds.db, err = database.NewPostgresDatabase(ds.logger, ds.dbConfig.Host, ds.dbConfig.Port,
-		ds.dbConfig.Name, ds.dbConfig.Schema, ds.dbConfig.User, ds.dbConfig.Password)
+	if ds.manager == nil {
+		return fmt.Errorf("db manager should be set")
+	}
+	db, err := ds.manager.GetDatabase(ds.dbConfig)
+	if err != nil {
+		return ds.logError("retrieving database", err)
+	}
+	// initialize database connection
+	ds.db, err = database.NewPostgresDatabase(ds.logger, *ds.dbConfig, db.DB)
 	if err != nil {
 		return ds.logError("initializing database connection", err)
 	}
@@ -251,4 +240,12 @@ func (ds I2b2DataSource) logError(errMsg string, causedBy error) (err error) {
 	}
 	ds.logger.Error(err)
 	return err
+}
+
+// Close closes the i2b2 datasource
+func (ds *I2b2DataSource) Close() (err error) {
+	if ds.manager == nil {
+		return fmt.Errorf("manager should be set before closing datasource")
+	}
+	return ds.manager.Close(ds.dbConfig)
 }

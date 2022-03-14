@@ -109,6 +109,9 @@ func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]in
 	if ds.i2b2Config.WaitTime, err = time.ParseDuration(config["i2b2.api.wait-time"].(string)); err != nil {
 		return ds.logError("parsing i2b2 wait time", err)
 	}
+	if ds.manager == nil {
+		return fmt.Errorf("manager should be set")
+	}
 	db, err := ds.manager.GetDatabase(ds.dbConfig)
 	if err != nil {
 		return ds.logError("retrieving database", err)
@@ -142,6 +145,9 @@ func (ds *I2b2DataSource) ConfigFromDB(logger logrus.FieldLogger) (err error) {
 	ds.logger = logger
 
 	// initialize database connection
+	if ds.manager == nil {
+		return fmt.Errorf("db manager should be set")
+	}
 	db, err := ds.manager.GetDatabase(ds.dbConfig)
 	if err != nil {
 		return ds.logError("retrieving database", err)

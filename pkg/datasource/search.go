@@ -193,7 +193,6 @@ func (ds I2b2DataSource) SearchOntology(params *models.SearchOntologyParameters)
 			Name:             ontologyElement.Name,
 			Visualattributes: ontologyElement.VisualAttributes,
 			Basecode:         ontologyElement.BaseCode,
-			Comment:          ontologyElement.Comment,
 			AppliedPath:      ontologyElement.AppliedPath,
 		}
 
@@ -203,6 +202,10 @@ func (ds I2b2DataSource) SearchOntology(params *models.SearchOntologyParameters)
 			if err != nil {
 				return nil, fmt.Errorf("while unmarshalling xml metadata of ontology element %s: %v", ontologyElement.FullName, err)
 			}
+		}
+
+		if ontologyElement.Comment.Valid {
+			ontologyElementParsed.Comment = ontologyElement.Comment.String
 		}
 
 		searchResultElement := models.NewSearchResultFromI2b2OntologyElement(ontologyElementParsed)

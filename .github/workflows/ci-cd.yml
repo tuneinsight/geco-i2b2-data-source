@@ -54,7 +54,7 @@ jobs:
 
       - name: Run i2b2 docker image test
         run: |
-          sudo apt-get install -y libxml2-utils
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
           make i2b2-test
 
       - name: Run go unit tests

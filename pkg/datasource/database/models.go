@@ -28,7 +28,7 @@ type OntologyElement struct {
 	VisualAttributes string
 	BaseCode         string
 	MetaDataXML      sql.NullString
-	Comment          string
+	Comment          sql.NullString
 	AppliedPath      string
 	ID               int
 }

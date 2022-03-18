@@ -287,7 +287,7 @@ func TestExploreQueryDatabase(t *testing.T) {
 	_, _, err := ds.Query("testUser", "exploreQuery", []byte(params), sharedIDs)
 	require.NoError(t, err)
 
-	query, err := ds.db.GetExploreQuery(queryID)
+	query, err := ds.db.GetExploreQuery("testUser", queryID)
 	require.NoError(t, err)
 	require.EqualValues(t, "success", query.Status)
 	require.EqualValues(t, countSharedID, query.ResultGecoSharedIDCount.String)

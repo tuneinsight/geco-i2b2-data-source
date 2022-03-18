@@ -7,7 +7,7 @@ import (
 
 // GetExploreQuery retrieves an explore query from the database.
 // Returns nil (not an error) if query does not exist.
-func (db PostgresDatabase) GetExploreQuery(id string) (query *ExploreQuery, err error) {
+func (db PostgresDatabase) GetExploreQuery(userID, id string) (query *ExploreQuery, err error) {
 	const getExploreQueryStatement = `
 		SELECT 
 			id,
@@ -20,10 +20,10 @@ func (db PostgresDatabase) GetExploreQuery(id string) (query *ExploreQuery, err 
 			result_geco_shared_id_patient_list
 	
 		FROM explore_query
-		WHERE id = $1;`
+		WHERE id = $1 AND user_id = $2;`
 
 	var rows *sql.Rows
-	if rows, err = db.handle.Query(getExploreQueryStatement, id); err != nil {
+	if rows, err = db.handle.Query(getExploreQueryStatement, id, userID); err != nil {
 		return nil, fmt.Errorf("querying getExploreQueryStatement: %v", err)
 	}
 	defer closeRows(rows, db.logger)

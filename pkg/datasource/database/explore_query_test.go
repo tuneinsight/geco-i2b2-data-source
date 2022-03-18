@@ -10,17 +10,15 @@ func TestGetExploreQuery(t *testing.T) {
 	db := getDB(t)
 	defer dbCleanUp(t, db)
 
-	query1, err := db.GetExploreQuery("11111111-1111-1111-1111-111111111111")
+	query1, err := db.GetExploreQuery("testuser1", "11111111-1111-1111-1111-111111111111")
 	require.NoError(t, err)
-	require.EqualValues(t, "testuser1", query1.UserID)
 	t.Logf("%+v", query1)
 
-	query3, err := db.GetExploreQuery("33333333-3333-3333-3333-333333333333")
+	query3, err := db.GetExploreQuery("testuser2", "33333333-3333-3333-3333-333333333333")
 	require.NoError(t, err)
-	require.EqualValues(t, "testuser2", query3.UserID)
 	t.Logf("%+v", query3)
 
-	queryNotFound, err := db.GetExploreQuery("11111111-1111-9999-1111-111111111111")
+	queryNotFound, err := db.GetExploreQuery("testuser1", "11111111-1111-9999-1111-111111111111")
 	require.NoError(t, err)
 	require.Nil(t, queryNotFound)
 }
@@ -33,7 +31,7 @@ func TestExploreQuery(t *testing.T) {
 	err := db.AddExploreQuery("testUser5", queryID, "{}")
 	require.NoError(t, err)
 
-	query, err := db.GetExploreQuery(queryID)
+	query, err := db.GetExploreQuery("testUser5", queryID)
 	require.NoError(t, err)
 	require.EqualValues(t, "testUser5", query.UserID)
 	require.EqualValues(t, queryID, query.ID)
@@ -42,19 +40,19 @@ func TestExploreQuery(t *testing.T) {
 
 	err = db.SetExploreQueryRunning("testUser5", queryID)
 	require.NoError(t, err)
-	query, err = db.GetExploreQuery(queryID)
+	query, err = db.GetExploreQuery("testUser5", queryID)
 	require.NoError(t, err)
 	require.EqualValues(t, "running", query.Status)
 
 	err = db.SetExploreQueryError("testUser5", queryID)
 	require.NoError(t, err)
-	query, err = db.GetExploreQuery(queryID)
+	query, err = db.GetExploreQuery("testUser5", queryID)
 	require.NoError(t, err)
 	require.EqualValues(t, "error", query.Status)
 
 	err = db.SetExploreQuerySuccess("testUser5", queryID, 7, "31133333-3333-3333-3333-333333333333", "33333333-3333-3333-3333-333333333223")
 	require.NoError(t, err)
-	query, err = db.GetExploreQuery(queryID)
+	query, err = db.GetExploreQuery("testUser5", queryID)
 	require.NoError(t, err)
 	require.EqualValues(t, "success", query.Status)
 	require.EqualValues(t, 7, query.ResultI2b2PatientSetID.Int64)

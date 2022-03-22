@@ -88,7 +88,8 @@ Exploration of the modifiers of the tree-like ontology.
   "path": "/TEST/modifiers/",
   "appliedPath": "/test/%",
   "appliedConcept": "/TEST/test/1/",
-  "operation": "concept|children|info"
+  "operation": "concept|children|info",
+  "limit": "200"
 }
 ```
 
@@ -99,6 +100,8 @@ Exploration of the modifiers of the tree-like ontology.
   - `info`: request metadata about the modifier itself
   - `children`: request children of the modifier
   - `concept`: request modifiers of the requested concept
+- `limit`: maximum number of ontology elements returned by the search operation (optional, default to the value defined at datasource creation).
+  To return all found elements, it must be set to 0.
   
 ## Results
 See results of `searchConcept`.
@@ -286,7 +289,7 @@ Perform survival query.
   },
   "endsWhen": "earliest|latest",
   "timeGranularity": "day|week|month|year",
-  "timeLimit": "10",
+  "timeLimit": 10,
   "subGroupsDefinitions": [
     {
       "name": "xxxx",

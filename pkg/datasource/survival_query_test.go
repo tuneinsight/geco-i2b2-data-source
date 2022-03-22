@@ -85,11 +85,11 @@ func TestSurvivalQuery(t *testing.T) {
 		params.SubGroupsDefinitions = []*models.SubGroupDefinition{
 			{
 				Name: "Female",
-				Panels: []models.Panel{
+				Panels: []*models.Panel{
 					{
 						Not:    false,
 						Timing: "any",
-						ConceptItems: []models.ConceptItem{
+						ConceptItems: []*models.ConceptItem{
 							{
 								QueryTerm: "/I2B2/I2B2/Demographics/Gender/Female/",
 							},
@@ -100,11 +100,11 @@ func TestSurvivalQuery(t *testing.T) {
 			},
 			{
 				Name: "Male",
-				Panels: []models.Panel{
+				Panels: []*models.Panel{
 					{
 						Not:    false,
 						Timing: "any",
-						ConceptItems: []models.ConceptItem{
+						ConceptItems: []*models.ConceptItem{
 							{
 								QueryTerm: "/I2B2/I2B2/Demographics/Gender/Male/",
 							},

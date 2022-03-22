@@ -47,7 +47,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 	}
 
 	switch params.Operation {
-	case "info":
+	case models.SearchInfoOperation:
 		if path == "/" {
 			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}
@@ -57,7 +57,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 			return nil, fmt.Errorf("requesting term info: %v", err)
 		}
 
-	case "children":
+	case models.SearchChildrenOperation:
 		if path == "/" {
 			req := i2b2clientmodels.NewOntReqGetCategoriesMessageBody()
 			if respConcepts, err = ds.i2b2Client.OntGetCategories(&req); err != nil {
@@ -124,7 +124,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 	}
 
 	switch params.Operation {
-	case "concept":
+	case models.SearchConceptOperation:
 		if path == "/" {
 			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}
@@ -134,7 +134,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 			return nil, fmt.Errorf("requesting modifiers of concept: %v", err)
 		}
 
-	case "info":
+	case models.SearchInfoOperation:
 		if path == "/" {
 			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}
@@ -145,7 +145,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 			return nil, fmt.Errorf("requesting info of modifier: %v", err)
 		}
 
-	case "children":
+	case models.SearchChildrenOperation:
 		if path == "/" {
 			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}

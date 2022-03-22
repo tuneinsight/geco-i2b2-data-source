@@ -12,16 +12,16 @@ type ExploreQueryParameters struct {
 
 // ExploreQueryDefinition is the query definition of ExploreQueryParameters.
 type ExploreQueryDefinition struct {
-	Timing string  `json:"timing"` // any | samevisit | sameinstancenum
-	Panels []Panel `json:"panels"`
+	Timing string   `json:"timing"` // any | samevisit | sameinstancenum
+	Panels []*Panel `json:"panels"`
 }
 
 // Panel is part of an ExploreQueryDefinition.
 type Panel struct {
-	Not          bool          `json:"not"`
-	Timing       string        `json:"timing"`      // any | samevisit | sameinstancenum
-	CohortItems  []string      `json:"cohortItems"` // contains the explore query IDs
-	ConceptItems []ConceptItem `json:"conceptItems"`
+	Not          bool           `json:"not"`
+	Timing       string         `json:"timing"`      // any | samevisit | sameinstancenum
+	CohortItems  []string       `json:"cohortItems"` // contains the explore query IDs
+	ConceptItems []*ConceptItem `json:"conceptItems"`
 }
 
 const (
@@ -42,10 +42,10 @@ type ConceptItem struct {
 	Operator  string `json:"operator"` // EQ | NE | GT | GE | LT | LE | BETWEEN | IN | LIKE[exact] | LIKE[begin] | LIKE[end] | LIKE[contains]
 	Value     string `json:"value"`
 	Type      string `json:"type"` // NUMBER | TEXT
-	Modifier  struct {
+	Modifier  *struct {
 		Key         string `json:"key"`
 		AppliedPath string `json:"appliedPath"`
-	} `json:"modifier"`
+	} `json:"modifier,omitempty"`
 }
 
 // ToI2b2APIModel converts this query definition in the i2b2 API format.
@@ -58,7 +58,7 @@ func (d ExploreQueryDefinition) ToI2b2APIModel() (i2b2ApiPanels []i2b2clientmode
 		for _, item := range panel.ConceptItems {
 			i2b2ApiItem := i2b2clientmodels.Item{ItemKey: i2b2clientmodels.ConvertPathToI2b2Format(item.QueryTerm)}
 
-			if item.Operator != "" && item.Modifier.Key == "" {
+			if item.Operator != "" && item.Modifier == nil {
 				i2b2ApiItem.ConstrainByValue = &i2b2clientmodels.ConstrainByValue{
 					ValueType:       item.Type,
 					ValueOperator:   item.Operator,
@@ -66,7 +66,7 @@ func (d ExploreQueryDefinition) ToI2b2APIModel() (i2b2ApiPanels []i2b2clientmode
 				}
 			}
 
-			if item.Modifier.Key != "" {
+			if item.Modifier != nil && item.Modifier.Key != "" {
 				i2b2ApiItem.ConstrainByModifier = &i2b2clientmodels.ConstrainByModifier{
 					ModifierKey: i2b2clientmodels.ConvertPathToI2b2Format(item.Modifier.Key),
 					AppliedPath: i2b2clientmodels.ConvertAppliedPathToI2b2Format(item.Modifier.AppliedPath),

@@ -13,7 +13,7 @@ type SurvivalQueryParameters struct {
 	// Pattern: ^[\w:-]+$
 	ID string `json:"ID"`
 
-	// cohort name
+	// cohort query ID
 	// Required: true
 	// Pattern: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
 	CohortQueryID string `json:"cohortQueryID"`
@@ -90,7 +90,7 @@ type SubGroupDefinition struct {
 	Name string `json:"name,omitempty"`
 
 	// panels
-	Panels []Panel `json:"panels"`
+	Panels []*Panel `json:"panels"`
 
 	// sub group timing
 	// Enum: [any samevisit sameinstance]

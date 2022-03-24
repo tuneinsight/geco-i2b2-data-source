@@ -78,6 +78,7 @@ func (ds I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQuery
 		return -1, -1, nil, err
 	} else {
 		// parse patient IDs
+		patientList = make([]int64, 0)
 		for _, patientID := range i2b2PatientIDs {
 			parsedPatientID, err := strconv.ParseInt(patientID, 10, 64)
 			if err != nil {

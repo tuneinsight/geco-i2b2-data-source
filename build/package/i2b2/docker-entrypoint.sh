@@ -17,6 +17,16 @@ if [[ "$DB_CHECK" -ne "1" ]]; then
       CREATE DATABASE ${I2B2_DB_NAME};
 EOSQL
 
+  # Create user and grant rights if they do not exist
+  USER_CHECK=$(psql ${PSQL_PARAMS} -d postgres -X -A -t -c "SELECT count(*) FROM pg_user WHERE usename = '${I2B2_DB_USER}';")
+  if [[ "$USER_CHECK" -ne "1" ]]; then
+    echo "Create user ${I2B2_DB_USER} and grand rights"
+    psql $PSQL_PARAMS -d postgres <<-EOSQL
+        CREATE USER ${I2B2_DB_USER}  LOGIN PASSWORD '${I2B2_DB_PW}';
+        GRANT ALL PRIVILEGES ON DATABASE ${I2B2_DB_NAME} TO ${I2B2_DB_USER};
+EOSQL
+  fi
+
   export I2B2_DATA_DIR=/tmp/i2b2-data
   mkdir -p "$I2B2_DATA_DIR"
   tar xvzf "$I2B2_DATA_ARCHIVE" -C "$I2B2_DATA_DIR"

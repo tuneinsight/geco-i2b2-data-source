@@ -9,7 +9,8 @@ Exploration of the concepts of the tree-like ontology.
 ```json
 {
   "path": "/TEST/test",
-  "operation": "children|info"
+  "operation": "children|info",
+  "limit": "200"
 }
 ```
 
@@ -17,6 +18,8 @@ Exploration of the concepts of the tree-like ontology.
 - `operation`:
     - `info`: request metadata about the concept itself
     - `children`: request children of the concept (both concepts and modifiers)
+- `limit`: maximum number of ontology elements returned by the search operation (optional, default to the value defined at datasource creation).
+           To return all found elements, it must be set to 0.
 
 ## Results
 ```json

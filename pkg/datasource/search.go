@@ -40,13 +40,19 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 		return nil, fmt.Errorf("empty path")
 	}
 
+	if params.Limit == "" {
+		params.Limit = ds.i2b2Config.OntMaxElements
+	} else if params.Limit == "0" {
+		params.Limit = ""
+	}
+
 	switch params.Operation {
 	case "info":
 		if path == "/" {
 			return &models.SearchResult{SearchResultElements: make([]*models.SearchResultElement, 0)}, nil
 		}
 
-		req := i2b2clientmodels.NewOntReqGetTermInfoMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath)
+		req := i2b2clientmodels.NewOntReqGetTermInfoMessageBody(params.Limit, i2b2FormatPath)
 		if respConcepts, err = ds.i2b2Client.OntGetTermInfo(&req); err != nil {
 			return nil, fmt.Errorf("requesting term info: %v", err)
 		}
@@ -60,7 +66,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 			break
 		}
 
-		req := i2b2clientmodels.NewOntReqGetChildrenMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath)
+		req := i2b2clientmodels.NewOntReqGetChildrenMessageBody(params.Limit, i2b2FormatPath)
 		if respConcepts, err = ds.i2b2Client.OntGetChildren(&req); err != nil {
 			return nil, fmt.Errorf("requesting children (concepts): %v", err)
 		} else if respModifiers, err = ds.SearchModifier(&models.SearchModifierParameters{
@@ -111,6 +117,12 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 		return nil, fmt.Errorf("empty path")
 	}
 
+	if params.Limit == "" {
+		params.Limit = ds.i2b2Config.OntMaxElements
+	} else if params.Limit == "0" {
+		params.Limit = ""
+	}
+
 	switch params.Operation {
 	case "concept":
 		if path == "/" {
@@ -140,7 +152,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 
 		i2b2FormatAppliedPath := i2b2clientmodels.ConvertAppliedPathToI2b2Format(strings.TrimSpace(params.AppliedPath))
 		i2b2FormatAppliedConcept := i2b2clientmodels.ConvertPathToI2b2Format(strings.TrimSpace(params.AppliedConcept))
-		req := i2b2clientmodels.NewOntReqGetModifierChildrenMessageBody(ds.i2b2Config.OntMaxElements, i2b2FormatPath, i2b2FormatAppliedPath, i2b2FormatAppliedConcept)
+		req := i2b2clientmodels.NewOntReqGetModifierChildrenMessageBody(params.Limit, i2b2FormatPath, i2b2FormatAppliedPath, i2b2FormatAppliedConcept)
 		if resp, err = ds.i2b2Client.OntGetModifierChildren(&req); err != nil {
 			return nil, fmt.Errorf("requesting children of modifier: %v", err)
 		}

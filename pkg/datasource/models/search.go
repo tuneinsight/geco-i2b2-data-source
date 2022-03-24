@@ -10,6 +10,7 @@ import (
 type SearchConceptParameters struct {
 	Path      string `json:"path"`
 	Operation string `json:"operation"` // children | info
+	Limit     string `json:"limit,omitempty"`
 }
 
 // SearchModifierParameters are the parameters for the searchModifier Operation.

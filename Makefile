@@ -17,11 +17,16 @@ i2b2-test:
 	cd test/i2b2 && ./test_i2b2_docker.sh
 
 # --- go sources
-.PHONY:	go-build-plugin go-build-plugin-docker go-imports go-lint go-unit-tests
+.PHONY:	go-build-plugin go-build-prod-plugin go-build-plugin-docker go-imports go-lint go-unit-tests
 go-build-plugin: export CGO_ENABLED=1
 go-build-plugin: export GOOS=linux
 go-build-plugin:
 	go build -buildmode=plugin -v -o ./build/ ./cmd/...
+
+go-build-prod-plugin: export CGO_ENABLED=1
+go-build-prod-plugin: export GOOS=linux
+go-build-prod-plugin:
+	go build -buildmode=plugin -trimpath -ldflags "-s -w" -v -o ./build/ ./cmd/...
 
 #to be tested
 go-build-plugin-docker: export CGO_ENABLED=1

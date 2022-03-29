@@ -88,7 +88,8 @@ Exploration of the modifiers of the tree-like ontology.
   "path": "/TEST/modifiers/",
   "appliedPath": "/test/%",
   "appliedConcept": "/TEST/test/1/",
-  "operation": "concept|children|info"
+  "operation": "concept|children|info",
+  "limit": "200"
 }
 ```
 
@@ -99,6 +100,8 @@ Exploration of the modifiers of the tree-like ontology.
   - `info`: request metadata about the modifier itself
   - `children`: request children of the modifier
   - `concept`: request modifiers of the requested concept
+- `limit`: maximum number of ontology elements returned by the search operation (optional, default to the value defined at datasource creation).
+  To return all found elements, it must be set to 0.
   
 ## Results
 See results of `searchConcept`.
@@ -265,7 +268,7 @@ Delete a cohort.
 - `exploreQueryID`: query associated to the cohort
 
 # survivalQuery
-Perform survival query.
+Run survival query.
 
 ## Parameters
 
@@ -286,7 +289,7 @@ Perform survival query.
   },
   "endsWhen": "earliest|latest",
   "timeGranularity": "day|week|month|year",
-  "timeLimit": "10",
+  "timeLimit": 10,
   "subGroupsDefinitions": [
     {
       "name": "xxxx",
@@ -322,3 +325,35 @@ Each event group is flattened as a vector of 1 + 2n elements, where n is the num
 The element at position 0 contains the initial count for the group, and each couple of following elements contains
 the aggregated number of events of interest and the aggregated number of censoring events for each time point in the group.
 All flattened event groups are concatenated in `survivalQueryResult`, whose size is then m(1 + 2n), where m is the number of event groups.
+
+# statisticsQuery
+Run statistics query.
+
+## Parameters
+
+```json
+{
+  "id": "99999999-9999-9999-9999-999999999999",
+  "panels": [
+    
+  ],
+  "timing": "any|samevisit|sameinstancenum",
+  "analytes": [
+    
+  ],
+  "bucketSize": 1.5,
+  "minObservations": 2
+}
+```
+
+- `id`: ID of the statistics query, must be an UUID
+- `panels`: array of panels (see "exploreQuery") defining the analyzed population
+- `timing`: `panels`' timing (see "exploreQuery)
+- `analytes`: the concepts (see `conceptItems` in "exploreQuery") used as analytes of the statistics query
+- `bucketSize`: bucket size for each analyte (float64)
+- `minObservations`: the total minimal number of observations for each analyte.
+
+## Output Data Objects Shared IDs
+- `statisticsQueryResult`: matrix of integers containing the number of observations for each analyte and each bucket.
+Each row of the matrix represents one analyte, each column of the matrix represents a bucket. The element of the matrix
+at position (i, j) contains the number of observations for the j-th bucket of the i-th analyte.

@@ -6,6 +6,15 @@ import (
 
 // --- parameters
 
+const (
+	// SearchChildrenOperation is the identifier of the "children" operation
+	SearchChildrenOperation = "children"
+	// SearchInfoOperation is the identifier of the "info" operation
+	SearchInfoOperation = "info"
+	// SearchConceptOperation is the identifier of the "concept" operation
+	SearchConceptOperation = "concept"
+)
+
 // SearchConceptParameters are the parameters for the searchConcept operation.
 type SearchConceptParameters struct {
 	Path      string `json:"path"`

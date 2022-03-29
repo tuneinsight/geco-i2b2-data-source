@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
-	"strconv"
 	"sync"
+
+	"github.com/google/uuid"
 
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 
@@ -61,25 +62,25 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 
 	// getting cohort
 	logrus.Info("checking cohort's existence")
-	cohort, err := ds.db.GetCohort(userID, params.CohortQueryID)
+	exploreQuery, err := ds.db.GetExploreQuery(userID, params.CohortQueryID)
 
 	if err != nil {
 		return nil, fmt.Errorf("while retrieving cohort (%s, %s) for survival query %s: %v", userID, params.CohortQueryID, params.ID, err)
-	} else if cohort == nil {
+	} else if exploreQuery == nil {
 		return nil, fmt.Errorf("requested cohort (%s, %s) for survival query %s not found", userID, params.CohortQueryID, params.ID)
 	}
 	logrus.Info("cohort found")
 
-	cohortPanel := models.Panel{
+	cohortPanel := &models.Panel{
 		Not:         false,
 		Timing:      models.TimingAny,
-		CohortItems: []string{cohort.ExploreQuery.ID},
+		CohortItems: []string{exploreQuery.ID},
 	}
 
-	startConceptPanel := models.Panel{
+	startConceptPanel := &models.Panel{
 		Not:    false,
 		Timing: models.TimingAny,
-		ConceptItems: []models.ConceptItem{
+		ConceptItems: []*models.ConceptItem{
 			{
 				QueryTerm: params.StartConcept,
 			},
@@ -128,7 +129,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 			logrus.Infof("survival analysis: I2B2 explore for subgroup %d", i)
 			logrus.Tracef("survival analysis: panels %+v", panels)
 			_, _, patientList, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
-				ID: params.ID + "_SUBGROUP_" + strconv.Itoa(i),
+				ID: uuid.New().String(),
 				Definition: models.ExploreQueryDefinition{
 					Timing: subGroupDefinition.Timing,
 					Panels: panels,

@@ -68,7 +68,7 @@ func (ds I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []byt
 // ExploreQuery makes an explore query, i.e. two i2b2 CRC queries, a PSM and a PDO query.
 func (ds I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQueryParameters) (patientSetID int64, patientCount int64, patientList []int64, err error) {
 
-	if i2b2PatientCount, i2b2PatientSetID, err := ds.doCrcPsmQuery(userID, params); err != nil {
+	if i2b2PatientCount, i2b2PatientSetID, err := ds.doCrcPsmQuery(userID, *params); err != nil {
 		return -1, -1, nil, err
 	} else if patientCount, err = strconv.ParseInt(i2b2PatientCount, 10, 64); err != nil {
 		return -1, -1, nil, fmt.Errorf("parsing patient count: %v", err)
@@ -91,7 +91,7 @@ func (ds I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQuery
 }
 
 // doCrcPsmQuery requests a PSM query to the i2b2 CRC and parse its results.
-func (ds I2b2DataSource) doCrcPsmQuery(userID string, params *models.ExploreQueryParameters) (patientCount, patientSetID string, err error) {
+func (ds I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQueryParameters) (patientCount, patientSetID string, err error) {
 
 	// retrieve patient set IDs for cohort items and replace them in the panels
 	for _, panel := range params.Definition.Panels {

@@ -1,17 +1,54 @@
 package datasource
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"strings"
 	"sync"
+
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
+
+// Names of output data objects.
+const (
+	outputNameStatisticsQueryResult sdk.OutputDataObjectName = "statisticsQueryResult"
+)
+
+// StatisticsQueryHandler is the OperationHandler for the OperationStatisticsQuery Operation.
+func (ds I2b2DataSource) StatisticsQueryHandler(userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
+
+	decodedParams := &models.StatisticsQueryParameters{}
+	if outputDataObjectsSharedIDs[outputNameStatisticsQueryResult] == "" {
+		return nil, nil, fmt.Errorf("missing output data object name")
+	} else if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
+		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
+	}
+
+	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
+		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
+	} else if statisticsQueryResult, err := ds.StatisticsQuery(userID, decodedParams); err != nil {
+		return nil, nil, fmt.Errorf("executing query: %v", err)
+	} else {
+		// wrap results in data objects
+		outputDataObjects = []gecosdk.DataObject{
+			{
+				OutputName: outputNameStatisticsQueryResult,
+				SharedID:   outputDataObjectsSharedIDs[outputNameStatisticsQueryResult],
+				IntMatrix:  statisticsQueryResult,
+			},
+		}
+	}
+	return
+}
 
 // StatisticsQuery makes a statistics query.
 func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.StatisticsQueryParameters) (statsQueryResult [][]int64, err error) {
@@ -49,7 +86,7 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 	logrus.Infof("got patients for the explore statistics cohort: %v", patientList)
 
 	// --- get concept and modifier codes from the ontology
-	conceptsInfo, modifiersInfo, err := ds.getOntologyElementsInfoForStatisticsQuery(params.Concepts)
+	conceptsInfo, modifiersInfo, err := ds.getOntologyElementsInfoForStatisticsQuery(params.Analytes)
 
 	if err != nil {
 		return nil, ds.logError("while retrieving ontology elements for statistics query: %v", err)
@@ -68,7 +105,7 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 	signal := make(chan struct{})
 
 	// this function is an abstraction for the retrieving and processing of observations
-	processMedicalConcept := func(index int, searchResultElement *models.SearchResultElement, RetrieveObservations func(string, database.CohortInformation, float64) (observations []database.StatsObservation, err error)) {
+	processMedicalConcept := func(index int, searchResultElement *models.SearchResultElement, RetrieveObservations func(string, database.CohortInformation, int64) (observations []database.StatsObservation, err error)) {
 
 		defer waitGroup.Done()
 
@@ -76,7 +113,7 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 			PatientIDs:   patientList,
 			IsEmptyPanel: len(params.Panels) == 0,
 		}
-		conceptObservations, err := RetrieveObservations(searchResultElement.Code, cohortInfo, params.MinObservation)
+		conceptObservations, err := RetrieveObservations(searchResultElement.Code, cohortInfo, params.MinObservations)
 		if err != nil {
 			errChan <- err
 			return
@@ -88,7 +125,7 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 			return
 		}
 
-		counts, statsResults, err := ds.processObservations(cleanObservations, params.MinObservation, params.BucketSize)
+		counts, statsResults, err := ds.processObservations(cleanObservations, params.MinObservations, params.BucketSize)
 
 		if err != nil {
 			errChan <- err
@@ -250,7 +287,7 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 }
 
 // processObservations builds a StatsResult from a set of StatsObservation.
-func (ds I2b2DataSource) processObservations(statsObservations []database.StatsObservation, minObservation, bucketSize float64) (counts []int64, statsResult *models.StatsResult, err error) {
+func (ds I2b2DataSource) processObservations(statsObservations []database.StatsObservation, minObservation int64, bucketSize float64) (counts []int64, statsResult *models.StatsResult, err error) {
 
 	if len(statsObservations) <= 0 {
 		err = fmt.Errorf("no observations present in the database for this combination of analytes and cohort definition")
@@ -268,7 +305,7 @@ func (ds I2b2DataSource) processObservations(statsObservations []database.StatsO
 	logrus.Debugf("max value :%v", maxResult.NumericValue)
 
 	// defining the number of intervals depending on the maximum and minimum observations and the bucket size
-	nbBuckets := int(math.Ceil((maxResult.NumericValue - minObservation) / bucketSize))
+	nbBuckets := int(math.Ceil((maxResult.NumericValue - float64(minObservation)) / bucketSize))
 
 	logrus.Debugf("query results contains %d records", len(statsObservations))
 
@@ -287,7 +324,7 @@ func (ds I2b2DataSource) processObservations(statsObservations []database.StatsO
 	}
 
 	// from the minimum and maximum value of the selected concept we determine the boundaries of the different buckets
-	current := minObservation
+	current := float64(minObservation)
 	logrus.Debugf("processObservations: number of interval = %d", nbBuckets)
 
 	for i := 0; i < nbBuckets; i++ {

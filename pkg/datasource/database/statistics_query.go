@@ -23,19 +23,19 @@ type StatsObservation struct {
 }
 
 // RetrieveObservationsForConcept returns the numerical values that correspond to the concept passed as argument for the specified cohort.
-func (db PostgresDatabase) RetrieveObservationsForConcept(code string, cohortInformation CohortInformation, minObservation float64) (statsObservations []StatsObservation, err error) {
+func (db PostgresDatabase) RetrieveObservationsForConcept(code string, cohortInformation CohortInformation, minObservations int64) (statsObservations []StatsObservation, err error) {
 	logrus.Debugf("executing stats SQL query: %s, concept: %s, patients: %v", sqlConcept, code, cohortInformation.PatientIDs)
-	return db.retrieveObservations(sqlConcept, code, cohortInformation, minObservation)
+	return db.retrieveObservations(sqlConcept, code, cohortInformation, minObservations)
 }
 
 // RetrieveObservationsForModifier returns the numerical values that correspond to the modifier passed as argument for the specified cohort.
-func (db PostgresDatabase) RetrieveObservationsForModifier(code string, cohortInformation CohortInformation, minObservation float64) (statsObservations []StatsObservation, err error) {
+func (db PostgresDatabase) RetrieveObservationsForModifier(code string, cohortInformation CohortInformation, minObservations int64) (statsObservations []StatsObservation, err error) {
 	logrus.Debugf("executing stats SQL query: %s, modifier: %s, patients: %v", sqlModifier, code, cohortInformation.PatientIDs)
-	return db.retrieveObservations(sqlModifier, code, cohortInformation, minObservation)
+	return db.retrieveObservations(sqlModifier, code, cohortInformation, minObservations)
 }
 
 // retrieveObservations returns the numerical values that correspond to the concept or modifier whose code is passed as argument for the specified cohort.
-func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, cohortInformation CohortInformation, minObservation float64) (statsObservations []StatsObservation, err error) {
+func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, cohortInformation CohortInformation, minObservations int64) (statsObservations []StatsObservation, err error) {
 	patients := cohortInformation.PatientIDs
 	strPatientList := convertIntListToString(patients)
 
@@ -46,10 +46,10 @@ func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, cohortInf
 		// if some constraints on the cohort have been defined we use the patient list
 		completeSQLQuery := sqlQuery + " " + sqlCohortFilter
 		logrus.Debugf("Patient list for query %s", strPatientList)
-		rows, err = db.handle.Query(completeSQLQuery, code, minObservation, strPatientList)
+		rows, err = db.handle.Query(completeSQLQuery, code, minObservations, strPatientList)
 	} else {
 		//otherwise the cohort is the whole population in the database for which the analyte (concept or modifier) is defined
-		rows, err = db.handle.Query(sqlQuery, code, minObservation)
+		rows, err = db.handle.Query(sqlQuery, code, minObservations)
 	}
 
 	if err != nil {

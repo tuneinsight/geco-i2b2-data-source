@@ -217,6 +217,8 @@ func (ds *I2b2DataSource) Query(userID string, operation string, jsonParameters 
 		handler = ds.SurvivalQueryHandler
 	case OperationSearchOntology:
 		handler = ds.SearchOntologyHandler
+	case OperationStatisticsQuery:
+		handler = ds.StatisticsQueryHandler
 
 	default:
 		return nil, nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)

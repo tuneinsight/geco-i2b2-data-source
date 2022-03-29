@@ -13,28 +13,21 @@ type StatisticsQueryParameters struct {
 	// Pattern: ^[\w:-]+$
 	ID string `json:"ID"`
 
-	// CohortQueryID
-	// Required: true
-	// Pattern: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
-	CohortQueryID string `json:"cohortQueryID"`
-
-	isPanelEmpty bool
-
 	// I2B2 Panels defining the analyzed population.
-	Panels []*Panel
+	Panels []*Panel `json:"panels"`
 
-	// query Timing
+	// query Timing.
 	// Enum: [any samevisit sameinstance]
 	Timing string `json:"timing,omitempty"`
 
-	// Concepts contains the analytes.
-	Concepts []*ConceptItem
+	// Analytes contains the concepts used as analytes.
+	Analytes []*ConceptItem `json:"analytes"`
 
 	// BucketSize is the bucket size for each analyte.
 	BucketSize float64 `json:"bucketSize"`
 
-	// MinObservation is the global minimal observation for each analyte.
-	MinObservation float64 `json:"minObservation"`
+	// MinObservations is the total minimal number of observations for each analyte.
+	MinObservations int64 `json:"minObservations"`
 }
 
 // Validate validates StatisticsQueryParameters' fields.
@@ -45,7 +38,7 @@ func (params *StatisticsQueryParameters) Validate() error {
 		return fmt.Errorf("empty statistics query ID")
 	}
 
-	for _, concept := range params.Concepts {
+	for _, concept := range params.Analytes {
 		concept.QueryTerm = strings.TrimSpace(concept.QueryTerm)
 		if concept.QueryTerm == "" {
 			return fmt.Errorf("emtpy concept path, statistics query ID: %s", params.ID)

@@ -17,8 +17,8 @@ func TestProcessObservations(t *testing.T) {
 
 	t.Run("process_observations_1", func(t *testing.T) {
 		params := models.StatisticsQueryParameters{
-			BucketSize:     1,
-			MinObservation: 0,
+			BucketSize:      1,
+			MinObservations: 0,
 		}
 
 		statsObservations := newStatsObservations([]float64{
@@ -27,7 +27,7 @@ func TestProcessObservations(t *testing.T) {
 			3, 3.3, 3.6, 3.8,
 		})
 
-		counts, _, err := ds.processObservations(statsObservations, params.MinObservation, params.BucketSize)
+		counts, _, err := ds.processObservations(statsObservations, params.MinObservations, params.BucketSize)
 		require.NoError(t, err)
 
 		assert.EqualValues(t, 4, len(counts))
@@ -40,8 +40,8 @@ func TestProcessObservations(t *testing.T) {
 
 	t.Run("process_observations_2", func(t *testing.T) {
 		params := models.StatisticsQueryParameters{
-			BucketSize:     1.5,
-			MinObservation: 0,
+			BucketSize:      1.5,
+			MinObservations: 0,
 		}
 
 		statsObservations := newStatsObservations([]float64{
@@ -50,7 +50,7 @@ func TestProcessObservations(t *testing.T) {
 			3, 3.3, 3.6, 3.8,
 		})
 
-		counts, _, err := ds.processObservations(statsObservations, params.MinObservation, params.BucketSize)
+		counts, _, err := ds.processObservations(statsObservations, params.MinObservations, params.BucketSize)
 		require.NoError(t, err)
 
 		assert.EqualValues(t, 3, len(counts))
@@ -63,8 +63,8 @@ func TestProcessObservations(t *testing.T) {
 	t.Run("process_observations_3", func(t *testing.T) {
 
 		params := models.StatisticsQueryParameters{
-			BucketSize:     2,
-			MinObservation: 1,
+			BucketSize:      2,
+			MinObservations: 1,
 		}
 
 		statsObservations := newStatsObservations([]float64{
@@ -73,7 +73,7 @@ func TestProcessObservations(t *testing.T) {
 			4.3, 3.3, 3.1,
 		})
 
-		counts, _, err := ds.processObservations(statsObservations, params.MinObservation, params.BucketSize)
+		counts, _, err := ds.processObservations(statsObservations, params.MinObservations, params.BucketSize)
 		require.NoError(t, err)
 
 		assert.EqualValues(t, 2, len(counts))
@@ -85,8 +85,8 @@ func TestProcessObservations(t *testing.T) {
 	t.Run("process_observations_4", func(t *testing.T) {
 
 		params := models.StatisticsQueryParameters{
-			BucketSize:     1,
-			MinObservation: -3,
+			BucketSize:      1,
+			MinObservations: -3,
 		}
 
 		statsObservations := newStatsObservations([]float64{
@@ -96,7 +96,7 @@ func TestProcessObservations(t *testing.T) {
 			0.1, 0.6, 0.72134243, 0.81, //[0, 1[
 		})
 
-		counts, _, err := ds.processObservations(statsObservations, params.MinObservation, params.BucketSize)
+		counts, _, err := ds.processObservations(statsObservations, params.MinObservations, params.BucketSize)
 		require.NoError(t, err)
 
 		assert.EqualValues(t, 4, len(counts))

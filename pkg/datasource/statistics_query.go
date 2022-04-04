@@ -232,6 +232,8 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 
 		if concept.Modifier != nil {
 
+			modifiersChannels[currentModifiersChannel] = make(chan *models.SearchResultElement, 1)
+
 			go func(modifierPath, modifierAppliedPath string, index int) {
 				defer waitGroup.Done()
 

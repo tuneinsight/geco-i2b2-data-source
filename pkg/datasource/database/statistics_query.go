@@ -115,7 +115,7 @@ func convertIntListToString(intList []int64) string {
 	VALTYPE_CD = 'N' because we only care about numerical values.
 */
 const sqlStart string = `
-SELECT nval_num, patient_num, units_cd FROM i2b2demodata_i2b2.observation_fact
+SELECT nval_num, patient_num, units_cd FROM i2b2demodata.observation_fact
 	WHERE `
 
 const sqlModifier string = sqlStart + ` modifier_cd = $1 ` + sqlEnd

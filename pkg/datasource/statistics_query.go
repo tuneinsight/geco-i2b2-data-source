@@ -18,40 +18,52 @@ import (
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
-// Names of output data objects.
-const (
-	outputNameStatisticsQueryResult sdk.OutputDataObjectName = "statisticsQueryResult"
-)
-
 // StatisticsQueryHandler is the OperationHandler for the OperationStatisticsQuery Operation.
-func (ds I2b2DataSource) StatisticsQueryHandler(userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
+func (ds I2b2DataSource) StatisticsQueryHandler(
+	userID string,
+	jsonParameters []byte,
+	outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID,
+) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
 
 	decodedParams := &models.StatisticsQueryParameters{}
-	if outputDataObjectsSharedIDs[outputNameStatisticsQueryResult] == "" {
-		return nil, nil, fmt.Errorf("missing output data object name")
-	} else if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
+
+	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
 	}
 
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
-	} else if statisticsQueryResult, err := ds.StatisticsQuery(userID, decodedParams); err != nil {
-		return nil, nil, fmt.Errorf("executing query: %v", err)
-	} else {
-		// wrap results in data objects
-		outputDataObjects = []gecosdk.DataObject{
-			{
-				OutputName: outputNameStatisticsQueryResult,
-				SharedID:   outputDataObjectsSharedIDs[outputNameStatisticsQueryResult],
-				IntMatrix:  statisticsQueryResult,
-			},
+	}
+	statResults, err := ds.StatisticsQuery(userID, decodedParams)
+	if err != nil {
+		return nil, nil, fmt.Errorf("executing statistics query: %v", err)
+	}
+
+	for i, statResult := range statResults {
+
+		values := [][]int64{}
+		valueVector := []int64{}
+		columns := []string{}
+
+		for _, bucket := range statResult.Buckets {
+			valueVector = append(valueVector, bucket.Count)
+			columns = append(columns, "["+fmt.Sprintf("%f", bucket.LowerBound)+", "+fmt.Sprintf("%f", bucket.HigherBound)+"]")
 		}
+		values = append(values, valueVector)
+
+		outputDataObjects = append(outputDataObjects, gecosdk.DataObject{
+			//  : statResult.AnalyteName,
+			OutputName: sdk.OutputDataObjectName(fmt.Sprintf("%d", i)),
+			SharedID:   outputDataObjectsSharedIDs[sdk.OutputDataObjectName(fmt.Sprintf("%d", i))],
+			Columns:    columns,
+			IntMatrix:  values,
+		})
 	}
 	return
 }
 
 // StatisticsQuery makes a statistics query.
-func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.StatisticsQueryParameters) (statsQueryResult [][]int64, err error) {
+func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.StatisticsQueryParameters) (statResults []*models.StatsResult, err error) {
 
 	// validating params
 	err = params.Validate()
@@ -91,6 +103,9 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 	if err != nil {
 		return nil, ds.logError("while retrieving ontology elements for statistics query: %v", err)
 	}
+
+	// TODO: remove once we know why we have both concepts and modifiers
+	conceptsInfo = []*models.SearchResultElement{}
 
 	waitGroup := new(sync.WaitGroup)
 	ontologyElementsNumber := len(conceptsInfo) + len(modifiersInfo)
@@ -172,15 +187,11 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 		break
 	}
 
-	statsResults := make([]*models.StatsResult, len(statsChannels))
-	statsQueryResult = make([][]int64, len(statsChannels))
 	// We fetch the histogram information for each analyte within each channel that contains such information and append this information to the HTTP response.
-	for i, statResultChannel := range statsChannels {
+	for _, statResultChannel := range statsChannels {
 		statResult := <-statResultChannel
-		statsResults = append(statsResults, statResult.statsResult)
-		statsQueryResult[i] = statResult.counts
+		statResults = append(statResults, statResult.statsResult)
 	}
-
 	return
 }
 

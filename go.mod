@@ -2,7 +2,7 @@ module github.com/tuneinsight/geco-i2b2-data-source
 
 go 1.15
 
-//replace github.com/tuneinsight/sdk-datasource => ../sdk-datasource
+// replace github.com/tuneinsight/sdk-datasource => ../sdk-datasource
 
 require (
 	github.com/go-openapi/analysis v0.21.2 // indirect

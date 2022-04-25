@@ -44,6 +44,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./build/package/i2b2
+          file: Dockerfile.light
           load: true
           tags: ${{ steps.get_versions.outputs.i2b2_docker_image }}
           cache-from: type=gha,scope=buildkit

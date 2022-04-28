@@ -6,12 +6,16 @@ export PGPASSWORD="$I2B2_DB_PW"
 export PSQL_PARAMS="-v ON_ERROR_STOP=1 -h ${I2B2_DB_HOST} -p ${I2B2_DB_PORT} -U ${I2B2_DB_USER}"
 until psql $PSQL_PARAMS -d postgres -c '\q'; do
   >&2 echo "Waiting for postgresql..."
-  sleep 1
+  sleep 2
 done
 
+echo "Stopped waiting... and database ${I2B2_DB_NAME}"
+
 # load initial data if database does not exist (credentials must be valid and have create database right)
-DB_CHECK=$(psql ${PSQL_PARAMS} -d postgres -X -A -t -c "select count(*) from pg_database where datname = '${I2B2_DB_NAME}';")
-if [[ "$DB_CHECK" -ne "1" ]]; then
+DB_CHECK=$(psql ${PSQL_PARAMS} -d postgres -X -A -t -c "select count(*) from pg_database where datname like '${I2B2_DB_NAME}%';")
+echo "Counted $DB_CHECK i2b2 databases"
+
+if [[ $DB_CHECK -lt 1 ]]; then
   echo "Initialising i2b2 database"
   psql $PSQL_PARAMS -d postgres <<-EOSQL
       CREATE DATABASE ${I2B2_DB_NAME};

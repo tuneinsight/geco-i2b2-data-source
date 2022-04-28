@@ -21,11 +21,18 @@ services:
       intra-node:
 
   postgresql:
-    image: postgres:13.1
+    image: postgres:14.2
     ports:
       - "5433:5432"
     environment:
       - POSTGRES_PASSWORD=postgres
+      - I2B2_DB_USER=postgres
+      - I2B2_DB_PW=postgres
+      - I2B2_DB_NAME=i2b2
+    volumes:
+      - ../build/package/i2b2/00-init.sh:/docker-entrypoint-initdb.d/00-init.sh
+      - ../build/package/i2b2/01-load-i2b2-data.sh:/docker-entrypoint-initdb.d/01-load-i2b2-data.sh
+      - ../build/package/i2b2/02-i2b2_schema.sql:/02-i2b2_schema.sql
     networks:
       intra-node:
 

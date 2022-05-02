@@ -30,14 +30,6 @@ EOSQL
         GRANT ALL PRIVILEGES ON DATABASE ${I2B2_DB_NAME} TO ${I2B2_DB_USER};
 EOSQL
   fi
-
-  export I2B2_DATA_DIR=/tmp/i2b2-data
-  mkdir -p "$I2B2_DATA_DIR"
-  tar xvzf "$I2B2_DATA_ARCHIVE" -C "$I2B2_DATA_DIR"
-    for f in "$I2B2_SQL_DIR"/*.sh; do
-      bash "$f"
-  done
-  rm -rf "$I2B2_DATA_DIR"
 fi
 
 # execute pre-init scripts & run wildfly

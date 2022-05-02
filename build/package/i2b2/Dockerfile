@@ -67,12 +67,12 @@ ENV I2B2_DB_HOST="postgresql" \
 
 COPY --chown=jboss:jboss pre-init-scripts "$SRC_DIR/pre-init-scripts"
 COPY --chown=jboss:jboss sql "$SRC_DIR/sql"
-COPY --chown=jboss:jboss docker-entrypoint-light.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint-light.sh
+COPY --chown=jboss:jboss docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 8080 9990
 ARG PG_JDBC_JAR=postgresql-42.2.8.jar
 ENV PG_JDBC_JAR="$PG_JDBC_JAR"
 ENTRYPOINT \
     I2B2_SQL_DIR="$SRC_DIR/sql" \
     PRE_INIT_SCRIPT_DIR="$SRC_DIR/pre-init-scripts" \
-    docker-entrypoint-light.sh
+    docker-entrypoint.sh

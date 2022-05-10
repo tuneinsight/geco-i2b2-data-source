@@ -154,4 +154,4 @@ initI2b2Schema "$I2B2_DB_NAME" i2b2pm
 initI2b2Schema "$I2B2_DB_NAME" i2b2hive
 
 # load data
-loadI2b2Data "$I2B2_DB_NAME" false false
+# loadI2b2Data "$I2B2_DB_NAME" false false

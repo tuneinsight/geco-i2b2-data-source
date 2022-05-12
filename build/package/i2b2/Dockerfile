@@ -42,7 +42,7 @@ ENV SRC_DIR=/src
 
 USER root
 RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
-    yum -y install postgresql14 && yum clean all
+    yum -y install postgresql14 ant && yum clean all
 USER jboss
 
 # wildfly custom configuration
@@ -50,7 +50,6 @@ RUN sed -i 's/Xmx512m/Xmx2048m/g' "$JBOSS_HOME"/bin/standalone.conf && \
     sed -i 's/MaxMetaspaceSize=256m/MaxMetaspaceSize=1024m/g' "$JBOSS_HOME"/bin/standalone.conf
 
 COPY --from=builder /opt/jboss/wildfly/standalone /opt/jboss/wildfly/standalone
-RUN rm -rf /opt/jboss/wildfly/standalone/data/i2b2-data.tar.gz
 RUN rm -rf /opt/jboss/wildfly/docs
 
 # run-time variables

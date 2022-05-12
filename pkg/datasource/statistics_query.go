@@ -89,10 +89,23 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 		return nil, fmt.Errorf(errMsg)
 	}
 
-	logrus.Infof("patient list: %v", patientList)
+	logrus.Infof("patient count: %v", patientCount)
 
-	if patientCount == 0 && len(params.Panels) != 0 {
-		return nil, fmt.Errorf("zero patients in the cohort for non empty constraint")
+	if patientCount == 0 {
+		// create a single empty bucket for each analyte
+		for _, analyte := range params.Analytes {
+			statResults = append(statResults, &models.StatsResult{
+				AnalyteName: analyte.QueryTerm,
+				Buckets: []*models.Bucket{
+					{
+						LowerBound:  0,
+						HigherBound: 1,
+						Count:       0,
+					},
+				},
+			})
+		}
+		return
 	}
 
 	logrus.Infof("got patients for the explore statistics cohort: %v", patientList)

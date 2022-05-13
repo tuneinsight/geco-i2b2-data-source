@@ -11,8 +11,8 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.4
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/tuneinsight/sdk-datasource v0.0.0-20220406184046-5d433251447d
 	golang.org/x/net v0.0.0-20220121210141-e204ce36a2ba // indirect
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
+	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
 )

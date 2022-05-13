@@ -1,4 +1,4 @@
-FROM jboss/wildfly:17.0.1.Final
+FROM jboss/wildfly:17.0.1.Final as builder
 
 # build-time variables
 ENV I2B2_DATA_ARCHIVE="$JBOSS_HOME/standalone/data/i2b2-data.tar.gz" \
@@ -9,7 +9,7 @@ ENV I2B2_DATA_ARCHIVE="$JBOSS_HOME/standalone/data/i2b2-data.tar.gz" \
 # needed packages and pre-requisites
 USER root
 RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
-    yum update -y && yum -y install wget git ant postgresql13 && yum clean all && \
+    yum update -y && yum -y install wget git ant postgresql14 && yum clean all && \
     mkdir -p "$SRC_DIR" "$I2B2_FR_FILES_DIR" "$I2B2_PASSWORD_HASH_TOOL" && chown -R jboss:jboss "$SRC_DIR" "$JBOSS_HOME"
 USER jboss
 
@@ -34,7 +34,30 @@ RUN install-i2b2.sh
 COPY --chown=jboss:jboss I2b2PasswordHash.java "$SRC_DIR/"
 RUN javac -d "$I2B2_PASSWORD_HASH_TOOL" "$SRC_DIR/I2b2PasswordHash.java"
 
+# ---------------------------------------
+FROM jboss/wildfly:17.0.1.Final
+
+# build-time variables
+ENV SRC_DIR=/src
+
+USER root
+RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+    yum -y install postgresql14 ant && yum clean all
+USER jboss
+
+# wildfly custom configuration
+RUN sed -i 's/Xmx512m/Xmx2048m/g' "$JBOSS_HOME"/bin/standalone.conf && \
+    sed -i 's/MaxMetaspaceSize=256m/MaxMetaspaceSize=1024m/g' "$JBOSS_HOME"/bin/standalone.conf
+
+COPY --from=builder /opt/jboss/wildfly/standalone /opt/jboss/wildfly/standalone
+RUN rm -rf /opt/jboss/wildfly/docs
+
 # run-time variables
+ENV I2B2_DATA_ARCHIVE="$JBOSS_HOME/standalone/data/i2b2-data.tar.gz" \
+    I2B2_FR_FILES_DIR="$JBOSS_HOME/standalone/data/i2b2_FR_files" \
+    I2B2_PASSWORD_HASH_TOOL="$JBOSS_HOME/standalone/data/I2b2PasswordHash" \
+    SRC_DIR=/src
+
 ENV I2B2_DB_HOST="postgresql" \
     I2B2_DB_PORT="5432" \
     I2B2_DB_USER="i2b2" \

@@ -42,7 +42,7 @@ ENV SRC_DIR=/src
 
 USER root
 RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
-    yum -y install postgresql14 ant && yum clean all
+    yum -y install postgresql14 ant curl wget && yum clean all
 USER jboss
 
 # wildfly custom configuration

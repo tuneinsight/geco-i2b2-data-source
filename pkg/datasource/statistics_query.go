@@ -315,8 +315,18 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 // processObservations builds a StatsResult from a set of StatsObservation.
 func (ds I2b2DataSource) processObservations(statsObservations []database.StatsObservation, minObservation int64, bucketSize float64) (counts []int64, statsResult *models.StatsResult, err error) {
 
-	if len(statsObservations) <= 0 {
-		err = fmt.Errorf("no observations present in the database for this combination of analytes and cohort definition")
+	if len(statsObservations) == 0 {
+		return []int64{0},
+			&models.StatsResult{
+				Buckets: []*models.Bucket{
+					{
+						LowerBound:  0,
+						HigherBound: 1,
+						Count:       0,
+					},
+				},
+			}, nil
+		ds.logger.Warnf("no observations present in the database for this combination of analytes and cohort definition")
 		return
 	}
 

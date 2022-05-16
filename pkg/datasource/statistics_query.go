@@ -316,6 +316,7 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 func (ds I2b2DataSource) processObservations(statsObservations []database.StatsObservation, minObservation int64, bucketSize float64) (counts []int64, statsResult *models.StatsResult, err error) {
 
 	if len(statsObservations) == 0 {
+		ds.logger.Warnf("no observations present in the database for this combination of analytes and cohort definition")
 		return []int64{0},
 			&models.StatsResult{
 				Buckets: []*models.Bucket{
@@ -326,8 +327,6 @@ func (ds I2b2DataSource) processObservations(statsObservations []database.StatsO
 					},
 				},
 			}, nil
-		ds.logger.Warnf("no observations present in the database for this combination of analytes and cohort definition")
-		return
 	}
 
 	//get the minimum and maximum value of the concepts

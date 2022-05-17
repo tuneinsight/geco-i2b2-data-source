@@ -90,7 +90,7 @@ type SubGroupDefinition struct {
 	Name string `json:"name,omitempty"`
 
 	// panels
-	Panels []*Panel `json:"panels"`
+	Panels []Panel `json:"panels"`
 
 	// sub group timing
 	// Enum: [any samevisit sameinstance]

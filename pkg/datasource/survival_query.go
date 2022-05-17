@@ -71,16 +71,16 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	}
 	logrus.Info("cohort found")
 
-	cohortPanel := &models.Panel{
+	cohortPanel := models.Panel{
 		Not:         false,
 		Timing:      models.TimingAny,
 		CohortItems: []string{exploreQuery.ID},
 	}
 
-	startConceptPanel := &models.Panel{
+	startConceptPanel := models.Panel{
 		Not:    false,
 		Timing: models.TimingAny,
-		ConceptItems: []*models.ConceptItem{
+		ConceptItems: []models.ConceptItem{
 			{
 				QueryTerm: params.StartConcept,
 			},

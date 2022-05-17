@@ -14,7 +14,7 @@ type StatisticsQueryParameters struct {
 	ID string `json:"ID"`
 
 	// I2B2 Panels defining the analyzed population.
-	Panels []*Panel `json:"panels"`
+	Panels []Panel `json:"panels"`
 
 	// query Timing.
 	// Enum: [any samevisit sameinstance]
@@ -44,7 +44,7 @@ func (params *StatisticsQueryParameters) Validate() error {
 			return fmt.Errorf("emtpy concept path, statistics query ID: %s", params.ID)
 		}
 
-		if concept.Modifier != nil {
+		if concept.Modifier.Key == "" {
 			concept.Modifier.Key = strings.TrimSpace(concept.Modifier.Key)
 			concept.Modifier.AppliedPath = strings.TrimSpace(concept.Modifier.AppliedPath)
 			if concept.Modifier.Key == "" {

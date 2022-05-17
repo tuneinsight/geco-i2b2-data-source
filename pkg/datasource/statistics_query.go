@@ -214,7 +214,7 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 
 	modifiersNumber := 0
 	for _, concept := range concepts {
-		if concept.Modifier != nil {
+		if concept.Modifier.Key == "" {
 			modifiersNumber++
 		}
 	}
@@ -254,7 +254,7 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 			conceptsChannels[index] <- conceptInfo.SearchResultElements[0]
 		}(concept.QueryTerm, i)
 
-		if concept.Modifier != nil {
+		if concept.Modifier.Key == "" {
 
 			modifiersChannels[currentModifiersChannel] = make(chan *models.SearchResultElement, 1)
 

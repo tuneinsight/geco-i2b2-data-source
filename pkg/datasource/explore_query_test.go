@@ -17,9 +17,9 @@ func TestExploreQueryConcept(t *testing.T) {
 	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 				}},
 			}},
@@ -33,9 +33,9 @@ func TestExploreQueryConcept(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/3/",
 				}},
 			}},
@@ -49,19 +49,19 @@ func TestExploreQueryConcept(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "2",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 				}},
 			}, {
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/2/",
 				}},
 			}, {
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/3/",
 				}},
 			}},
@@ -75,9 +75,9 @@ func TestExploreQueryConcept(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "3",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 				}, {
 					QueryTerm: "/TEST/test/3/",
@@ -98,9 +98,9 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 					Operator:  "EQ",
 					Value:     "10",
@@ -117,9 +117,9 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
 					Operator:  "EQ",
 					Value:     "10",
@@ -146,11 +146,11 @@ func TestExploreQueryModifier(t *testing.T) {
 	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
-					Modifier: &struct {
+					Modifier: struct {
 						Key         string `json:"key"`
 						AppliedPath string `json:"appliedPath"`
 					}{
@@ -169,11 +169,11 @@ func TestExploreQueryModifier(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
-					Modifier: &struct {
+					Modifier: struct {
 						Key         string `json:"key"`
 						AppliedPath string `json:"appliedPath"`
 					}{
@@ -182,7 +182,7 @@ func TestExploreQueryModifier(t *testing.T) {
 					},
 				}, {
 					QueryTerm: "/TEST/test/2/",
-					Modifier: &struct {
+					Modifier: struct {
 						Key         string `json:"key"`
 						AppliedPath string `json:"appliedPath"`
 					}{
@@ -206,14 +206,14 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/2/",
 					Operator:  "LIKE[contains]",
 					Value:     "cd",
 					Type:      "TEXT",
-					Modifier: &struct {
+					Modifier: struct {
 						Key         string `json:"key"`
 						AppliedPath string `json:"appliedPath"`
 					}{
@@ -232,14 +232,14 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []*models.Panel{{
+			Panels: []models.Panel{{
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/3/",
 					Operator:  "LIKE[exact]",
 					Value:     "def",
 					Type:      "TEXT",
-					Modifier: &struct {
+					Modifier: struct {
 						Key         string `json:"key"`
 						AppliedPath string `json:"appliedPath"`
 					}{
@@ -249,12 +249,12 @@ func TestExploreQueryModifierValue(t *testing.T) {
 				}},
 			}, {
 				Not: false,
-				ConceptItems: []*models.ConceptItem{{
+				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/2/",
 					Operator:  "LIKE[begin]",
 					Value:     "a",
 					Type:      "TEXT",
-					Modifier: &struct {
+					Modifier: struct {
 						Key         string `json:"key"`
 						AppliedPath string `json:"appliedPath"`
 					}{

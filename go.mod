@@ -14,5 +14,5 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/tuneinsight/sdk-datasource v0.0.0-20220406184046-5d433251447d
 	golang.org/x/net v0.0.0-20220121210141-e204ce36a2ba // indirect
-	golang.org/x/sys v0.0.0-20220513210249-45d2b4557a2a // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 )

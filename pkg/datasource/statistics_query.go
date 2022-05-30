@@ -117,9 +117,6 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 		return nil, ds.logError("while retrieving ontology elements for statistics query: %v", err)
 	}
 
-	// TODO: remove once we know why we have both concepts and modifiers
-	conceptsInfo = []*models.SearchResultElement{}
-
 	waitGroup := new(sync.WaitGroup)
 	ontologyElementsNumber := len(conceptsInfo) + len(modifiersInfo)
 	waitGroup.Add(ontologyElementsNumber)
@@ -141,13 +138,18 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 			PatientIDs:   patientList,
 			IsEmptyPanel: len(params.Panels) == 0,
 		}
+
+		ds.logger.Warnf("retrieving observations for ontology element: %s", searchResultElement.Path)
 		conceptObservations, err := RetrieveObservations(searchResultElement.Code, cohortInfo, params.MinObservations)
 		if err != nil {
 			errChan <- err
 			return
 		}
+		ds.logger.Warnf("retrieved: %d observations for ontology element: %s", len(conceptObservations), searchResultElement.Path)
 
 		cleanObservations, err := outlierRemoval(conceptObservations)
+
+		ds.logger.Warnf("observations for ontology element: %s after outliers removal: %d", searchResultElement.Path, len(conceptObservations))
 
 		if err != nil {
 			return

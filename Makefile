@@ -11,7 +11,7 @@ clean:
 
 # --- i2b2 docker
 .PHONY: i2b2-docker-compose i2b2-test
-i2b2-docker-compose: # use ARGS to pass to docker-compose arguments, e.g. make docker-compose ARGS="up -d"
+i2b2-docker-compose: # use ARGS to pass to docker-compose arguments, e.g. make i2b2-docker-compose ARGS="up -d"
 	cd deployments && docker-compose -f i2b2.yml $(ARGS)
 i2b2-test:
 	cd test/i2b2 && ./test_i2b2_docker.sh

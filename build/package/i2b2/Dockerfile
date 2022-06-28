@@ -74,7 +74,7 @@ COPY --chown=jboss:jboss sql "$SRC_DIR/sql"
 COPY --chown=jboss:jboss docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 8080 9990
-ARG PG_JDBC_JAR=postgresql-42.2.8.jar
+ARG PG_JDBC_JAR=postgresql-42.3.2.jar
 ENV PG_JDBC_JAR="$PG_JDBC_JAR"
 ENTRYPOINT \
     I2B2_SQL_DIR="$SRC_DIR/sql" \

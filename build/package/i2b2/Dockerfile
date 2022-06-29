@@ -1,4 +1,24 @@
-FROM jboss/wildfly:17.0.1.Final as builder
+FROM jboss/base-jdk:11 as builder
+
+# Set the WILDFLY_VERSION env variable
+ENV WILDFLY_VERSION 17.0.1.Final
+ENV WILDFLY_SHA1 eaef7a87062837c215e54511c4ada8951f0bd8d5
+ENV JBOSS_HOME /opt/jboss/wildfly
+
+USER root
+
+# Add the WildFly distribution to /opt, and make wildfly the owner of the extracted tar content
+# Make sure the distribution is available from a well-known place
+
+RUN cd $HOME \
+    && curl -L -O https://download.jboss.org/wildfly/$WILDFLY_VERSION/wildfly-$WILDFLY_VERSION.tar.gz \
+    && sha1sum wildfly-$WILDFLY_VERSION.tar.gz | grep $WILDFLY_SHA1 \
+    && tar xf wildfly-$WILDFLY_VERSION.tar.gz \
+    && mv $HOME/wildfly-$WILDFLY_VERSION $JBOSS_HOME \
+    && rm wildfly-$WILDFLY_VERSION.tar.gz \
+    && chown -R jboss:0 ${JBOSS_HOME} \
+    && chmod -R g+rw ${JBOSS_HOME}
+
 
 # build-time variables
 ENV I2B2_DATA_ARCHIVE="$JBOSS_HOME/standalone/data/i2b2-data.tar.gz" \
@@ -7,7 +27,6 @@ ENV I2B2_DATA_ARCHIVE="$JBOSS_HOME/standalone/data/i2b2-data.tar.gz" \
     SRC_DIR=/src
 
 # needed packages and pre-requisites
-USER root
 RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
     yum update -y && yum -y install wget git ant postgresql14 && yum clean all && \
     mkdir -p "$SRC_DIR" "$I2B2_FR_FILES_DIR" "$I2B2_PASSWORD_HASH_TOOL" && chown -R jboss:jboss "$SRC_DIR" "$JBOSS_HOME"
@@ -35,14 +54,32 @@ COPY --chown=jboss:jboss I2b2PasswordHash.java "$SRC_DIR/"
 RUN javac -d "$I2B2_PASSWORD_HASH_TOOL" "$SRC_DIR/I2b2PasswordHash.java"
 
 # ---------------------------------------
-FROM jboss/wildfly:17.0.1.Final
+FROM jboss/base-jdk:11
+
+# Set the WILDFLY_VERSION env variable
+ENV WILDFLY_VERSION 17.0.1.Final
+ENV WILDFLY_SHA1 eaef7a87062837c215e54511c4ada8951f0bd8d5
+ENV JBOSS_HOME /opt/jboss/wildfly
+
+USER root
+
+# Add the WildFly distribution to /opt, and make wildfly the owner of the extracted tar content
+# Make sure the distribution is available from a well-known place
+RUN cd $HOME \
+    && curl -L -O https://download.jboss.org/wildfly/$WILDFLY_VERSION/wildfly-$WILDFLY_VERSION.tar.gz \
+    && sha1sum wildfly-$WILDFLY_VERSION.tar.gz | grep $WILDFLY_SHA1 \
+    && tar xf wildfly-$WILDFLY_VERSION.tar.gz \
+    && mv $HOME/wildfly-$WILDFLY_VERSION $JBOSS_HOME \
+    && rm wildfly-$WILDFLY_VERSION.tar.gz \
+    && chown -R jboss:0 ${JBOSS_HOME} \
+    && chmod -R g+rw ${JBOSS_HOME}
 
 # build-time variables
 ENV SRC_DIR=/src
 
-USER root
 RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
     yum -y install postgresql14 ant curl wget && yum clean all
+
 USER jboss
 
 # wildfly custom configuration

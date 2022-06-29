@@ -18,8 +18,8 @@ RUN sed -i 's/Xmx512m/Xmx2048m/g' "$JBOSS_HOME"/bin/standalone.conf && \
     sed -i 's/MaxMetaspaceSize=256m/MaxMetaspaceSize=1024m/g' "$JBOSS_HOME"/bin/standalone.conf
 
 # download i2b2 sources
-ARG I2B2_VERSION=tags/v1.7.12a.0002
-ARG I2B2_DATA_VERSION=01488ff1367717fda2799809bc531384382d6a94
+ARG I2B2_VERSION=tags/v1.7.13.0002
+ARG I2B2_DATA_VERSION=c882bd569b596b5f1a6a3ad5690821553b14a975
 COPY --chown=jboss:jboss download-i2b2-sources.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/download-i2b2-sources.sh
 RUN download-i2b2-sources.sh
@@ -74,9 +74,10 @@ COPY --chown=jboss:jboss sql "$SRC_DIR/sql"
 COPY --chown=jboss:jboss docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 8080 9990
-ARG PG_JDBC_JAR=postgresql-42.2.8.jar
+ARG PG_JDBC_JAR=postgresql-42.3.2.jar
 ENV PG_JDBC_JAR="$PG_JDBC_JAR"
 ENTRYPOINT \
     I2B2_SQL_DIR="$SRC_DIR/sql" \
     PRE_INIT_SCRIPT_DIR="$SRC_DIR/pre-init-scripts" \
     docker-entrypoint.sh
+

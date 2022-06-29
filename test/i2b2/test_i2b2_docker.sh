@@ -14,9 +14,15 @@ function postXmlI2b2 {
 }
 
 # wait for i2b2 to be up
+max_retries=50
 until curl -v http://localhost:8081/i2b2/services/listServices; do
   >&2 echo "Waiting for i2b2..."
   sleep 1
+  max_retries=$((max_retries - 1))
+  if [ $max_retries -eq 0 ]; then
+    echo "FAIL Stop waiting for i2b2"
+    exit 1
+  fi
 done
 
 MSG=pm_get_user_configuration

@@ -23,18 +23,18 @@ var DataSourceType sdk.DataSourceType = "i2b2-geco"
 func NewI2b2DataSource(id sdkmodels.DataSourceID, owner, name string, manager *sdk.DBManager) (plugin sdk.DataSource, err error) {
 	ds := new(I2b2DataSource)
 	ds.manager = manager
-	ds.DataSourceModel = *sdk.NewDataSourceModel(id, owner, name, DataSourceType)
+	ds.DataSourceDatabaseModel = sdk.NewDataSourceDatabaseModel(id, owner, name, DataSourceType)
 	ds.dbConfig = new(database.PostgresDatabaseConfig)
 	ds.i2b2Config = new(i2b2Config)
 
 	return ds, nil
 }
 
-// I2b2DataSource is an i2b2 data source for GeCo. It implements the data source interface.
+// I2b2DataSource is an i2b2 data source for the TI Note. It implements the data source interface.
 type I2b2DataSource struct {
-	sdk.DataSourceModel
+	sdk.DataSourceCore
 
-	// logger is the logger from GeCo
+	// logger is the logger of the TI Note
 	logger logrus.FieldLogger
 
 	// manager is the connection manager used to get the database connection
@@ -80,8 +80,8 @@ func (i2b2 *i2b2Config) UnmarshalBinary(data []byte) (err error) {
 }
 
 // FromModel sets the fields of the local data source given a model.
-func (ds *I2b2DataSource) FromModel(model *sdk.DataSourceModel) {
-	ds.DataSourceModel = *model
+func (ds *I2b2DataSource) FromModel(model *sdk.DataSourceDatabaseModel) {
+	ds.DataSourceDatabaseModel = model
 }
 
 // Config configures the datasource.

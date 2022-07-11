@@ -16,14 +16,24 @@ import (
 // compile-time check that I2b2DataSource implements the interface sdk.DataSource.
 var _ sdk.DataSource = (*I2b2DataSource)(nil)
 
-// DataSourceType is the type of the data source.
-var DataSourceType sdk.DataSourceType = "i2b2-geco"
+const (
+	// DataSourceType is the type of the data source.
+	DataSourceType sdk.DataSourceType = "i2b2"
 
-// NewI2b2DataSource creates an i2b2 data source. Implements sdk.DataSourceFactory.
-func NewI2b2DataSource(id sdkmodels.DataSourceID, owner, name string, manager *sdk.DBManager) (plugin sdk.DataSource, err error) {
+	// DBCredentialsID is the ID for the database credentials.
+	DBCredentialsID string = "dbCredentials"
+	// I2B2CredentialsID is the ID for the i2b2 credentials.
+	I2B2CredentialsID string = "i2b2Credentials"
+
+	i2b2ConfigID   string = "i2b2Config"
+	i2b2DBConfigID string = "i2b2DBConfig"
+)
+
+// NewI2b2DataSource creates an i2b2 data source. It implements sdk.DataSourceFactory.
+func NewI2b2DataSource(dsc *sdk.DataSourceCore, config map[string]interface{}, manager *sdk.DBManager) (plugin sdk.DataSource, err error) {
 	ds := new(I2b2DataSource)
+	ds.DataSourceCore = *dsc
 	ds.manager = manager
-	ds.DataSourceDatabaseModel = sdk.NewDataSourceDatabaseModel(id, owner, name, DataSourceType)
 	ds.dbConfig = new(database.PostgresDatabaseConfig)
 	ds.i2b2Config = new(i2b2Config)
 
@@ -79,38 +89,66 @@ func (i2b2 *i2b2Config) UnmarshalBinary(data []byte) (err error) {
 	return json.Unmarshal(data, i2b2)
 }
 
-// FromModel sets the fields of the local data source given a model.
-func (ds *I2b2DataSource) FromModel(model *sdk.DataSourceDatabaseModel) {
-	ds.DataSourceDatabaseModel = model
+// GetDataSourceConfig gets the data source config.
+func (ds *I2b2DataSource) GetDataSourceConfig() map[string]interface{} {
+	return map[string]interface{}{
+		i2b2ConfigID:   ds.i2b2Config,
+		i2b2DBConfigID: ds.dbConfig,
+	}
+}
+
+// SetDataSourceConfig sets the data source config.
+func (ds *I2b2DataSource) SetDataSourceConfig(config map[string]interface{}) error {
+	if i2b2Conf, ok := config[i2b2ConfigID].(*i2b2Config); ok || config[i2b2ConfigID] == nil {
+		ds.i2b2Config = i2b2Conf
+	} else {
+		return fmt.Errorf("config with key %s is not of the right type: expected %T, got %T", i2b2ConfigID, &i2b2Config{}, config[i2b2ConfigID])
+	}
+	return nil
+}
+
+// Data returns all the data to be stored in the TI Note object storage.
+func (ds *I2b2DataSource) Data() map[string]interface{} {
+	return sdk.DataImpl(ds)
 }
 
 // Config configures the datasource.
 // Configuration keys:
-// - I2b2: i2b2.api.url, i2b2.api.domain, i2b2.api.username, i2b2.api.password, i2b2.api.project, i2b2.api.wait-time, i2b2.api.ont-max-elements
-// - Database: db.host, db.port, db.db-name, db.schema-name, db.user, db.password
+// - I2b2: i2b2.api.url, i2b2.api.domain, i2b2.api.project, i2b2.api.wait-time, i2b2.api.ont-max-elements
+// - Database: db.host, db.port, db.db-name, db.schema-name
 func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]interface{}) (err error) {
 	ds.logger = logger
+
+	// retrieving data source credentials
+	dbCred, err := ds.CredentialsProvider.GetCredentials(DBCredentialsID)
+	if err != nil {
+		return ds.logError("while retrieving db credentials", err)
+	}
+	i2b2Cred, err := ds.CredentialsProvider.GetCredentials(I2B2CredentialsID)
+	if err != nil {
+		return ds.logError("while retrieving i2b2 credentials", err)
+	}
 
 	// store db config
 	ds.dbConfig.Host = (config["db.host"].(string))
 	ds.dbConfig.Port = config["db.port"].(string)
 	ds.dbConfig.Database = config["db.db-name"].(string)
 	ds.dbConfig.Schema = config["db.schema-name"].(string)
-	ds.dbConfig.User = config["db.user"].(string)
-	ds.dbConfig.Password = config["db.password"].(string)
+	ds.dbConfig.User = dbCred.Username()
+	ds.dbConfig.Password = dbCred.Password()
 
 	// store i2b2 config
 	ds.i2b2Config.URL = config["i2b2.api.url"].(string)
 	ds.i2b2Config.Domain = config["i2b2.api.domain"].(string)
-	ds.i2b2Config.Username = config["i2b2.api.username"].(string)
-	ds.i2b2Config.Password = config["i2b2.api.password"].(string)
+	ds.i2b2Config.Username = i2b2Cred.Username()
+	ds.i2b2Config.Password = i2b2Cred.Password()
 	ds.i2b2Config.Project = config["i2b2.api.project"].(string)
 	ds.i2b2Config.OntMaxElements = config["i2b2.api.ont-max-elements"].(string)
 	if ds.i2b2Config.WaitTime, err = time.ParseDuration(config["i2b2.api.wait-time"].(string)); err != nil {
 		return ds.logError("parsing i2b2 wait time", err)
 	}
 	if ds.manager == nil {
-		return fmt.Errorf("manager should be set")
+		return ds.logError("manager should be set", nil)
 	}
 	db, err := ds.manager.GetDatabase(ds.dbConfig)
 	if err != nil {
@@ -176,18 +214,8 @@ func (ds *I2b2DataSource) ConfigFromDB(logger logrus.FieldLogger) (err error) {
 	return
 }
 
-// GetData returns the csv data stored in the data source.
-func (ds *I2b2DataSource) GetData(query string) ([]string, [][]float64) {
-	return nil, nil
-}
-
-// LoadData loads a csv into the local data source, saving it in the datamanager and updating the data source.
-func (ds *I2b2DataSource) LoadData(_ []string, _ interface{}) error {
-	return nil
-}
-
-// Data returns a map of the data values stored along this data source
-func (ds *I2b2DataSource) Data() map[string]interface{} {
+// GetDataSourceCustomData returns a map of the data values stored along this data source
+func (ds *I2b2DataSource) GetDataSourceCustomData() map[string]interface{} {
 	return map[string]interface{}{
 		"dbConfig":   ds.dbConfig,
 		"i2b2Config": ds.i2b2Config,

@@ -2,14 +2,14 @@ module github.com/tuneinsight/geco-i2b2-data-source
 
 go 1.18
 
-// replace github.com/tuneinsight/sdk-datasource => ../sdk-datasource
+//replace github.com/tuneinsight/sdk-datasource => ../sdk-datasource
 
 require (
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.1
-	github.com/tuneinsight/sdk-datasource v0.0.0-20220710182550-09d854b2e0a5
+	github.com/tuneinsight/sdk-datasource v0.0.0-20220715131209-dc6e369fec52
 )
 
 require (
@@ -37,8 +37,8 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.8.2 // indirect
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
-	golang.org/x/sys v0.0.0-20220608164250-635b8c9b7f68 // indirect
+	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
+	golang.org/x/sys v0.0.0-20220708085239-5a0f0661e09d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect

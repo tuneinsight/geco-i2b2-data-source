@@ -9,14 +9,13 @@ import (
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/credentials"
 )
 
 func getDataSource(t *testing.T) *I2b2DataSource {
 	config := make(map[string]interface{})
 	config["i2b2.api.url"] = "http://localhost:8081/i2b2/services"
 	config["i2b2.api.domain"] = "i2b2demo"
-	config["i2b2.api.username"] = "demo"
-	config["i2b2.api.password"] = "changeme"
 	config["i2b2.api.project"] = "Demo"
 	config["i2b2.api.wait-time"] = "10s"
 	config["i2b2.api.ont-max-elements"] = "200"
@@ -25,15 +24,21 @@ func getDataSource(t *testing.T) *I2b2DataSource {
 	config["db.port"] = "5433"
 	config["db.db-name"] = "i2b2"
 	config["db.schema-name"] = database.TestSchemaName
-	config["db.user"] = "postgres"
-	config["db.password"] = "postgres"
 
 	logrus.StandardLogger().SetLevel(logrus.DebugLevel)
 	manager := gecosdk.NewDBManager(gecosdk.DBManagerConfig{
 		SleepingTimeBetweenAttemptsSeconds: 5,
 		MaxConnectionAttempts:              3,
 	})
-	ds, err := NewI2b2DataSource("", "test", "test-geco-i2b2-ds", manager)
+	credProvider := credentials.NewLocal(map[string]credentials.Credentials{
+		DBCredentialsID:   *credentials.NewCredentials("postgres", "postgres", ""),
+		I2B2CredentialsID: *credentials.NewCredentials("demo", "changeme", ""),
+	})
+
+	dsc := gecosdk.NewDataSourceCore(
+		gecosdk.NewMetadataDB("", "test", "test-i2b2-ds", DataSourceType, ""),
+		gecosdk.NewMetadataStorage(credProvider))
+	ds, err := NewI2b2DataSource(dsc, nil, manager)
 	require.NoError(t, err)
 	err = ds.Config(logrus.StandardLogger(), config)
 	require.NoError(t, err)

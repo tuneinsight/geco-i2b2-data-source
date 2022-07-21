@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -30,9 +31,9 @@ func getDataSource(t *testing.T) *I2b2DataSource {
 		SleepingTimeBetweenAttemptsSeconds: 5,
 		MaxConnectionAttempts:              3,
 	})
-	credProvider := credentials.NewLocal(map[string]credentials.Credentials{
-		DBCredentialsID:   *credentials.NewCredentials("postgres", "postgres", ""),
-		I2B2CredentialsID: *credentials.NewCredentials("demo", "changeme", ""),
+	credProvider := credentials.NewLocal(map[string]*credentials.Credentials{
+		DBCredentialsID:   credentials.NewCredentials("postgres", "postgres", ""),
+		I2B2CredentialsID: credentials.NewCredentials("demo", "changeme", ""),
 	})
 
 	dsc := gecosdk.NewDataSourceCore(
@@ -91,8 +92,29 @@ func TestQueryDataObject(t *testing.T) {
 }
 
 func TestWorkflow(t *testing.T) {
+
+	// test with local provider
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
+
+	// test with Azure Key Vault provider
+	// credentials of the TI test AKV
+	os.Setenv("AZURE_TENANT_ID", "e6021d6c-8bdc-4c91-b88f-e3333caae8b8")
+	os.Setenv("AZURE_CLIENT_ID", "00d75d9b-9524-4428-bd6a-a6dc2a08ac19")
+	os.Setenv("AZURE_CLIENT_SECRET", "P7I8Q~KpPiCphM2LOe25Wil6c80vHo3KJqSr3b~r")
+	os.Setenv("AZURE_KEY_VAULT_URI", "https://ti-test-vault.vault.azure.net/")
+
+	credProvider, err := credentials.NewAzureKeyVault(map[string]string{
+		// this maps the data source creds IDs with the IDs of the secrets that have been created in Azure
+		I2B2CredentialsID: "test-i2b2-credentials",
+		DBCredentialsID:   "test-i2b2-db-credentials",
+	})
+	require.NoError(t, err)
+	ds.CredentialsProvider = credProvider
+
+}
+
+func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 
 	user := "testUser"
 
@@ -200,4 +222,5 @@ func TestWorkflow(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, do)
 	require.NotContains(t, string(res), "mycohort")
+
 }

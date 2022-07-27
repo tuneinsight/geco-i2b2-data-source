@@ -270,6 +270,8 @@ github.com/tuneinsight/sdk-datasource v0.0.0-20220722103033-d17fe808eab5 h1:jbky
 github.com/tuneinsight/sdk-datasource v0.0.0-20220722103033-d17fe808eab5/go.mod h1:sevfgMRPFB8eOog8EHTq9qQBMPxlXM+kAvHdkx8V5jo=
 github.com/tuneinsight/sdk-datasource v0.0.0-20220724182953-f0cc5fe01068 h1:lrfIzJnANxQczNhiCdVSh4oPAKp9AxMlhm9PKG56rvA=
 github.com/tuneinsight/sdk-datasource v0.0.0-20220724182953-f0cc5fe01068/go.mod h1:sevfgMRPFB8eOog8EHTq9qQBMPxlXM+kAvHdkx8V5jo=
+github.com/tuneinsight/sdk-datasource v0.0.0-20220726113729-11cbe88f7614 h1:xXRrX9gihYxq/Mrs8LhKBQJgAdAaoLbf2H4fJkwwd7k=
+github.com/tuneinsight/sdk-datasource v0.0.0-20220726113729-11cbe88f7614/go.mod h1:sevfgMRPFB8eOog8EHTq9qQBMPxlXM+kAvHdkx8V5jo=
 github.com/vektah/gqlparser v1.1.2/go.mod h1:1ycwN7Ij5njmMkPPAOaRFY4rET2Enx7IkVv3vaXspKw=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.0.2/go.mod h1:1WAq6h33pAW+iRreB34OORO2Nf7qel3VV3fjBj+hCSs=

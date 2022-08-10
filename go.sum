@@ -232,7 +232,6 @@ github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYr
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pelletier/go-toml v1.4.0/go.mod h1:PN7xzY2wHTK0K9p34ErDQMlFxa51Fk0OUruD3k1mMwo=
 github.com/pelletier/go-toml v1.7.0/go.mod h1:vwGMzjaWMwyfHwgIBhI2YUM4fB6nL6lVAvS1LBMMhTE=
-github.com/pkg/browser v0.0.0-20210115035449-ce105d075bb4 h1:Qj1ukM4GlMWXNdMBuXcXfz/Kw9s1qm0CLY32QxuSImI=
 github.com/pkg/browser v0.0.0-20210115035449-ce105d075bb4/go.mod h1:N6UoU20jOqggOuDwUaBQpluzLNDqif3kq9z2wpdYEfQ=
 github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 h1:KoWmjvw+nsYOo29YJK9vDA65RGE3NrOnUtO7a+RF9HU=
 github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8/go.mod h1:HKlIX3XHQyzLZPlr7++PzdhaXEj94dEiJgZDTsxEqUI=
@@ -264,12 +263,6 @@ github.com/stretchr/testify v1.7.1 h1:5TQK59W5E3v0r2duFAb7P95B6hEeOyEnHRa8MjYSMT
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
-github.com/tuneinsight/sdk-datasource v0.0.0-20220721165606-ad5d6410b84f h1:0rthxK5czhxNG2gvlHXscmmZj1rEnr7PwgN8vde5ybs=
-github.com/tuneinsight/sdk-datasource v0.0.0-20220721165606-ad5d6410b84f/go.mod h1:c4Dt6xaRy65bpNEis/ziawQKogpDTFHC96hDJT3JM4I=
-github.com/tuneinsight/sdk-datasource v0.0.0-20220722103033-d17fe808eab5 h1:jbky+WkqKbCp91aSQfzrpqoUjpRbOlhzQVyZeoo4Xf4=
-github.com/tuneinsight/sdk-datasource v0.0.0-20220722103033-d17fe808eab5/go.mod h1:sevfgMRPFB8eOog8EHTq9qQBMPxlXM+kAvHdkx8V5jo=
-github.com/tuneinsight/sdk-datasource v0.0.0-20220724182953-f0cc5fe01068 h1:lrfIzJnANxQczNhiCdVSh4oPAKp9AxMlhm9PKG56rvA=
-github.com/tuneinsight/sdk-datasource v0.0.0-20220724182953-f0cc5fe01068/go.mod h1:sevfgMRPFB8eOog8EHTq9qQBMPxlXM+kAvHdkx8V5jo=
 github.com/tuneinsight/sdk-datasource v0.0.0-20220726113729-11cbe88f7614 h1:xXRrX9gihYxq/Mrs8LhKBQJgAdAaoLbf2H4fJkwwd7k=
 github.com/tuneinsight/sdk-datasource v0.0.0-20220726113729-11cbe88f7614/go.mod h1:sevfgMRPFB8eOog8EHTq9qQBMPxlXM+kAvHdkx8V5jo=
 github.com/vektah/gqlparser v1.1.2/go.mod h1:1ycwN7Ij5njmMkPPAOaRFY4rET2Enx7IkVv3vaXspKw=
@@ -301,8 +294,6 @@ golang.org/x/crypto v0.0.0-20190617133340-57b3e21c3d56/go.mod h1:yigFU9vqHzYiE8U
 golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20201216223049-8b5274cf687f/go.mod h1:jdWPYTVW3xRLrWPugEBEK3UY2ZEsg3UU495nc5E+M+I=
-golang.org/x/crypto v0.0.0-20220511200225-c6db032c6c88 h1:Tgea0cVUD0ivh5ADBX4WwuI12DUd2to3nCYe2eayMIw=
-golang.org/x/crypto v0.0.0-20220511200225-c6db032c6c88/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d h1:sK3txAijHtOK88l68nt020reeT1ZdKLIYetKl95FzVY=
 golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/net v0.0.0-20181005035420-146acd28ed58/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=

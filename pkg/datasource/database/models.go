@@ -5,6 +5,7 @@ import "database/sql"
 // SavedCohort is a cohort such as stored in the database.
 type SavedCohort struct {
 	Name         string
+	ProjectID    string
 	CreateDate   string
 	ExploreQuery ExploreQuery
 }

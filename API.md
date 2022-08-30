@@ -1,4 +1,4 @@
-All the operations exposed by this data source plugin to the GeCo Data Manager 
+All the operations exposed by this data source plugin to the TI Note Data Manager 
 runtime are listed here, with their supported parameters, results, and output
 data objects shared IDs.
 
@@ -198,10 +198,12 @@ Retrieve the list of saved cohorts.
 ## Parameters
 ```json
 {
+  "projectID": "99999999-9999-9999-9999-999999999999",
   "limit": 10
 }
 ```
 
+- `projectID`: ID of the project to which the cohorts to retrieve are linked
 - `limit`: max number of cohorts to retrieve
 
 ## Results
@@ -246,11 +248,13 @@ Add a cohort.
 ```json
 {
   "name": "Cohort 1",
+  "projectID": "99999999-9999-9999-9999-999999999999",
   "exploreQueryID": "99999999-9999-9999-9999-999999999999"
 }
 ```
 
 - `name`: name of the cohort
+- `projectID`: ID of the project to which the cohort to create is linked
 - `exploreQueryID`: query to associate to the cohort
 
 # deleteCohort

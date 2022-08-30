@@ -49,6 +49,7 @@ BEGIN;
 	CREATE TABLE IF NOT EXISTS saved_cohort(
 		name character varying(255) NOT NULL,
 		create_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+	    project_id uuid NOT NULL,
 		explore_query_id uuid NOT NULL,
 	
 		CONSTRAINT saved_cohort_pkey PRIMARY KEY (name, explore_query_id),

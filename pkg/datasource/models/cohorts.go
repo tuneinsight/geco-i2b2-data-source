@@ -10,13 +10,15 @@ import (
 
 // GetCohortsParameters is the parameter for the GetCohorts operation.
 type GetCohortsParameters struct {
-	Limit int `json:"limit"`
+	ProjectID string `json:"projectID"`
+	Limit     int    `json:"limit"`
 }
 
 // AddDeleteCohortParameters is the parameter for the AddCohort and DeleteCohort operations.
 type AddDeleteCohortParameters struct {
 	Name           string `json:"name"`
 	ExploreQueryID string `json:"exploreQueryID"`
+	ProjectID      string `json:"projectID"`
 }
 
 // --- results

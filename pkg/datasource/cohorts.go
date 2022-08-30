@@ -29,7 +29,7 @@ func (ds I2b2DataSource) GetCohorts(userID string, params *models.GetCohortsPara
 		limit = params.Limit
 	}
 
-	dbCohorts, err := ds.db.GetCohorts(userID, limit)
+	dbCohorts, err := ds.db.GetCohorts(userID, params.ProjectID, limit)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving cohorts from database: %v", err)
 	}
@@ -56,7 +56,7 @@ func (ds I2b2DataSource) AddCohortHandler(userID string, jsonParameters []byte, 
 
 // AddCohort adds a cohort.
 func (ds I2b2DataSource) AddCohort(userID string, params *models.AddDeleteCohortParameters) error {
-	if err := ds.db.AddCohort(userID, params.Name, params.ExploreQueryID); err != nil {
+	if err := ds.db.AddCohort(userID, params.Name, params.ExploreQueryID, params.ProjectID); err != nil {
 		return fmt.Errorf("adding cohort to database: %v", err)
 	}
 	return nil

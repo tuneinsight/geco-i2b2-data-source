@@ -1,6 +1,6 @@
-# GeCo i2b2 Data Source Plugin
+# TI Note i2b2 Data Source Plugin
 
-## GeCo Data Source Plugin API Operations
+## TI Note i2b2 Data Source Plugin API Operations
 [The operations are documented here.](API.md)
 
 ## Build
@@ -35,7 +35,7 @@ make go-unit-tests
 - `cmd/geco-i2b2-data-source/`: go main package for the plugin
 - `pkg/`: exported go code
   - `i2b2client/`: client for i2b2 HTTP XML API
-  - `datasource/`: definition of the i2b2 GeCo data source
+  - `datasource/`: definition of the i2b2 data source
     - `database/`: database wrapper for the datasource
 - `scripts/`: utility scripts
 - `test/i2b2/`: test files for the i2b2 docker image

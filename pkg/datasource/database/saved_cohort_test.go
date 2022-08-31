@@ -31,13 +31,17 @@ func TestGetCohorts(t *testing.T) {
 	db := getDB(t)
 	defer dbCleanUp(t, db)
 
-	cohorts1, err := db.GetCohorts("testuser1", 5)
+	cohorts1, err := db.GetCohorts("testuser1", "11111111-1111-1111-1111-111111111112", 5)
 	require.NoError(t, err)
-	require.EqualValues(t, 2, len(cohorts1))
-	require.EqualValues(t, "survival-test-cohort", cohorts1[0].Name)
-	require.EqualValues(t, "cohort1", cohorts1[1].Name)
+	require.EqualValues(t, 1, len(cohorts1))
+	require.EqualValues(t, "cohort1", cohorts1[0].Name)
 
-	cohorts2, err := db.GetCohorts("testuser2", 5)
+	cohorts1, err = db.GetCohorts("testuser1", "55555555-5555-5555-5555-555555555556", 5)
+	require.NoError(t, err)
+	require.EqualValues(t, 1, len(cohorts1))
+	require.EqualValues(t, "survival-test-cohort", cohorts1[0].Name)
+
+	cohorts2, err := db.GetCohorts("testuser2", "33333333-3333-3333-3333-333333333334", 5)
 	require.NoError(t, err)
 	require.EqualValues(t, 2, len(cohorts2))
 	require.EqualValues(t, "cohort4", cohorts2[0].Name)
@@ -48,11 +52,11 @@ func TestAddCohort(t *testing.T) {
 	db := getDB(t)
 	defer dbCleanUp(t, db)
 
-	err := db.AddCohort("notvalid", "cohort0", "00000000-0000-0000-0000-000000000000")
+	err := db.AddCohort("notvalid", "cohort0", "00000000-0000-0000-0000-000000000000", "11111111-1111-1111-1111-111111111112")
 	require.Error(t, err)
 	t.Logf("%v", err)
 
-	err = db.AddCohort("testuser1", "cohort0", "00000000-0000-0000-0000-000000000000")
+	err = db.AddCohort("testuser1", "cohort0", "00000000-0000-0000-0000-000000000000", "11111111-1111-1111-1111-111111111112")
 	require.NoError(t, err)
 
 	cohort0, err := db.GetCohort("testuser1", "00000000-0000-0000-0000-000000000000")
@@ -61,7 +65,7 @@ func TestAddCohort(t *testing.T) {
 	require.EqualValues(t, "testuser1", cohort0.ExploreQuery.UserID)
 	t.Logf("%+v", cohort0)
 
-	err = db.AddCohort("testuser1", "cohort0", "00000000-0000-0000-9999-000000000000")
+	err = db.AddCohort("testuser1", "cohort0", "00000000-0000-0000-9999-000000000000", "11111111-1111-1111-1111-111111111112")
 	require.Error(t, err)
 	t.Logf("%v", err)
 }

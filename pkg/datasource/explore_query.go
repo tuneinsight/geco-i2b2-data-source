@@ -97,7 +97,7 @@ func (ds I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQuery
 	for _, panel := range params.Definition.Panels {
 		for i, cohortItem := range panel.CohortItems {
 			cohort, err := ds.db.GetCohort(userID, cohortItem)
-			if err != nil {
+			if err != nil || cohort == nil {
 				return "", "", fmt.Errorf("while getting cohort for doCrcPsmQuery: %v", err)
 			}
 			panel.CohortItems[i] = "patient_set_coll_id:" + strconv.FormatInt(cohort.ExploreQuery.ResultI2b2PatientSetID.Int64, 10)

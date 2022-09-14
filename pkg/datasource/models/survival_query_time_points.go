@@ -30,7 +30,7 @@ func (tps TimePoints) Less(i, j int) bool {
 	return tps[i].Time < tps[j].Time
 }
 
-//Swap implements Swap method for sort.Interface interface.
+// Swap implements Swap method for sort.Interface interface.
 func (tps TimePoints) Swap(i, j int) {
 	tps[i], tps[j] = tps[j], tps[i]
 }

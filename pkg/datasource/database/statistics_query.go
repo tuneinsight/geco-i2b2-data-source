@@ -104,15 +104,15 @@ func convertIntListToString(intList []int64) string {
 }
 
 /*
-	* This query will return the numerical values from all observations where
-	* the patient_num is contained within the list passed as argument (the list is in principle a list of patient from a specific cohort).
+* This query will return the numerical values from all observations where
+* the patient_num is contained within the list passed as argument (the list is in principle a list of patient from a specific cohort).
 
-	TODO In the same way I gathered the schema and table in which the ontology is contained, gather the schema in which observations are contained.
-	For the moment I hardcode the table and schema.
+TODO In the same way I gathered the schema and table in which the ontology is contained, gather the schema in which observations are contained.
+For the moment I hardcode the table and schema.
 
-	We only keep rows where nval_num is exactly equal to a specific values hence the required value of TVAL_CHAR.
-	We could keep values which are GE or LE or L or G the problem is that we would need open brackets for intervals.
-	VALTYPE_CD = 'N' because we only care about numerical values.
+We only keep rows where nval_num is exactly equal to a specific values hence the required value of TVAL_CHAR.
+We could keep values which are GE or LE or L or G the problem is that we would need open brackets for intervals.
+VALTYPE_CD = 'N' because we only care about numerical values.
 */
 const sqlStart string = `
 SELECT nval_num, patient_num, units_cd FROM i2b2demodata.observation_fact

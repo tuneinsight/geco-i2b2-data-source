@@ -109,7 +109,7 @@ func TestProcessObservations(t *testing.T) {
 
 }
 
-//to generate sample with specific sample std and sample mean: https://stackoverflow.com/questions/51515423/generate-sample-data-with-an-exact-mean-and-standard-deviation
+// to generate sample with specific sample std and sample mean: https://stackoverflow.com/questions/51515423/generate-sample-data-with-an-exact-mean-and-standard-deviation
 func TestOutlierRemoval(t *testing.T) {
 
 	t.Run("outlier_removal_normal_0_mean_1_std", func(t *testing.T) {
@@ -154,7 +154,7 @@ func newStatsObservations(observations []float64) (queryResults []dbmodels.Stats
 	return
 }
 
-//to generate sample with specific sample std and sample mean: https://stackoverflow.com/questions/51515423/generate-sample-data-with-an-exact-mean-and-standard-deviation
+// to generate sample with specific sample std and sample mean: https://stackoverflow.com/questions/51515423/generate-sample-data-with-an-exact-mean-and-standard-deviation
 func TestOutlierRemovalNormal0Mean1Std(t *testing.T) {
 	observations := []float64{
 		-4.504332807814968, -3.588438949993705, -1.4253477722082, 4.481350113178383, -0.05858067548906476, 8.695616991288777, 0.8911308392424653, 9.391114371637403, 8.094555884981943, -4.290838531517852, 10.79099641135041, 1.3150492298392589, 10.902284491587732, -0.8873436991601062, 2.228352198498256, 3.60927053212485, -1.1011040410767086, 10.284889522654836, 2.635879581548595, 2.535496309327691,

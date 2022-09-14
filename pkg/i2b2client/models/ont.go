@@ -178,7 +178,7 @@ type OntologyElement struct {
 	Visualattributes string       `xml:"visualattributes"`
 	Totalnum         string       `xml:"totalnum"`
 	Basecode         string       `xml:"basecode"`
-	Metadataxml      *MetadataXML `xml:"metadataxml"`
+	Metadataxml      *MetadataXML `xml:"metadataxml>ValueMetadata"`
 	Facttablecolumn  string       `xml:"facttablecolumn"`
 	Tablename        string       `xml:"tablename"`
 	Columnname       string       `xml:"columnname"`
@@ -203,15 +203,15 @@ type Modifier OntologyElement
 
 // MetadataXML is the metadata of an OntologyElement.
 type MetadataXML struct {
-	CreationDateTime string                    `xml:"ValueMetadata>CreationDateTime"`
-	DataType         string                    `xml:"ValueMetadata>DataType"`
-	EnumValues       string                    `xml:"ValueMetadata>EnumValues"`
-	Flagstouse       string                    `xml:"ValueMetadata>Flagstouse"`
-	Oktousevalues    string                    `xml:"ValueMetadata>Oktousevalues"`
-	TestID           string                    `xml:"ValueMetadata>TestID"`
-	TestName         string                    `xml:"ValueMetadata>TestName"`
-	UnitValues       []ValueMetadataUnitValues `xml:"ValueMetadata>UnitValues"`
-	Version          string                    `xml:"ValueMetadata>Version"`
+	CreationDateTime string                    `xml:"CreationDateTime"`
+	DataType         string                    `xml:"DataType"`
+	EnumValues       string                    `xml:"EnumValues"`
+	Flagstouse       string                    `xml:"Flagstouse"`
+	Oktousevalues    string                    `xml:"Oktousevalues"`
+	TestID           string                    `xml:"TestID"`
+	TestName         string                    `xml:"TestName"`
+	UnitValues       []ValueMetadataUnitValues `xml:"UnitValues"`
+	Version          string                    `xml:"Version"`
 }
 
 // ValueMetadataUnitValues is part of MetadataXML.

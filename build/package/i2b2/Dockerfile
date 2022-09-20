@@ -104,7 +104,7 @@ ENV I2B2_DB_HOST="postgresql" \
     I2B2_DOMAIN_NAME="i2b2demo" \
     I2B2_SERVICE_PASSWORD="changeme" \
     DEFAULT_USER_PASSWORD="demouser" \
-    AXIS2_LOGLEVEL="INFO"
+    I2B2_LOG_LEVEL="INFO"
 
 COPY --chown=jboss:jboss pre-init-scripts "$SRC_DIR/pre-init-scripts"
 COPY --chown=jboss:jboss sql "$SRC_DIR/sql"

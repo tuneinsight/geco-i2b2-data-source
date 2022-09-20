@@ -16,7 +16,7 @@ services:
       - I2B2_DOMAIN_NAME=i2b2demo
       - I2B2_SERVICE_PASSWORD=changeme
       - DEFAULT_USER_PASSWORD=changeme
-      - AXIS2_LOGLEVEL=DEBUG
+      - I2B2_LOG_LEVEL=DEBUG
     networks:
       intra-node:
 

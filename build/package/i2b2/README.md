@@ -24,4 +24,4 @@ tweaks to the data loaded.
 - `I2B2_DOMAIN_NAME`: sets the i2b2 domain name to be used
 - `I2B2_SERVICE_PASSWORD`: sets the i2b2 service user password, which is not used except by i2b2 itself
 - `DEFAULT_USER_PASSWORD`: sets the password of the i2b2 users `demo` (standard user) and `i2b2` (admin user)
-- `AXIS2_LOGLEVEL`: sets the logging level of axis2
+- `I2B2_LOG_LEVEL`: sets the logging level of i2b2

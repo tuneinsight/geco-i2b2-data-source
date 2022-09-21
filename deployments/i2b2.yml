@@ -16,7 +16,7 @@ services:
       - I2B2_DOMAIN_NAME=i2b2demo
       - I2B2_SERVICE_PASSWORD=changeme
       - DEFAULT_USER_PASSWORD=changeme
-      - I2B2_LOG_LEVEL=DEBUG
+      - I2B2_LOG_LEVEL=INFO
     networks:
       intra-node:
 

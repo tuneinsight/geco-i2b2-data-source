@@ -24,10 +24,10 @@ func TestSurvivalQuery(t *testing.T) {
 		StartsWhen:   models.WhenEarliest,
 		TimeLimit:    6,
 	}
+	ds := getDataSource(t)
+	defer dataSourceCleanUp(t, ds)
 
 	t.Run("Survival_analysis_day", func(t *testing.T) {
-		ds := getDataSource(t)
-		defer dataSourceCleanUp(t, ds)
 
 		params.TimeGranularity = "day"
 
@@ -39,8 +39,6 @@ func TestSurvivalQuery(t *testing.T) {
 	})
 
 	t.Run("Survival_analysis_week", func(t *testing.T) {
-		ds := getDataSource(t)
-		defer dataSourceCleanUp(t, ds)
 
 		params.TimeGranularity = "week"
 
@@ -52,8 +50,6 @@ func TestSurvivalQuery(t *testing.T) {
 	})
 
 	t.Run("Survival_analysis_month", func(t *testing.T) {
-		ds := getDataSource(t)
-		defer dataSourceCleanUp(t, ds)
 
 		params.TimeGranularity = "month"
 
@@ -65,8 +61,6 @@ func TestSurvivalQuery(t *testing.T) {
 	})
 
 	t.Run("Survival_analysis_year", func(t *testing.T) {
-		ds := getDataSource(t)
-		defer dataSourceCleanUp(t, ds)
 
 		params.TimeGranularity = "year"
 
@@ -78,8 +72,6 @@ func TestSurvivalQuery(t *testing.T) {
 	})
 
 	t.Run("Survival_analysis_subgroups", func(t *testing.T) {
-		ds := getDataSource(t)
-		defer dataSourceCleanUp(t, ds)
 
 		params.TimeGranularity = "week"
 		params.SubGroupsDefinitions = []*models.SubGroupDefinition{

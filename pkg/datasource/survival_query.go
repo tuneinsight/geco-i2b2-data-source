@@ -61,7 +61,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	}
 
 	// getting cohort
-	logrus.Info("checking cohort's existence")
+	logrus.Info("checking cohort existence")
 	exploreQuery, err := ds.db.GetExploreQuery(userID, params.CohortQueryID)
 
 	if err != nil {

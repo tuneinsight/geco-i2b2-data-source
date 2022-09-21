@@ -9,12 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// CohortInformation contains info about a cohort.
-type CohortInformation struct {
-	PatientIDs   []int64 // a list of patient IDs
-	IsEmptyPanel bool    // True if the client set no constraint in the panel definition. The population selected would in this case consist of all patients.
-}
-
 // StatsObservation contains a patient observation.
 type StatsObservation struct {
 	NumericValue  float64
@@ -23,34 +17,24 @@ type StatsObservation struct {
 }
 
 // RetrieveObservationsForConcept returns the numerical values that correspond to the concept passed as argument for the specified cohort.
-func (db PostgresDatabase) RetrieveObservationsForConcept(code string, cohortInformation CohortInformation, minObservations int64) (statsObservations []StatsObservation, err error) {
-	logrus.Debugf("executing stats SQL query: %s, concept: %s, patients: %v", sqlConcept, code, cohortInformation.PatientIDs)
-	return db.retrieveObservations(sqlConcept, code, cohortInformation, minObservations)
+func (db PostgresDatabase) RetrieveObservationsForConcept(code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
+	logrus.Debugf("executing stats SQL query: %s, concept: %s, patients: %v", sqlConcept, code, patientIDs)
+	return db.retrieveObservations(sqlConcept, code, patientIDs, minObservations)
 }
 
 // RetrieveObservationsForModifier returns the numerical values that correspond to the modifier passed as argument for the specified cohort.
-func (db PostgresDatabase) RetrieveObservationsForModifier(code string, cohortInformation CohortInformation, minObservations int64) (statsObservations []StatsObservation, err error) {
-	logrus.Debugf("executing stats SQL query: %s, modifier: %s, patients: %v", sqlModifier, code, cohortInformation.PatientIDs)
-	return db.retrieveObservations(sqlModifier, code, cohortInformation, minObservations)
+func (db PostgresDatabase) RetrieveObservationsForModifier(code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
+	logrus.Debugf("executing stats SQL query: %s, modifier: %s, patients: %v", sqlModifier, code, patientIDs)
+	return db.retrieveObservations(sqlModifier, code, patientIDs, minObservations)
 }
 
 // retrieveObservations returns the numerical values that correspond to the concept or modifier whose code is passed as argument for the specified cohort.
-func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, cohortInformation CohortInformation, minObservations int64) (statsObservations []StatsObservation, err error) {
-	patients := cohortInformation.PatientIDs
-	strPatientList := convertIntListToString(patients)
-
-	usePatientList := !cohortInformation.IsEmptyPanel
+func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
+	strPatientList := convertIntListToString(patientIDs)
 
 	var rows *sql.Rows
-	if usePatientList {
-		// if some constraints on the cohort have been defined we use the patient list
-		completeSQLQuery := sqlQuery + " " + sqlCohortFilter
-		logrus.Debugf("Patient list for query %s", strPatientList)
-		rows, err = db.handle.Query(completeSQLQuery, code, minObservations, strPatientList)
-	} else {
-		//otherwise the cohort is the whole population in the database for which the analyte (concept or modifier) is defined
-		rows, err = db.handle.Query(sqlQuery, code, minObservations)
-	}
+	completeSQLQuery := sqlQuery + " " + sqlCohortFilter
+	rows, err = db.handle.Query(completeSQLQuery, code, minObservations, strPatientList)
 
 	if err != nil {
 		err = fmt.Errorf("while execution SQL query: %s", err.Error())

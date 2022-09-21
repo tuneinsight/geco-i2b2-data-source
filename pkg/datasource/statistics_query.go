@@ -7,13 +7,13 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sirupsen/logrus"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
@@ -71,15 +71,22 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 		return nil, fmt.Errorf("while validating parameters for statistics query %s: %v", params.ID, err)
 	}
 
-	// --- cohort patient list
-
 	logrus.Info("fetching patients for statistics query")
+
+	// create the panel containing the analytes (OR-ed)
+	analytePanel := models.Panel{
+		Not:          false,
+		ConceptItems: nil,
+	}
+	for _, analyte := range params.Analytes {
+		analytePanel.ConceptItems = append(analytePanel.ConceptItems, *analyte)
+	}
 
 	_, patientCount, patientList, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
 		ID: uuid.New().String(),
 		Definition: models.ExploreQueryDefinition{
 			Timing: params.Timing,
-			Panels: params.Panels,
+			Panels: append(params.Panels, analytePanel),
 		},
 	})
 
@@ -108,8 +115,6 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 		return
 	}
 
-	logrus.Infof("got patients for the explore statistics cohort: %v", patientList)
-
 	// --- get concept and modifier codes from the ontology
 	conceptsInfo, modifiersInfo, err := ds.getOntologyElementsInfoForStatisticsQuery(params.Analytes)
 
@@ -130,33 +135,26 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 	signal := make(chan struct{})
 
 	// this function is an abstraction for the retrieving and processing of observations
-	processMedicalConcept := func(index int, searchResultElement *models.SearchResultElement, RetrieveObservations func(string, database.CohortInformation, int64) (observations []database.StatsObservation, err error)) {
+	processMedicalConcept := func(index int, searchResultElement *models.SearchResultElement, RetrieveObservations func(string, []int64, int64) (observations []database.StatsObservation, err error)) {
 
 		defer waitGroup.Done()
 
-		cohortInfo := database.CohortInformation{
-			PatientIDs:   patientList,
-			IsEmptyPanel: len(params.Panels) == 0,
-		}
-
-		ds.logger.Warnf("retrieving observations for ontology element: %s", searchResultElement.Path)
-		conceptObservations, err := RetrieveObservations(searchResultElement.Code, cohortInfo, params.MinObservations)
+		logrus.Debugf("retrieving observations for ontology element: %s", searchResultElement.Path)
+		conceptObservations, err := RetrieveObservations(searchResultElement.Code, patientList, params.MinObservations)
 		if err != nil {
 			errChan <- err
 			return
 		}
-		ds.logger.Warnf("retrieved: %d observations for ontology element: %s", len(conceptObservations), searchResultElement.Path)
+		logrus.Debugf("retrieved: %d observations for ontology element: %s", len(conceptObservations), searchResultElement.Path)
 
 		cleanObservations, err := outlierRemoval(conceptObservations)
-
-		ds.logger.Warnf("observations for ontology element: %s after outliers removal: %d", searchResultElement.Path, len(conceptObservations))
-
 		if err != nil {
+			errChan <- err
 			return
 		}
+		logrus.Debugf("observations for ontology element: %s after outliers removal: %d", searchResultElement.Path, len(conceptObservations))
 
 		counts, statsResults, err := ds.processObservations(cleanObservations, params.MinObservations, params.BucketSize)
-
 		if err != nil {
 			errChan <- err
 			return
@@ -318,7 +316,7 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 func (ds I2b2DataSource) processObservations(statsObservations []database.StatsObservation, minObservation int64, bucketSize float64) (counts []int64, statsResult *models.StatsResult, err error) {
 
 	if len(statsObservations) == 0 {
-		ds.logger.Warnf("no observations present in the database for this combination of analytes and cohort definition")
+		logrus.Warnf("no observations present in the database for this combination of analytes and cohort definition")
 		return []int64{0},
 			&models.StatsResult{
 				Buckets: []*models.Bucket{

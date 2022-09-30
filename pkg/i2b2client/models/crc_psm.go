@@ -10,7 +10,7 @@ import (
 // --- request
 
 // NewCrcPsmReqFromQueryDef returns a new request object for i2b2 psm request.
-func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels []Panel, queryTiming Timing,
+func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, panels []Panel, timing Timing, subQueries []SubQuery, subQueriesConstraint []SubQueryConstraint,
 	resultOutputs []ResultOutputName) CrcPsmReqFromQueryDefMessageBody {
 
 	// PSM header
@@ -29,12 +29,14 @@ func NewCrcPsmReqFromQueryDef(ci ConnectionInfo, queryName string, queryPanels [
 		Type: "crcpsmns:query_definition_requestType",
 		Xsi:  "http://www.w3.org/2001/XMLSchema-instance",
 
-		QueryName:        queryName,
-		QueryID:          queryName,
-		QueryDescription: "Query from GeCo i2b2 data source (" + queryName + ")",
-		QueryTiming:      string(queryTiming),
-		SpecificityScale: "0",
-		Panels:           queryPanels,
+		QueryName:           queryName,
+		QueryID:             queryName,
+		QueryDescription:    "Query from TI Note i2b2 data source (" + queryName + ")",
+		QueryTiming:         string(timing),
+		SpecificityScale:    "0",
+		Panels:              panels,
+		Subqueries:          subQueries,
+		SubqueryConstraints: subQueriesConstraint,
 	}
 
 	// embed result outputs
@@ -78,12 +80,14 @@ type PsmRequestFromQueryDef struct {
 	Type string `xml:"xsi:type,attr"`
 	Xsi  string `xml:"xmlns:xsi,attr"`
 
-	QueryName        string  `xml:"query_definition>query_name"`
-	QueryDescription string  `xml:"query_definition>query_description"`
-	QueryID          string  `xml:"query_definition>query_id"`
-	QueryTiming      string  `xml:"query_definition>query_timing"`
-	SpecificityScale string  `xml:"query_definition>specificity_scale"`
-	Panels           []Panel `xml:"query_definition>panel"`
+	QueryName           string               `xml:"query_definition>query_name"`
+	QueryDescription    string               `xml:"query_definition>query_description"`
+	QueryID             string               `xml:"query_definition>query_id"`
+	QueryTiming         string               `xml:"query_definition>query_timing"`
+	SpecificityScale    string               `xml:"query_definition>specificity_scale"`
+	Panels              []Panel              `xml:"query_definition>panel"`
+	Subqueries          []SubQuery           `xml:"query_definition>subquery"`
+	SubqueryConstraints []SubQueryConstraint `xml:"query_definition>subquery_constraint"`
 
 	ResultOutputs []ResultOutput `xml:"result_output_list>result_output"`
 }
@@ -141,6 +145,39 @@ type ConstrainByValue struct {
 	ValueType       string `xml:"value_type"`
 	ValueOperator   string `xml:"value_operator"`
 	ValueConstraint string `xml:"value_constraint"`
+}
+
+// SubQuery is an i2b2 XML subquery
+type SubQuery struct {
+	QueryType        string  `xml:"query_type"`
+	QueryName        string  `xml:"query_name"`
+	QueryDescription string  `xml:"query_description"`
+	QueryID          string  `xml:"query_id"`
+	QueryTiming      string  `xml:"query_timing"`
+	SpecificityScale string  `xml:"specificity_scale"`
+	Panels           []Panel `xml:"panel"`
+}
+
+// SubQueryConstraint is an i2b2 XML subquery_constraint
+type SubQueryConstraint struct {
+	FirstQuery  SubqueryConstraintOperand `xml:"first_query"`
+	Operator    string                    `xml:"operator"`
+	SecondQuery SubqueryConstraintOperand `xml:"second_query"`
+	Spans       []Span                    `xml:"span,omitempty"`
+}
+
+// Span is an i2b2 XML span
+type Span struct {
+	SpanValue int    `xml:"span_value"`
+	Units     string `xml:"units"`
+	Operator  string `xml:"operator"`
+}
+
+// SubqueryConstraintOperand is a helper structure for SubQueryConstraint
+type SubqueryConstraintOperand struct {
+	QueryID           string `xml:"query_id"`
+	JoinColumn        string `xml:"join_column"`
+	AggregateOperator string `xml:"aggregate_operator"`
 }
 
 // ResultOutput is an i2b2 XML requested result type.

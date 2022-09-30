@@ -94,7 +94,7 @@ func (ds I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQuery
 func (ds I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQueryParameters) (patientCount, patientSetID string, err error) {
 
 	// retrieve patient set IDs for cohort items and replace them in the panels
-	for _, panel := range params.Definition.Panels {
+	for _, panel := range params.Definition.SelectionPanels {
 		for i, cohortItem := range panel.CohortItems {
 			cohort, err := ds.db.GetCohort(userID, cohortItem)
 			if err != nil || cohort == nil {
@@ -105,13 +105,18 @@ func (ds I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQuery
 	}
 
 	// build query
-	panels, timing := params.Definition.ToI2b2APIModel()
+	panels, subQueries, subQueriesConstraints, timing, err := params.Definition.ToI2b2APIModel()
+	if err != nil {
+		return "", "", fmt.Errorf("while converting explore query definition to i2b2 model: %v", err)
+	}
 
 	psmReq := i2b2clientmodels.NewCrcPsmReqFromQueryDef(
 		ds.i2b2Client.Ci,
 		params.ID,
 		panels,
 		timing,
+		subQueries,
+		subQueriesConstraints,
 		[]i2b2clientmodels.ResultOutputName{i2b2clientmodels.ResultOutputPatientSet, i2b2clientmodels.ResultOutputCount},
 	)
 

@@ -17,7 +17,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
@@ -33,7 +33,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/3/",
@@ -49,7 +49,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "2",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
@@ -75,7 +75,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "3",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
@@ -98,7 +98,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
@@ -117,7 +117,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
@@ -146,7 +146,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
@@ -169,7 +169,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/1/",
@@ -206,7 +206,7 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/2/",
@@ -232,7 +232,7 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
-			Panels: []models.Panel{{
+			SelectionPanels: []models.Panel{{
 				Not: false,
 				ConceptItems: []models.ConceptItem{{
 					QueryTerm: "/TEST/test/3/",

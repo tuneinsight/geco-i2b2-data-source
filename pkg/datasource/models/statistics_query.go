@@ -13,12 +13,8 @@ type StatisticsQueryParameters struct {
 	// Pattern: ^[\w:-]+$
 	ID string `json:"ID"`
 
-	// I2B2 Panels defining the analyzed population.
-	Panels []Panel `json:"panels"`
-
-	// query Timing.
-	// Enum: [any samevisit sameinstance]
-	Timing string `json:"timing,omitempty"`
+	// Constraint is the ExploreQueryDefinition defining the analyzed population
+	Constraint ExploreQueryDefinition `json:"constraint"`
 
 	// Analytes contains the concepts used as analytes.
 	Analytes []*ConceptItem `json:"analytes"`
@@ -30,12 +26,16 @@ type StatisticsQueryParameters struct {
 	MinObservations int64 `json:"minObservations"`
 }
 
-// Validate validates StatisticsQueryParameters' fields.
+// Validate validates StatisticsQueryParameters fields.
 func (params *StatisticsQueryParameters) Validate() error {
 
 	params.ID = strings.TrimSpace(params.ID)
 	if params.ID == "" {
 		return fmt.Errorf("empty statistics query ID")
+	}
+
+	if err := params.Constraint.Validate(); err != nil {
+		return fmt.Errorf("while validating constraint of statistics query: %v", err)
 	}
 
 	for _, concept := range params.Analytes {

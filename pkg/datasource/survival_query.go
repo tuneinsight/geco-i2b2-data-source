@@ -71,12 +71,6 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	}
 	logrus.Info("cohort found")
 
-	cohortPanel := models.Panel{
-		Not:         false,
-		Timing:      models.TimingAny,
-		CohortItems: []string{exploreQuery.ID},
-	}
-
 	startConceptPanel := models.Panel{
 		Not:    false,
 		Timing: models.TimingAny,
@@ -126,6 +120,11 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 
 			newEventGroup := &models.EventGroup{GroupID: subGroupDefinition.Name}
 
+			cohortPanel := models.Panel{
+				Not:         false,
+				Timing:      models.TimingAny,
+				CohortItems: []string{exploreQuery.ID},
+			}
 			panels := append(subGroupDefinition.Constraint.SelectionPanels, cohortPanel, startConceptPanel)
 
 			logrus.Infof("survival analysis: I2B2 explore for subgroup %d", i)

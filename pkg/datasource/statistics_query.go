@@ -85,10 +85,10 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 	_, patientCount, patientList, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
 		ID: uuid.New().String(),
 		Definition: models.ExploreQueryDefinition{
-			Timing:            params.Constraint.Timing,
-			SelectionPanels:   append(params.Constraint.SelectionPanels, analytePanel),
-			SequenceOperators: params.Constraint.SequenceOperators,
-			SequentialPanels:  params.Constraint.SelectionPanels,
+			Timing:              params.Constraint.Timing,
+			SelectionPanels:     append(params.Constraint.SelectionPanels, analytePanel),
+			SequentialOperators: params.Constraint.SequentialOperators,
+			SequentialPanels:    params.Constraint.SelectionPanels,
 		},
 	})
 

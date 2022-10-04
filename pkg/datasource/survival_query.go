@@ -132,10 +132,10 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 			_, _, patientList, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
 				ID: uuid.New().String(),
 				Definition: models.ExploreQueryDefinition{
-					Timing:            subGroupDefinition.Constraint.Timing,
-					SelectionPanels:   panels,
-					SequenceOperators: subGroupDefinition.Constraint.SequenceOperators,
-					SequentialPanels:  subGroupDefinition.Constraint.SequentialPanels,
+					Timing:              subGroupDefinition.Constraint.Timing,
+					SelectionPanels:     panels,
+					SequentialOperators: subGroupDefinition.Constraint.SequentialOperators,
+					SequentialPanels:    subGroupDefinition.Constraint.SequentialPanels,
 				},
 			})
 

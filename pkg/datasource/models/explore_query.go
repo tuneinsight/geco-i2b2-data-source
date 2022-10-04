@@ -68,10 +68,10 @@ type ExploreQueryDefinition struct {
 	Timing          string  `json:"timing"` // any | samevisit | sameinstancenum
 	SelectionPanels []Panel `json:"selectionPanels"`
 
-	// SequenceOperators determines the temporal relations between the SequentialPanels.
-	//        The element at position i determines the relation between the panels at position i and i + 1.
-	SequenceOperators []SequentialOperator `json:"sequentialOperators"`
-	SequentialPanels  []Panel              `json:"sequentialPanels"`
+	// SequentialOperators determines the temporal relations between the SequentialPanels.
+	//        The element at position i determines the relation between the panels at positions i and i + 1.
+	SequentialOperators []SequentialOperator `json:"sequentialOperators"`
+	SequentialPanels    []Panel              `json:"sequentialPanels"`
 }
 
 // Validate validates the ExploreQueryDefinition fields
@@ -80,7 +80,7 @@ func (d ExploreQueryDefinition) Validate() error {
 	if nSeqPanels == 1 {
 		return fmt.Errorf("query definition cannot contain only 1 sequential panel")
 	}
-	if nSeqTimings := len(d.SequenceOperators); nSeqPanels > 0 && nSeqTimings != nSeqPanels-1 {
+	if nSeqTimings := len(d.SequentialOperators); nSeqPanels > 0 && nSeqTimings != nSeqPanels-1 {
 		return fmt.Errorf("%d sequential timings for %d sequential panels", nSeqTimings, nSeqPanels)
 	}
 	for _, panel := range d.SequentialPanels {
@@ -110,7 +110,7 @@ type SequentialOperator struct {
 	When                   string `json:"when"`                   // LESS | LESSEQUAL | EQUAL
 	WhichDateSecond        string `json:"whichDateSecond"`        // STARTDATE | ENDDATE
 	WhichObservationSecond string `json:"whichObservationSecond"` // FIRST | LAST | ANY
-	// Spans optionally add a time constraint to When, e.g. it specifies how much before event 1 happened with respect to event 2 (e.g. by 1 and 3 months).
+	// Spans optionally add a time constraint to When, e.g. it specifies the difference between the time of the first panel and the time of the second panel (e.g. by 1 and 3 months).
 	// It contains max 2 elements, the first one being the left endpoint of the time constraint, the second the right one.
 	Spans []Span `json:"spans,omitempty"`
 }
@@ -172,7 +172,7 @@ func (d ExploreQueryDefinition) ToI2b2APIModel() (i2b2ApiPanels []i2b2clientmode
 			i2b2ApiSubqueries = append(i2b2ApiSubqueries, subquery)
 		}
 
-		for i, sequenceOperator := range d.SequenceOperators {
+		for i, sequenceOperator := range d.SequentialOperators {
 			subqueryConstraint := i2b2clientmodels.SubQueryConstraint{
 				Operator: sequenceOperator.When,
 				FirstQuery: i2b2clientmodels.SubqueryConstraintOperand{

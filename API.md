@@ -132,7 +132,7 @@ Retrieve patient IDs from i2b2 based on explore query terms.
 {
   "id": "99999999-9999-9999-9999-999999999999",
   "definition": {
-    "panels": [{
+    "selectionPanels": [{
       "not": false,
       "timing": "any|samevisit|sameinstancenum",
       "cohortItems": ["cohortName0", "cohortName1"],
@@ -147,6 +147,20 @@ Retrieve patient IDs from i2b2 based on explore query terms.
         }
       }]
     }],
+    "sequentialPanels": [{
+    }],
+    "sequentialOperators": [{
+      "whichDateFirst":          "STARTDATE|ENDDATE",
+      "whichObservationFirst":   "FIRST|LAST|ANY",
+      "when":                    "LESS|LESSEQUAL|EQUAL",
+      "whichDateSecond":         "STARTDATE|ENDDATE",
+      "whichObservationSecond":  "FIRST|LAST|ANY",
+      "spans": [{
+        "value": 5,
+        "units": "HOUR|DAY|MONTH|YEAR",
+        "operator": "LESS|LESSEQUAL|EQUAL|GREATEREQUAL|GREATER"
+      }]
+    }],
     "timing": "any|samevisit|sameinstancenum"
   }
 }
@@ -154,7 +168,7 @@ Retrieve patient IDs from i2b2 based on explore query terms.
 
 - `id`: ID of the query, must be an UUID
 - `definition`: definition of the explore query
-  - `panels`: panels of the explore query (linked together by an AND)
+  - `selectionPanels`: panels of the explore query (linked together by an AND)
     - `not`: true if the panel is inverted
     - `timing`: timing of the panel
       - `any`: no constrain (default)
@@ -187,6 +201,44 @@ Retrieve patient IDs from i2b2 based on explore query terms.
     - `any`: no constrain (default)
     - `samevisit`: constrain to the same visit
     - `sameinstancenum`: constrain to the same instance number
+  - `sequentialPanels`: sequential panels of the explore query (linked together by a temporal operator, and with the `selectionPanels` by an AND)
+  - `sequentialOperators`: operators determining the temporal relations between the `sequentialPanels`. The element at position `i` determines the relation between the panels at positions `i` and `i + 1`.  
+    The observations identified by the first panel occur before the observations identified by the second panel if  
+    the `whichDateFirst` of the `whichObservationFirst` observation in the first panel  
+    occurs `when` [by `spans[0]` [and `spans[1]`]] than  
+    the `whichDateSecond` of the `whichObservationSecond` observation in the second panel
+    - `whichDateFirst`: the date to be considered to determine the time of the first panel
+      - `STARTDATE`: the start date of the observation
+      - `ENDDATE`: the end date of the observation
+    - `whichObservationFirst`: the observation to be considered to determine the time of the first panel
+      - `FIRST`: the first observation
+      - `LAST`: the last observation
+      - `ANY`: any observation
+    - `when`: the relation between the time of the first panel and the time of the second panel
+      - `LESS`: before
+      - `LESSEQUAL`: before or at the same time
+      - `EQUAL`: at the same time
+    - `whichDateSecond`: the date to be considered to determine the time of the second panel
+      - `STARTDATE`: the start date of the observation
+      - `ENDDATE`: the end date of the observation
+    - `whichObservationSecond`: the observation to be considered to determine the time of the second panel
+      - `FIRST`: the first observation
+      - `LAST`: the last observation
+      - `ANY`: any observation
+    - `spans`: optionally add a time constraint to `when`, e.g. it specifies the difference between the time of the first panel and the time of the second panel (e.g. by 1 and 3 months).  
+    It contains max 2 elements, the first one being the left endpoint of the time constraint, the second the right one.
+      - `value`: numeric value of one of the endpoint of the time constraint
+      - `units`: the units of the time constraint
+        -  `HOUR`
+        -  `DAY`
+        -  `MONTH`
+        -  `YEAR`
+      - `operator`:
+        -  `LESS`
+        -  `LESSEQUAL`
+        -  `EQUAL`
+        -  `GREATEREQUAL`
+        -  `GREATER`
 
 ## Output Data Objects Shared IDs
 - `count`: integer containing the count of patients

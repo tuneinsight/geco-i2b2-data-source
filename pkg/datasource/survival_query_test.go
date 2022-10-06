@@ -118,4 +118,93 @@ func TestSurvivalQuery(t *testing.T) {
 
 	})
 
+	t.Run("Survival_analysis_sequence_of_events", func(t *testing.T) {
+
+		params.TimeGranularity = "week"
+		params.SubGroupsDefinitions = []*models.SubGroupDefinition{
+			{
+				Name: "All",
+				Constraint: models.ExploreQueryDefinition{
+					Timing: models.TimingAny,
+					SequentialPanels: []models.Panel{
+						{
+							Not:    false,
+							Timing: "any",
+							ConceptItems: []models.ConceptItem{
+								{
+									QueryTerm: "/SPHN/SPHNv2020.1/FophDiagnosis/",
+								},
+							},
+						},
+						{
+							Not:    false,
+							Timing: "any",
+							ConceptItems: []models.ConceptItem{
+								{
+									QueryTerm: "/SPHN/SPHNv2020.1/DeathStatus/",
+									Modifier: struct {
+										Key         string `json:"key"`
+										AppliedPath string `json:"appliedPath"`
+									}{
+										Key:         "/SPHN/DeathStatus-status/death/",
+										AppliedPath: "/SPHNv2020.1/DeathStatus/",
+									},
+								},
+							},
+						},
+					},
+					SequentialOperators: []models.SequentialOperator{
+						{
+							// using default values
+						},
+					},
+				},
+			},
+			{
+				Name: "None",
+				Constraint: models.ExploreQueryDefinition{
+					Timing: models.TimingAny,
+					SequentialPanels: []models.Panel{
+						{
+							Not:    false,
+							Timing: "any",
+							ConceptItems: []models.ConceptItem{
+								{
+									QueryTerm: "/SPHN/SPHNv2020.1/DeathStatus/",
+									Modifier: struct {
+										Key         string `json:"key"`
+										AppliedPath string `json:"appliedPath"`
+									}{
+										Key:         "/SPHN/DeathStatus-status/death/",
+										AppliedPath: "/SPHNv2020.1/DeathStatus/",
+									},
+								},
+							},
+						},
+						{
+							Not:    false,
+							Timing: "any",
+							ConceptItems: []models.ConceptItem{
+								{
+									QueryTerm: "/SPHN/SPHNv2020.1/FophDiagnosis/",
+								},
+							},
+						},
+					},
+					SequentialOperators: []models.SequentialOperator{
+						{
+							// using default values
+						},
+					},
+				},
+			},
+		}
+
+		survivalQueryResult, err := ds.SurvivalQuery("testuser1", params)
+		logrus.Infof("survivalQueryResult = %v", survivalQueryResult)
+		require.NoError(t, err)
+		require.Equal(t, survivalQueryResult, []int64{165, 0, 0, 1, 0, 6, 0, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+
+	})
+
 }

@@ -208,21 +208,21 @@ Retrieve patient IDs from i2b2 based on explore query terms.
     occurs `when` [by `spans[0]` [and `spans[1]`]] than  
     the `whichDateSecond` of the `whichObservationSecond` observation in the second panel
     - `whichDateFirst`: the date to be considered to determine the time of the first panel
-      - `STARTDATE`: the start date of the observation
+      - `STARTDATE`: the start date of the observation (default)
       - `ENDDATE`: the end date of the observation
     - `whichObservationFirst`: the observation to be considered to determine the time of the first panel
-      - `FIRST`: the first observation
+      - `FIRST`: the first observation (default)
       - `LAST`: the last observation
       - `ANY`: any observation
     - `when`: the relation between the time of the first panel and the time of the second panel
-      - `LESS`: before
+      - `LESS`: before (default)
       - `LESSEQUAL`: before or at the same time
       - `EQUAL`: at the same time
     - `whichDateSecond`: the date to be considered to determine the time of the second panel
-      - `STARTDATE`: the start date of the observation
+      - `STARTDATE`: the start date of the observation (default)
       - `ENDDATE`: the end date of the observation
     - `whichObservationSecond`: the observation to be considered to determine the time of the second panel
-      - `FIRST`: the first observation
+      - `FIRST`: the first observation (default)
       - `LAST`: the last observation
       - `ANY`: any observation
     - `spans`: optionally add a time constraint to `when`, e.g. it specifies the difference between the time of the first panel and the time of the second panel (e.g. by 1 and 3 months).  
@@ -349,12 +349,9 @@ Run survival query.
   "subGroupsDefinitions": [
     {
       "name": "xxxx",
-      "timing": "any|samevisit|sameinstance",
-      "panels": [
-        {
-          
-        }
-      ]
+      "constraint": {
+        
+      }
     }
   ]
 }
@@ -371,8 +368,7 @@ Run survival query.
 - `timeLimit`: time limit (how many bins) to consider for the survival query
 - `subGroupsDefinitions`: subgroups definitions
   - `name`: name of the subgroup
-  - `timing`: timing of the subgroup
-  - `panels`: panels defining the subgroup, as defined in exploreQuery
+  - `constraint`: `definition` as defined in exploreQuery parameters
 
 ## Output Data Objects Shared IDs
 - `survivalQueryResult`: vector of integers containing the flattened event groups
@@ -390,10 +386,9 @@ Run statistics query.
 ```json
 {
   "id": "99999999-9999-9999-9999-999999999999",
-  "panels": [
+  "constraint": [
     
   ],
-  "timing": "any|samevisit|sameinstancenum",
   "analytes": [
     
   ],
@@ -403,8 +398,7 @@ Run statistics query.
 ```
 
 - `id`: ID of the statistics query, must be an UUID
-- `panels`: array of panels (see "exploreQuery") defining the analyzed population
-- `timing`: `panels`' timing (see "exploreQuery)
+- `constraint`: `definition` as defined in exploreQuery parameters
 - `analytes`: the concepts (see `conceptItems` in "exploreQuery") used as analytes of the statistics query
 - `bucketSize`: bucket size for each analyte (float64)
 - `minObservations`: the total minimal number of observations for each analyte.

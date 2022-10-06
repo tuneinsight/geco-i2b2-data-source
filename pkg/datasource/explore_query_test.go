@@ -2,8 +2,10 @@ package datasource
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
@@ -279,7 +281,7 @@ func TestExploreQueryDatabase(t *testing.T) {
 	countSharedID := "44444444-7777-8888-4444-444444444444"
 	patientListSharedID := "44444444-7777-4444-7121-444444444444"
 
-	params := fmt.Sprintf(`{"id": "%v", "definition": {"panels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`, queryID)
+	params := fmt.Sprintf(`{"id": "%v", "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`, queryID)
 	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{
 		outputNameExploreQueryCount:       gecomodels.DataObjectSharedID(countSharedID),
 		outputNameExploreQueryPatientList: gecomodels.DataObjectSharedID(patientListSharedID),
@@ -292,4 +294,82 @@ func TestExploreQueryDatabase(t *testing.T) {
 	require.EqualValues(t, "success", query.Status)
 	require.EqualValues(t, countSharedID, query.ResultGecoSharedIDCount.String)
 	require.EqualValues(t, patientListSharedID, query.ResultGecoSharedIDPatientList.String)
+}
+
+func TestExploreQueryWithSequence(t *testing.T) {
+
+	ds := getDataSource(t)
+	defer dataSourceCleanUp(t, ds)
+
+	patientSetID, patientCount, _, err := ds.ExploreQuery(
+		"testUser",
+		&models.ExploreQueryParameters{
+			ID: "",
+			Definition: models.ExploreQueryDefinition{
+				Timing: models.TimingAny,
+				SelectionPanels: []models.Panel{
+					{ConceptItems: []models.ConceptItem{
+						{
+							QueryTerm: "/TEST/test/1/",
+						},
+					},
+						Not: false,
+					}},
+				SequentialPanels: []models.Panel{
+					{ConceptItems: []models.ConceptItem{
+						{
+							QueryTerm: "/TEST/test/1/",
+						},
+					},
+						Not: false,
+					},
+					{ConceptItems: []models.ConceptItem{
+						{
+							QueryTerm: "/TEST/test/2/",
+						},
+					},
+						Not: false,
+					}},
+				SequentialOperators: []models.SequentialOperator{
+					{
+						When:                   models.SequentialOperatorWhenLess,
+						WhichDateFirst:         models.SequentialOperatorWhichDateStart,
+						WhichDateSecond:        models.SequentialOperatorWhichDateStart,
+						WhichObservationFirst:  models.SequentialOperatorWhichObservationFirst,
+						WhichObservationSecond: models.SequentialOperatorWhichObservationFirst,
+					}},
+			},
+		})
+
+	assert.NoError(t, err)
+	t.Log("count:"+strconv.FormatInt(patientCount, 10), "set ID:"+strconv.FormatInt(patientSetID, 10))
+
+	// not a correct number of sequence panels for the number of sequence operators
+	patientCount, patientSetID, _, err = ds.ExploreQuery(
+		"testUser",
+		&models.ExploreQueryParameters{
+			ID: "",
+			Definition: models.ExploreQueryDefinition{
+				Timing: models.TimingAny,
+				SequentialPanels: []models.Panel{
+					{ConceptItems: []models.ConceptItem{
+						{
+							QueryTerm: "/TEST/test/1/",
+						},
+					},
+						Not: false,
+					}},
+				SequentialOperators: []models.SequentialOperator{
+					{
+						When:                   models.SequentialOperatorWhenLess,
+						WhichDateFirst:         models.SequentialOperatorWhichDateStart,
+						WhichDateSecond:        models.SequentialOperatorWhichDateStart,
+						WhichObservationFirst:  models.SequentialOperatorWhichObservationFirst,
+						WhichObservationSecond: models.SequentialOperatorWhichObservationFirst,
+					}},
+			},
+		})
+
+	assert.Error(t, err)
+	t.Log("count:"+strconv.FormatInt(patientCount, 10), "set ID:"+strconv.FormatInt(patientSetID, 10))
 }

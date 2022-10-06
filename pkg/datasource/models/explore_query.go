@@ -115,6 +115,24 @@ type SequentialOperator struct {
 	Spans []Span `json:"spans,omitempty"`
 }
 
+func (so *SequentialOperator) defaultValues() {
+	if so.WhichDateFirst == "" {
+		so.WhichDateFirst = SequentialOperatorWhichDateStart
+	}
+	if so.WhichObservationFirst == "" {
+		so.WhichObservationFirst = SequentialOperatorWhichObservationFirst
+	}
+	if so.When == "" {
+		so.When = SequentialOperatorWhenLess
+	}
+	if so.WhichDateSecond == "" {
+		so.WhichDateSecond = SequentialOperatorWhichDateStart
+	}
+	if so.WhichObservationSecond == "" {
+		so.WhichObservationSecond = SequentialOperatorWhichObservationFirst
+	}
+}
+
 // Span contains the info defining one of the two endpoints of a time range.
 type Span struct {
 	Value    int    `json:"value"`
@@ -172,22 +190,23 @@ func (d ExploreQueryDefinition) ToI2b2APIModel() (i2b2ApiPanels []i2b2clientmode
 			i2b2ApiSubqueries = append(i2b2ApiSubqueries, subquery)
 		}
 
-		for i, sequenceOperator := range d.SequentialOperators {
+		for i, sequentialOperator := range d.SequentialOperators {
+			sequentialOperator.defaultValues()
 			subqueryConstraint := i2b2clientmodels.SubQueryConstraint{
-				Operator: sequenceOperator.When,
+				Operator: sequentialOperator.When,
 				FirstQuery: i2b2clientmodels.SubqueryConstraintOperand{
 					QueryID:           i2b2ApiSubqueries[i].QueryID,
-					AggregateOperator: sequenceOperator.WhichObservationFirst,
-					JoinColumn:        sequenceOperator.WhichDateFirst,
+					AggregateOperator: sequentialOperator.WhichObservationFirst,
+					JoinColumn:        sequentialOperator.WhichDateFirst,
 				},
 				SecondQuery: i2b2clientmodels.SubqueryConstraintOperand{
 					QueryID:           i2b2ApiSubqueries[i+1].QueryID,
-					AggregateOperator: sequenceOperator.WhichObservationSecond,
-					JoinColumn:        sequenceOperator.WhichDateSecond,
+					AggregateOperator: sequentialOperator.WhichObservationSecond,
+					JoinColumn:        sequentialOperator.WhichDateSecond,
 				},
 			}
 
-			for _, span := range sequenceOperator.Spans {
+			for _, span := range sequentialOperator.Spans {
 				span := i2b2clientmodels.Span{
 					SpanValue: span.Value,
 					Units:     span.Units,

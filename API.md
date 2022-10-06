@@ -201,7 +201,7 @@ Retrieve patient IDs from i2b2 based on explore query terms.
     - `any`: no constrain (default)
     - `samevisit`: constrain to the same visit
     - `sameinstancenum`: constrain to the same instance number
-  - `sequentialPanels`: sequential panels of the explore query (linked together by a temporal operator, and with the `selectionPanels` by an AND)
+  - `sequentialPanels`: sequential panels of the explore query (linked together by a sequential operator, and with the `selectionPanels` by an AND)
   - `sequentialOperators`: operators determining the temporal relations between the `sequentialPanels`. The element at position `i` determines the relation between the panels at positions `i` and `i + 1`.  
     The observations identified by the first panel occur before the observations identified by the second panel if  
     the `whichDateFirst` of the `whichObservationFirst` observation in the first panel  

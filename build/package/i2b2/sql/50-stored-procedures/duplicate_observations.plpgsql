@@ -1,0 +1,37 @@
+-- this function duplicates the rows contained in the observation_fact table, adding also the respective patients.
+-- from x observations, it produces x * 2^n observations.
+
+CREATE OR REPLACE FUNCTION i2b2demodata.duplicate_observations(n integer DEFAULT 1) RETURNS VOID
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL SAFE
+AS $BODY$
+DECLARE
+	  obs_row i2b2demodata.observation_fact;
+      new_obs_row i2b2demodata.observation_fact;
+      new_pat_row i2b2demodata.patient_dimension;
+	  start_text_search_index int;
+	  max_patient_num int;
+	  i int;
+BEGIN
+	FOR i IN 1..n
+	LOOP
+		start_text_search_index := (SELECT MAX (text_search_index) + 1 FROM i2b2demodata.observation_fact);
+		max_patient_num := (SELECT MAX (patient_num) + 1 FROM i2b2demodata.patient_dimension);
+		FOR obs_row in SELECT * FROM i2b2demodata.observation_fact
+		LOOP
+			new_obs_row := obs_row;
+			new_obs_row.patient_num := obs_row.patient_num + max_patient_num;
+			new_obs_row.text_search_index := start_text_search_index;
+			start_text_search_index := start_text_search_index + 1;
+
+			IF NOT EXISTS(SELECT * FROM i2b2demodata.patient_dimension WHERE patient_num = new_obs_row.patient_num) THEN
+				SELECT INTO new_pat_row * FROM i2b2demodata.patient_dimension WHERE patient_num = obs_row.patient_num LIMIT 1;
+				new_pat_row.patient_num := new_obs_row.patient_num;
+				INSERT INTO i2b2demodata.patient_dimension VALUES (new_pat_row.*);
+			END IF;
+			INSERT INTO i2b2demodata.observation_fact VALUES (new_obs_row.*);
+		END LOOP;
+	END LOOP;
+END;
+$BODY$

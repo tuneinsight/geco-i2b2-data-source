@@ -34,13 +34,13 @@ const (
 	// SequentialOperatorWhenEqual captures enum value "EQUAL"
 	SequentialOperatorWhenEqual = "EQUAL"
 
-	// SpanUnitHour captues enum value "HOUR"
+	// SpanUnitHour captures enum value "HOUR"
 	SpanUnitHour = "HOUR"
-	// SpanUnitDay captues enum value "DAY"
+	// SpanUnitDay captures enum value "DAY"
 	SpanUnitDay = "DAY"
-	// SpanUnitMonth captues enum value "MONTH"
+	// SpanUnitMonth captures enum value "MONTH"
 	SpanUnitMonth = "MONTH"
-	// SpanUnitYear captues enum value "YEAR"
+	// SpanUnitYear captures enum value "YEAR"
 	SpanUnitYear = "YEAR"
 
 	// SpanOperatorLess captures enum value "LESS"
@@ -100,10 +100,11 @@ type Panel struct {
 }
 
 // SequentialOperator contains the info according to which the temporal relation between two panels is determined.
-//    The observations identified by the first panel occur before the observations identified by the second panel if
-//    the {WhichDateFirst} of the {WhichObservationFirst} observation in the first panel
-//    occurs {When} [by {Spans[0]} [and {Spans[1]}]] than
-//    the {WhichDateSecond} of the {WhichObservationSecond} observation in the second panel.
+//
+//	The observations identified by the first panel occur before the observations identified by the second panel if
+//	the {WhichDateFirst} of the {WhichObservationFirst} observation in the first panel
+//	occurs {When} [by {Spans[0]} [and {Spans[1]}]] than
+//	the {WhichDateSecond} of the {WhichObservationSecond} observation in the second panel.
 type SequentialOperator struct {
 	WhichDateFirst         string `json:"whichDateFirst"`         // STARTDATE | ENDDATE
 	WhichObservationFirst  string `json:"whichObservationFirst"`  // FIRST | LAST | ANY

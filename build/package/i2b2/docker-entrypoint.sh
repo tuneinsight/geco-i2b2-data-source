@@ -40,4 +40,9 @@ fi
 for f in "$PRE_INIT_SCRIPT_DIR"/*.sh; do
     bash "$f"
 done
+
+if [ -n "${I2B2_RAM_MB}" ]; then
+  sed -i "s/Xmx2048m/Xmx${I2B2_RAM_MB}m/g" "$JBOSS_HOME"/bin/standalone.conf
+fi
+
 exec /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0

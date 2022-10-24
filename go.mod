@@ -9,7 +9,7 @@ require (
 	github.com/lib/pq v1.10.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.1
-	github.com/tuneinsight/sdk-datasource v0.0.0-20220726113729-11cbe88f7614
+	github.com/tuneinsight/sdk-datasource v0.0.0-20221006195937-351e396e8de0
 )
 
 require (

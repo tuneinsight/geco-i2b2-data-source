@@ -93,6 +93,7 @@ RUN rm -rf /opt/jboss/wildfly/docs
 ENV I2B2_DATA_ARCHIVE="$JBOSS_HOME/standalone/data/i2b2-data.tar.gz" \
     I2B2_FR_FILES_DIR="$JBOSS_HOME/standalone/data/i2b2_FR_files" \
     I2B2_PASSWORD_HASH_TOOL="$JBOSS_HOME/standalone/data/I2b2PasswordHash" \
+    I2B2_RAM_MB=${I2B2_RAM_MB} \
     SRC_DIR=/src
 
 ENV I2B2_DB_HOST="postgresql" \

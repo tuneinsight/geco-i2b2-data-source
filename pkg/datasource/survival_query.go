@@ -71,12 +71,6 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	}
 	logrus.Info("cohort found")
 
-	cohortPanel := models.Panel{
-		Not:         false,
-		Timing:      models.TimingAny,
-		CohortItems: []string{exploreQuery.ID},
-	}
-
 	startConceptPanel := models.Panel{
 		Not:    false,
 		Timing: models.TimingAny,
@@ -99,8 +93,10 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	if subGroupsDefinitions == nil || len(subGroupsDefinitions) == 0 {
 		subGroupsDefinitions = []*models.SubGroupDefinition{
 			{
-				Name:   "Full cohort",
-				Timing: models.TimingAny,
+				Name: "Full cohort",
+				Constraint: models.ExploreQueryDefinition{
+					Timing: models.TimingAny,
+				},
 			},
 		}
 	} else if len(subGroupsDefinitions) > 4 {
@@ -124,15 +120,22 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 
 			newEventGroup := &models.EventGroup{GroupID: subGroupDefinition.Name}
 
-			panels := append(subGroupDefinition.Panels, cohortPanel, startConceptPanel)
+			cohortPanel := models.Panel{
+				Not:         false,
+				Timing:      models.TimingAny,
+				CohortItems: []string{exploreQuery.ID},
+			}
+			panels := append(subGroupDefinition.Constraint.SelectionPanels, cohortPanel, startConceptPanel)
 
 			logrus.Infof("survival analysis: I2B2 explore for subgroup %d", i)
 			logrus.Tracef("survival analysis: panels %+v", panels)
 			_, _, patientList, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
 				ID: uuid.New().String(),
 				Definition: models.ExploreQueryDefinition{
-					Timing: subGroupDefinition.Timing,
-					Panels: panels,
+					Timing:              subGroupDefinition.Constraint.Timing,
+					SelectionPanels:     panels,
+					SequentialOperators: subGroupDefinition.Constraint.SequentialOperators,
+					SequentialPanels:    subGroupDefinition.Constraint.SequentialPanels,
 				},
 			})
 

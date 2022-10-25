@@ -86,15 +86,13 @@ type SurvivalQueryModifier struct {
 type SubGroupDefinition struct {
 
 	// group name
+	// Required: true
 	// Pattern: ^\w+$
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 
-	// panels
-	Panels []Panel `json:"panels"`
-
-	// sub group timing
-	// Enum: [any samevisit sameinstance]
-	Timing string `json:"timing,omitempty"`
+	// explore query identifying the subgroup
+	// Required: true
+	Constraint ExploreQueryDefinition `json:"constraint"`
 }
 
 // Validate validates SurvivalQueryParameters' fields.

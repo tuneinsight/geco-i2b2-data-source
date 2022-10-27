@@ -225,39 +225,16 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 	}
 
 	waitGroup := &sync.WaitGroup{}
-	waitGroup.Add(len(concepts) + modifiersNumber)
-	logrus.Debugf("total number of ontology elements: %d", len(concepts)+modifiersNumber)
+	waitGroup.Add(len(concepts))
+	logrus.Debugf("total number of ontology elements: %d", len(concepts))
 	signal := make(chan struct{})
-	conceptsChannels := make([]chan *models.SearchResultElement, len(concepts))
+	conceptsChannels := make([]chan *models.SearchResultElement, len(concepts)-modifiersNumber)
 	modifiersChannels := make([]chan *models.SearchResultElement, modifiersNumber)
 	errChan := make(chan error)
 
 	currentModifiersChannel := 0
-	for i, concept := range concepts {
-
-		conceptsChannels[i] = make(chan *models.SearchResultElement, 1)
-
-		go func(conceptPath string, index int) {
-			defer waitGroup.Done()
-
-			//fetch the code and name of the concept
-			conceptInfo, err := ds.SearchConcept(&models.SearchConceptParameters{
-				Path:      conceptPath,
-				Operation: models.SearchInfoOperation,
-			})
-			if err != nil {
-				errChan <- fmt.Errorf("while retrieving code for concept %s: %v", conceptPath, err)
-				return
-			} else if len(conceptInfo.SearchResultElements) > 1 {
-				errMsg := fmt.Sprintf("while retrieving concept code, got too many concepts for path %s:", conceptPath)
-				for _, searchResultElement := range conceptInfo.SearchResultElements {
-					errMsg = fmt.Sprintf("%s %s,", err, searchResultElement.Path)
-				}
-				errChan <- fmt.Errorf("%v", strings.TrimSuffix(errMsg, ","))
-			}
-			logrus.Debugf("got concept code for concept %s: %s ", conceptInfo.SearchResultElements[0].Name, conceptInfo.SearchResultElements[0].Code)
-			conceptsChannels[index] <- conceptInfo.SearchResultElements[0]
-		}(concept.QueryTerm, i)
+	currentConceptsChannel := 0
+	for _, concept := range concepts {
 
 		if concept.Modifier.Key != "" {
 
@@ -290,6 +267,32 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 			}(concept.Modifier.Key, concept.Modifier.AppliedPath, currentModifiersChannel)
 
 			currentModifiersChannel++
+		} else {
+			conceptsChannels[currentConceptsChannel] = make(chan *models.SearchResultElement, 1)
+
+			go func(conceptPath string, index int) {
+				defer waitGroup.Done()
+
+				//fetch the code and name of the concept
+				conceptInfo, err := ds.SearchConcept(&models.SearchConceptParameters{
+					Path:      conceptPath,
+					Operation: models.SearchInfoOperation,
+				})
+				if err != nil {
+					errChan <- fmt.Errorf("while retrieving code for concept %s: %v", conceptPath, err)
+					return
+				} else if len(conceptInfo.SearchResultElements) > 1 {
+					errMsg := fmt.Sprintf("while retrieving concept code, got too many concepts for path %s:", conceptPath)
+					for _, searchResultElement := range conceptInfo.SearchResultElements {
+						errMsg = fmt.Sprintf("%s %s,", err, searchResultElement.Path)
+					}
+					errChan <- fmt.Errorf("%v", strings.TrimSuffix(errMsg, ","))
+				}
+				logrus.Debugf("got concept code for concept %s: %s ", conceptInfo.SearchResultElements[0].Name, conceptInfo.SearchResultElements[0].Code)
+				conceptsChannels[index] <- conceptInfo.SearchResultElements[0]
+			}(concept.QueryTerm, currentConceptsChannel)
+
+			currentConceptsChannel++
 		}
 	}
 

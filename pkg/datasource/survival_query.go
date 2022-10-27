@@ -28,7 +28,7 @@ func (ds I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []by
 
 	decodedParams := &models.SurvivalQueryParameters{}
 	if outputDataObjectsSharedIDs[outputNameSurvivalQueryResult] == "" {
-		return nil, nil, fmt.Errorf("missing output data object name")
+		return nil, nil, fmt.Errorf("missing output data object name for survival query result")
 	} else if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
 	}

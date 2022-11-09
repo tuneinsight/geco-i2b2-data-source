@@ -55,6 +55,7 @@ func (ds I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []byt
 		{
 			OutputName: outputNameExploreQueryCount,
 			SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryCount],
+			Columns:    []string{"count"},
 			IntValue:   &count,
 		}, {
 			OutputName: outputNameExploreQueryPatientList,

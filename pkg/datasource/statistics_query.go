@@ -42,9 +42,12 @@ func (ds I2b2DataSource) StatisticsQueryHandler(
 		valueVector := []int64{}
 		columns := []string{}
 
-		for _, bucket := range statResult.Buckets {
+		// these are needed to correctly sort the columns during the aggregation
+		labels := generateColumnsLabels(len(statResult.Buckets))
+
+		for i, bucket := range statResult.Buckets {
 			valueVector = append(valueVector, bucket.Count)
-			columns = append(columns, "["+fmt.Sprintf("%f", bucket.LowerBound)+", "+fmt.Sprintf("%f", bucket.HigherBound)+"]")
+			columns = append(columns, "[\""+labels[i]+"\", "+fmt.Sprintf("%f", bucket.LowerBound)+", "+fmt.Sprintf("%f", bucket.HigherBound)+"]")
 		}
 		values = append(values, valueVector)
 

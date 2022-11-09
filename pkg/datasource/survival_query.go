@@ -43,6 +43,7 @@ func (ds I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []by
 			{
 				OutputName: outputNameSurvivalQueryResult,
 				SharedID:   outputDataObjectsSharedIDs[outputNameSurvivalQueryResult],
+				Columns:    generateColumnsLabels(len(survivalQueryResult)),
 				IntVector:  survivalQueryResult,
 			},
 		}

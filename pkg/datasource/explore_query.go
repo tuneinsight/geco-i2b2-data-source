@@ -10,6 +10,8 @@ import (
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // Names of output data objects.
@@ -19,7 +21,10 @@ const (
 )
 
 // ExploreQueryHandler is the OperationHandler for the OperationExploreQuery Operation.
-func (ds I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "ExploreQueryHandler", trace.WithNewRoot())
+	defer span.End()
 
 	// parse parameters
 	decodedParams := &models.ExploreQueryParameters{}
@@ -67,7 +72,10 @@ func (ds I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []byt
 }
 
 // ExploreQuery makes an explore query, i.e. two i2b2 CRC queries, a PSM and a PDO query.
-func (ds I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQueryParameters) (patientSetID int64, patientCount int64, patientList []int64, err error) {
+func (ds *I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQueryParameters) (patientSetID int64, patientCount int64, patientList []int64, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "ExploreQuery")
+	defer span.End()
 
 	if i2b2PatientCount, i2b2PatientSetID, err := ds.doCrcPsmQuery(userID, *params); err != nil {
 		return -1, -1, nil, err
@@ -92,7 +100,10 @@ func (ds I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQuery
 }
 
 // doCrcPsmQuery requests a PSM query to the i2b2 CRC and parse its results.
-func (ds I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQueryParameters) (patientCount, patientSetID string, err error) {
+func (ds *I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQueryParameters) (patientCount, patientSetID string, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "doCrcPsmQuery")
+	defer span.End()
 
 	// retrieve patient set IDs for cohort items and replace them in the panels
 	for _, panel := range params.Definition.SelectionPanels {
@@ -121,12 +132,13 @@ func (ds I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQuery
 		[]i2b2clientmodels.ResultOutputName{i2b2clientmodels.ResultOutputPatientSet, i2b2clientmodels.ResultOutputCount},
 	)
 
-	// request query
 	var psmResp *i2b2clientmodels.CrcPsmRespMessageBody
 	if psmResp, err = ds.i2b2Client.CrcPsmReqFromQueryDef(&psmReq); err != nil {
 		return "", "", fmt.Errorf("requesting PSM query: %v", err)
 	}
 
+	subSpan := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "doCrcPsmQuery:extractResult")
+	defer subSpan.End()
 	// extract results from result instances
 	for i, qri := range psmResp.Response.QueryResultInstances {
 
@@ -161,9 +173,14 @@ func (ds I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQuery
 }
 
 // getPatientIDs retrieves the list of patient IDs from the i2b2 CRC using a patient set ID.
-func (ds I2b2DataSource) getPatientIDs(patientSetID string) (patientIDs []string, err error) {
+func (ds *I2b2DataSource) getPatientIDs(patientSetID string) (patientIDs []string, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "getPatientIDs")
+	defer span.End()
+
 	pdoReq := i2b2clientmodels.NewCrcPdoReqFromInputList(patientSetID)
 	var pdoResp *i2b2clientmodels.CrcPdoRespMessageBody
+
 	if pdoResp, err = ds.i2b2Client.CrcPdoReqFromInputList(&pdoReq); err != nil {
 		return nil, fmt.Errorf("requesting PDO query: %v", err)
 	}

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
@@ -11,10 +12,12 @@ import (
 )
 
 // NewPostgresDatabase initializes a connection to a postgres database, and loads its structure if not present.
-func NewPostgresDatabase(logger logrus.FieldLogger, config PostgresDatabaseConfig, dbHandle *sql.DB) (db *PostgresDatabase, err error) {
+func NewPostgresDatabase(ctx *context.Context, logger logrus.FieldLogger, config PostgresDatabaseConfig, dbHandle *sql.DB) (db *PostgresDatabase, err error) {
+
 	db = &PostgresDatabase{
 		logger: logger,
 		handle: dbHandle,
+		Ctx:    ctx,
 	}
 	db.PostgresDatabaseConfig = config
 
@@ -27,6 +30,7 @@ type PostgresDatabase struct {
 	logger logrus.FieldLogger
 
 	handle *sql.DB
+	Ctx    *context.Context // For telemetry
 }
 
 // PostgresDatabaseConfig is the config used to connect to the postgres database

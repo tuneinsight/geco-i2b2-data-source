@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -11,6 +12,7 @@ import (
 	i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
 	sdkmodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
 )
 
 // compile-time check that I2b2DataSource implements the interface sdk.DataSource.
@@ -77,6 +79,16 @@ type i2b2Config struct {
 	WaitTime time.Duration
 	// OntMaxElements contains the maximum number of ontology elements returned by a request.
 	OntMaxElements string
+}
+
+// SetContext sets a context of the data source
+func (ds *I2b2DataSource) SetContext(ctx *context.Context) {
+	ds.Ctx = ctx
+}
+
+// GetContext return of context of the data source
+func (ds *I2b2DataSource) GetContext() *context.Context {
+	return ds.Ctx
 }
 
 // MarshalBinary marshals the i2b2 config.
@@ -155,13 +167,15 @@ func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]in
 		return ds.logError("retrieving database", err)
 	}
 	// initialize database connection
-	ds.db, err = database.NewPostgresDatabase(ds.logger, *ds.dbConfig, db.DB)
+	ds.db, err = database.NewPostgresDatabase(ds.Ctx, ds.logger, *ds.dbConfig, db.DB)
 	if err != nil {
 		return ds.logError("initializing database connection", err)
 	}
 
+	newCtx := *ds.Ctx
 	// initialize i2b2 client
 	ds.i2b2Client = i2b2client.Client{
+		Ctx:    newCtx,
 		Logger: ds.logger,
 		Ci: i2b2clientmodels.ConnectionInfo{
 			HiveURL:  ds.i2b2Config.URL,
@@ -191,13 +205,15 @@ func (ds *I2b2DataSource) ConfigFromDB(logger logrus.FieldLogger) (err error) {
 		return ds.logError("retrieving database", err)
 	}
 	// initialize database connection
-	ds.db, err = database.NewPostgresDatabase(ds.logger, *ds.dbConfig, db.DB)
+	ds.db, err = database.NewPostgresDatabase(ds.Ctx, ds.logger, *ds.dbConfig, db.DB)
 	if err != nil {
 		return ds.logError("initializing database connection", err)
 	}
 
+	newCtx := *ds.Ctx
 	// initialize i2b2 client
 	ds.i2b2Client = i2b2client.Client{
+		Ctx:    newCtx,
 		Logger: ds.logger,
 		Ci: i2b2clientmodels.ConnectionInfo{
 			HiveURL:  ds.i2b2Config.URL,
@@ -226,6 +242,9 @@ func (ds *I2b2DataSource) GetDataSourceCustomData() map[string]interface{} {
 func (ds *I2b2DataSource) Query(userID string, operation string, jsonParameters []byte, outputDataObjectsSharedIDs map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []sdk.DataObject, err error) {
 	ds.logger.Infof("executing operation %v for user %v", operation, userID)
 	ds.logger.Debugf("parameters: %v", string(jsonParameters))
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "Query:"+operation)
+	defer span.End()
 
 	var handler OperationHandler
 	switch Operation(operation) {
@@ -262,7 +281,7 @@ func (ds *I2b2DataSource) Query(userID string, operation string, jsonParameters 
 }
 
 // logError creates and logs an error.
-func (ds I2b2DataSource) logError(errMsg string, causedBy error) (err error) {
+func (ds *I2b2DataSource) logError(errMsg string, causedBy error) (err error) {
 	if causedBy == nil {
 		err = fmt.Errorf("%v", errMsg)
 	} else {

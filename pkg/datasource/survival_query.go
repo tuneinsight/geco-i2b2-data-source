@@ -24,7 +24,7 @@ const (
 )
 
 // SurvivalQueryHandler is the OperationHandler for the OperationSurvivalQuery Operation.
-func (ds I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []byte, outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
 
 	decodedParams := &models.SurvivalQueryParameters{}
 	if outputDataObjectsSharedIDs[outputNameSurvivalQueryResult] == "" {
@@ -53,7 +53,7 @@ func (ds I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []by
 
 // SurvivalQuery makes a survival query.
 // The returned @survivalQuery result is a slice containing the sorted and flattened EventGroups.
-func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQueryParameters) (survivalQueryResult []int64, err error) {
+func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQueryParameters) (survivalQueryResult []int64, err error) {
 
 	// validating params
 	err = params.Validate()
@@ -243,7 +243,7 @@ func (ds I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQue
 	return
 }
 
-func (ds I2b2DataSource) getEventCodes(startConcept string, startModifier *models.SurvivalQueryModifier, endConcept string, endModifier *models.SurvivalQueryModifier) (startConceptCodes, startModifierCodes, endConceptCodes, endModifierCodes []string, err error) {
+func (ds *I2b2DataSource) getEventCodes(startConcept string, startModifier *models.SurvivalQueryModifier, endConcept string, endModifier *models.SurvivalQueryModifier) (startConceptCodes, startModifierCodes, endConceptCodes, endModifierCodes []string, err error) {
 
 	logrus.Info("survival analysis: get concept and modifier codes")
 

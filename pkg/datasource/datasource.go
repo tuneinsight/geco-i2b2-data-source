@@ -172,7 +172,11 @@ func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]in
 		return ds.logError("initializing database connection", err)
 	}
 
-	newCtx := *ds.Ctx
+	newCtx := context.Background()
+	if ds.Ctx != nil {
+		newCtx = *ds.Ctx
+	}
+
 	// initialize i2b2 client
 	ds.i2b2Client = i2b2client.Client{
 		Ctx:    newCtx,

@@ -94,7 +94,7 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 			Timing:              params.Constraint.Timing,
 			SelectionPanels:     append(params.Constraint.SelectionPanels, analytePanel),
 			SequentialOperators: params.Constraint.SequentialOperators,
-			SequentialPanels:    params.Constraint.SelectionPanels,
+			SequentialPanels:    params.Constraint.SequentialPanels,
 		},
 	})
 

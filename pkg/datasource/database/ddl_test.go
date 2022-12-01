@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -28,7 +29,8 @@ func getDB(t *testing.T) *PostgresDatabase {
 	mDB, err := manager.NewDatabase(config)
 	require.NoError(t, err)
 
-	db, err := NewPostgresDatabase(log, config, mDB.DB)
+	ctx := context.Background()
+	db, err := NewPostgresDatabase(&ctx, log, config, mDB.DB)
 	require.NoError(t, err)
 
 	err = db.TestLoadData()

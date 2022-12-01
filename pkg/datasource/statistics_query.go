@@ -10,20 +10,23 @@ import (
 	"github.com/sirupsen/logrus"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
-
-	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
 
 	"github.com/google/uuid"
+	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 // StatisticsQueryHandler is the OperationHandler for the OperationStatisticsQuery Operation.
-func (ds I2b2DataSource) StatisticsQueryHandler(
+func (ds *I2b2DataSource) StatisticsQueryHandler(
 	userID string,
 	jsonParameters []byte,
 	outputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID,
 ) (jsonResults []byte, outputDataObjects []gecosdk.DataObject, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "StatisticsQueryHandler")
+	defer span.End()
 
 	decodedParams := &models.StatisticsQueryParameters{}
 
@@ -63,7 +66,10 @@ func (ds I2b2DataSource) StatisticsQueryHandler(
 }
 
 // StatisticsQuery makes a statistics query.
-func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.StatisticsQueryParameters) (statResults []*models.StatsResult, err error) {
+func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.StatisticsQueryParameters) (statResults []*models.StatsResult, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "StatisticsQuery")
+	defer span.End()
 
 	// validating params
 	err = params.Validate()
@@ -216,7 +222,10 @@ func (ds I2b2DataSource) StatisticsQuery(userID string, params *models.Statistic
 	return
 }
 
-func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*models.ConceptItem) (conceptsInfo []*models.SearchResultElement, modifiersInfo []*models.SearchResultElement, err error) {
+func (ds *I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*models.ConceptItem) (conceptsInfo []*models.SearchResultElement, modifiersInfo []*models.SearchResultElement, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "getOntologyElementsInfoForStatisticsQuery")
+	defer span.End()
 
 	logrus.Info("get concept and modifier codes")
 
@@ -324,7 +333,7 @@ func (ds I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*m
 }
 
 // processObservations builds a StatsResult from a set of StatsObservation.
-func (ds I2b2DataSource) processObservations(statsObservations []database.StatsObservation, minObservation int64, bucketSize float64) (counts []int64, statsResult *models.StatsResult, err error) {
+func (ds *I2b2DataSource) processObservations(statsObservations []database.StatsObservation, minObservation int64, bucketSize float64) (counts []int64, statsResult *models.StatsResult, err error) {
 
 	if len(statsObservations) == 0 {
 		logrus.Warnf("no observations present in the database for this combination of analytes and cohort definition")

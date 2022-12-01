@@ -3,11 +3,17 @@ package database
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
 )
 
 // GetCohort retrieves a saved cohort from the database.
 // Returns nil (not an error) if cohort does not exist.
 func (db PostgresDatabase) GetCohort(userID, exploreQueryID string) (cohort *SavedCohort, err error) {
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "GetCohort")
+	defer span.End()
+
 	const getCohortStatement = `
 		SELECT
 			saved_cohort.name AS cohort_name,
@@ -60,6 +66,10 @@ func (db PostgresDatabase) GetCohort(userID, exploreQueryID string) (cohort *Sav
 
 // GetCohorts retrieves the saved cohorts of a user from the database.
 func (db PostgresDatabase) GetCohorts(userID, projectID string, limit int) (cohorts []SavedCohort, err error) {
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "GetCohorts")
+	defer span.End()
+
 	const getCohortsStatement = `
 		SELECT
 			saved_cohort.name AS cohort_name,
@@ -114,6 +124,10 @@ func (db PostgresDatabase) GetCohorts(userID, projectID string, limit int) (coho
 // AddCohort adds a saved cohort for a user. Returns an error (due to foreign key violation) if the explore query does
 // not exist, or if the provided user does not match.
 func (db PostgresDatabase) AddCohort(userID, cohortName, exploreQueryID, projectID string) (err error) {
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "AddCohort")
+	defer span.End()
+
 	const addCohortStatement = `
 		INSERT INTO saved_cohort(name, create_date, project_id, explore_query_id)
 			SELECT $1, NOW(), $2, id FROM explore_query WHERE id = $3 AND user_id = $4;`
@@ -131,6 +145,10 @@ func (db PostgresDatabase) AddCohort(userID, cohortName, exploreQueryID, project
 
 // DeleteCohort deletes a saved cohort for a user.
 func (db PostgresDatabase) DeleteCohort(userID, cohortName, exploreQueryID string) (err error) {
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "DeleteCohort")
+	defer span.End()
+
 	const deleteCohortStatement = `
 		DELETE FROM saved_cohort 
 			USING explore_query

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
 )
 
 // StatsObservation contains a patient observation.
@@ -19,17 +20,29 @@ type StatsObservation struct {
 // RetrieveObservationsForConcept returns the numerical values that correspond to the concept passed as argument for the specified cohort.
 func (db PostgresDatabase) RetrieveObservationsForConcept(code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
 	logrus.Debugf("executing stats SQL query: %s, concept: %s, patients: %v", sqlConcept, code, patientIDs)
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "RetrieveObservationsForConcept")
+	defer span.End()
+
 	return db.retrieveObservations(sqlConcept, code, patientIDs, minObservations)
 }
 
 // RetrieveObservationsForModifier returns the numerical values that correspond to the modifier passed as argument for the specified cohort.
 func (db PostgresDatabase) RetrieveObservationsForModifier(code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
 	logrus.Debugf("executing stats SQL query: %s, modifier: %s, patients: %v", sqlModifier, code, patientIDs)
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "RetrieveObservationsForModifier")
+	defer span.End()
+
 	return db.retrieveObservations(sqlModifier, code, patientIDs, minObservations)
 }
 
 // retrieveObservations returns the numerical values that correspond to the concept or modifier whose code is passed as argument for the specified cohort.
 func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "retrieveObservations")
+	defer span.End()
+
 	strPatientList := convertIntListToString(patientIDs)
 
 	var rows *sql.Rows

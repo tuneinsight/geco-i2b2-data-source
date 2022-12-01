@@ -10,7 +10,7 @@ import (
 )
 
 // GetCohortsHandler is the OperationHandler for the getCohorts Operation.
-func (ds I2b2DataSource) GetCohortsHandler(userID string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) GetCohortsHandler(userID string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.GetCohortsParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
@@ -23,7 +23,7 @@ func (ds I2b2DataSource) GetCohortsHandler(userID string, jsonParameters []byte,
 }
 
 // GetCohorts retrieves the list of cohorts of the user.
-func (ds I2b2DataSource) GetCohorts(userID string, params *models.GetCohortsParameters) (results *models.CohortResults, err error) {
+func (ds *I2b2DataSource) GetCohorts(userID string, params *models.GetCohortsParameters) (results *models.CohortResults, err error) {
 	limit := 10
 	if params.Limit > 0 {
 		limit = params.Limit
@@ -44,7 +44,7 @@ func (ds I2b2DataSource) GetCohorts(userID string, params *models.GetCohortsPara
 }
 
 // AddCohortHandler is the OperationHandler for the addCohort Operation.
-func (ds I2b2DataSource) AddCohortHandler(userID string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (_ []byte, _ []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) AddCohortHandler(userID string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (_ []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.AddDeleteCohortParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
@@ -55,7 +55,7 @@ func (ds I2b2DataSource) AddCohortHandler(userID string, jsonParameters []byte, 
 }
 
 // AddCohort adds a cohort.
-func (ds I2b2DataSource) AddCohort(userID string, params *models.AddDeleteCohortParameters) error {
+func (ds *I2b2DataSource) AddCohort(userID string, params *models.AddDeleteCohortParameters) error {
 	if err := ds.db.AddCohort(userID, params.Name, params.ExploreQueryID, params.ProjectID); err != nil {
 		return fmt.Errorf("adding cohort to database: %v", err)
 	}
@@ -63,7 +63,7 @@ func (ds I2b2DataSource) AddCohort(userID string, params *models.AddDeleteCohort
 }
 
 // DeleteCohortHandler is the OperationHandler for the deleteCohort Operation.
-func (ds I2b2DataSource) DeleteCohortHandler(userID string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (_ []byte, _ []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) DeleteCohortHandler(userID string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (_ []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.AddDeleteCohortParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
@@ -74,7 +74,7 @@ func (ds I2b2DataSource) DeleteCohortHandler(userID string, jsonParameters []byt
 }
 
 // DeleteCohort deletes a cohort.
-func (ds I2b2DataSource) DeleteCohort(userID string, params *models.AddDeleteCohortParameters) error {
+func (ds *I2b2DataSource) DeleteCohort(userID string, params *models.AddDeleteCohortParameters) error {
 	if err := ds.db.DeleteCohort(userID, params.Name, params.ExploreQueryID); err != nil {
 		return fmt.Errorf("deleting cohort from database: %v", err)
 	}

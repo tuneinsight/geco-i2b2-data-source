@@ -10,10 +10,11 @@ import (
 	i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
 )
 
 // SearchConceptHandler is the OperationHandler for the OperationSearchConcept Operation.
-func (ds I2b2DataSource) SearchConceptHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) SearchConceptHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.SearchConceptParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
@@ -26,7 +27,10 @@ func (ds I2b2DataSource) SearchConceptHandler(_ string, jsonParameters []byte, _
 }
 
 // SearchConcept retrieves the info about or the children of the concept identified by the params.
-func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (*models.SearchResult, error) {
+func (ds *I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (*models.SearchResult, error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "SearchConcept")
+	defer span.End()
 
 	// make the appropriate request to i2b2
 	path := strings.TrimSpace(params.Path)
@@ -92,7 +96,7 @@ func (ds I2b2DataSource) SearchConcept(params *models.SearchConceptParameters) (
 }
 
 // SearchModifierHandler is the OperationHandler for the OperationSearchModifier Operation.
-func (ds I2b2DataSource) SearchModifierHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) SearchModifierHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.SearchModifierParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
@@ -105,7 +109,7 @@ func (ds I2b2DataSource) SearchModifierHandler(_ string, jsonParameters []byte, 
 }
 
 // SearchModifier retrieves the info about or the children of the modifier identified by params.
-func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters) (*models.SearchResult, error) {
+func (ds *I2b2DataSource) SearchModifier(params *models.SearchModifierParameters) (*models.SearchResult, error) {
 
 	// make the appropriate request to i2b2
 	path := strings.TrimSpace(params.Path)
@@ -170,7 +174,7 @@ func (ds I2b2DataSource) SearchModifier(params *models.SearchModifierParameters)
 }
 
 // SearchOntologyHandler is the OperationHandler for the OperationSearchOntology Operation.
-func (ds I2b2DataSource) SearchOntologyHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
+func (ds *I2b2DataSource) SearchOntologyHandler(_ string, jsonParameters []byte, _ map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID) (jsonResults []byte, _ []gecosdk.DataObject, err error) {
 	decodedParams := &models.SearchOntologyParameters{}
 	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
@@ -183,7 +187,7 @@ func (ds I2b2DataSource) SearchOntologyHandler(_ string, jsonParameters []byte, 
 }
 
 // SearchOntology retrieves the info about the concepts and modifiers identified by params.
-func (ds I2b2DataSource) SearchOntology(params *models.SearchOntologyParameters) (*models.SearchResult, error) {
+func (ds *I2b2DataSource) SearchOntology(params *models.SearchOntologyParameters) (*models.SearchResult, error) {
 
 	if len(*params.SearchString) == 0 {
 		return nil, fmt.Errorf("empty search string")

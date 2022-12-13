@@ -135,8 +135,9 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 	syncModifiersCounts := &sync.Map{}
 	syncModifiersStats := &sync.Map{}
 	syncErrMap := &sync.Map{}
-
 	wg := sync.WaitGroup{}
+
+	spanRetrieveAndProcessObservations := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "RetrieveAndProcessObservations")
 	// Query Concepts
 	for i, conceptInfo := range conceptsInfo {
 		wg.Add(1)
@@ -201,6 +202,7 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 		}(i, modifierInfo)
 	}
 	wg.Wait()
+	spanRetrieveAndProcessObservations.End()
 
 	// Convert err sync map to map
 	err = returnErrorFromMap(syncErrMap)
@@ -334,6 +336,9 @@ func (ds *I2b2DataSource) getOntologyElementsInfoForStatisticsQuery(concepts []*
 
 // processObservations builds a StatsResult from a set of StatsObservation.
 func (ds *I2b2DataSource) processObservations(statsObservations []database.StatsObservation, minObservation int64, bucketSize float64) (counts []int64, statsResult *models.StatsResult, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "processObservations")
+	defer span.End()
 
 	if len(statsObservations) == 0 {
 		logrus.Warnf("no observations present in the database for this combination of analytes and cohort definition")

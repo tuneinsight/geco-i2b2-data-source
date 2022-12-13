@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
 )
 
 const dateFormat = "2006-01-02"
@@ -132,6 +133,8 @@ func (db PostgresDatabase) BuildTimePoints(
 	patientWithoutAnyEndEvent map[int64]struct{},
 	err error,
 ) {
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "BuildTimePoints")
+	defer span.End()
 
 	patientsToStartEvent, patientWithoutStartEvent, err := db.startEvent(patientSet, startConceptCodes, startModifierCodes, startEarliest)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
 
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 
@@ -54,6 +55,9 @@ func (ds *I2b2DataSource) SurvivalQueryHandler(userID string, jsonParameters []b
 // SurvivalQuery makes a survival query.
 // The returned @survivalQuery result is a slice containing the sorted and flattened EventGroups.
 func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQueryParameters) (survivalQueryResult []int64, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "SurvivalQuery")
+	defer span.End()
 
 	// validating params
 	err = params.Validate()
@@ -111,6 +115,8 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 	}, len(subGroupsDefinitions))
 	errChan := make(chan error, len(subGroupsDefinitions))
 	signal := make(chan struct{})
+
+	spanQuerySubgroups := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "QuerySubgroups")
 
 	for i, subGroupDefinition := range subGroupsDefinitions {
 		channels[i] = make(chan struct {
@@ -170,7 +176,10 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 			}
 			logrus.Debugf("survival analysis: found %d patients without the start event", len(patientWithoutStartEvent))
 			logrus.Debugf("survival analysis: found %d patients without the end (censoring or of interest) event", len(patientWithoutEndEvent))
+
+			spanTimePointsToList := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "TimePointsToList")
 			timePoints := timePointMapToList(timePointsEventsMap)
+			spanTimePointsToList.End()
 
 			// --- initial count
 			if len(patientList) < len(patientWithoutStartEvent) {
@@ -182,7 +191,9 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 			newEventGroup.InitialCount = int64(len(patientList) - len(patientWithoutStartEvent))
 
 			// --- change time granularity
+			spanBinTimePoints := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "BinTimePoints")
 			sqlTimePoints, err := timePoints.Bin(params.TimeGranularity)
+			spanBinTimePoints.End()
 			if err != nil {
 				logrus.Error("error while changing granularity")
 				errChan <- err
@@ -216,6 +227,8 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 		}(i, subGroupDefinition)
 	}
 
+	spanQuerySubgroups.End()
+
 	go func() {
 		waitGroup.Wait()
 		signal <- struct{}{}
@@ -235,10 +248,12 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 		logrus.Tracef("survival analysis: eventGroup %v", group)
 	}
 
+	spanSortAndFlatten := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "SortAndFlatten")
 	survivalQueryResult, err = eventGroups.SortAndFlatten()
+	spanSortAndFlatten.End()
 	if err != nil {
 		logrus.Errorf("during sorting and flattening: %v", err)
-		err = fmt.Errorf("during aggregation and keyswitch")
+		err = fmt.Errorf("during aggregation and flattening")
 	}
 	return
 }

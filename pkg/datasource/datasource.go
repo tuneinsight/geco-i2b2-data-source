@@ -174,7 +174,7 @@ func (ds *I2b2DataSource) Config(logger logrus.FieldLogger, config map[string]in
 
 	newCtx := context.Background()
 	if ds.Ctx != nil {
-		newCtx = *ds.Ctx
+		newCtx = telemetry.CarryTelemetryContext(*ds.Ctx)
 	}
 
 	// initialize i2b2 client

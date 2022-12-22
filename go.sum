@@ -272,8 +272,6 @@ github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PK
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
-github.com/tuneinsight/sdk-datasource v0.0.0-20221110163407-7d4317a75945 h1:tdZ3eENmgWg3nK/xNabh1BACtLP59plko547YVl0q64=
-github.com/tuneinsight/sdk-datasource v0.0.0-20221110163407-7d4317a75945/go.mod h1:XwsPU7WAIen/jz2O8+50DwFM+Aaz/r9ZTKe9BD99G5o=
 github.com/tuneinsight/sdk-datasource v0.0.0-20221129075818-8f0bf05913db h1:fMJuB04T6MGrUCMr3zdcbR1yXD+JKFpaMLLe1UEvkBU=
 github.com/tuneinsight/sdk-datasource v0.0.0-20221129075818-8f0bf05913db/go.mod h1:XwsPU7WAIen/jz2O8+50DwFM+Aaz/r9ZTKe9BD99G5o=
 github.com/vektah/gqlparser v1.1.2/go.mod h1:1ycwN7Ij5njmMkPPAOaRFY4rET2Enx7IkVv3vaXspKw=

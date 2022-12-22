@@ -286,6 +286,10 @@ func TestCensoringEvent(t *testing.T) {
 }
 
 func TestPatientAndEndEvents(t *testing.T) {
+
+	db := getDB(t)
+	defer dbCleanUp(t, db)
+
 	someDates := createDateListFromString(t, []string{
 		"1970-09-01",
 		"1970-09-02",
@@ -296,7 +300,7 @@ func TestPatientAndEndEvents(t *testing.T) {
 		"1970-09-07"})
 
 	// test earliest
-	withoutEndEvents, relativeTime, err := patientAndEndEvents(map[int64]time.Time{
+	withoutEndEvents, relativeTime, err := db.patientAndEndEvents(map[int64]time.Time{
 		0: someDates[0],
 		1: someDates[1],
 	}, map[int64][]time.Time{
@@ -316,7 +320,7 @@ func TestPatientAndEndEvents(t *testing.T) {
 	assert.Equal(t, int64(3), count2)
 
 	// test latest
-	withoutEndEvents, relativeTime, err = patientAndEndEvents(map[int64]time.Time{
+	withoutEndEvents, relativeTime, err = db.patientAndEndEvents(map[int64]time.Time{
 		0: someDates[0],
 		1: someDates[1],
 	}, map[int64][]time.Time{
@@ -336,7 +340,7 @@ func TestPatientAndEndEvents(t *testing.T) {
 	assert.Equal(t, int64(4), count2)
 
 	// test patient without end events
-	withoutEndEvents, relativeTime, err = patientAndEndEvents(map[int64]time.Time{
+	withoutEndEvents, relativeTime, err = db.patientAndEndEvents(map[int64]time.Time{
 		0: someDates[0],
 		1: someDates[1],
 	}, map[int64][]time.Time{
@@ -355,7 +359,7 @@ func TestPatientAndEndEvents(t *testing.T) {
 	assert.False(t, isIn)
 
 	// test wrong data, end event occurring after
-	withoutEndEvents, relativeTime, err = patientAndEndEvents(map[int64]time.Time{
+	withoutEndEvents, relativeTime, err = db.patientAndEndEvents(map[int64]time.Time{
 		0: someDates[6],
 	}, map[int64][]time.Time{
 		0: {someDates[0]},
@@ -367,7 +371,7 @@ func TestPatientAndEndEvents(t *testing.T) {
 
 	// test wrong data, end event is the same
 
-	withoutEndEvents, relativeTime, err = patientAndEndEvents(map[int64]time.Time{
+	withoutEndEvents, relativeTime, err = db.patientAndEndEvents(map[int64]time.Time{
 		0: someDates[0],
 	}, map[int64][]time.Time{
 		0: {someDates[0]},
@@ -378,7 +382,7 @@ func TestPatientAndEndEvents(t *testing.T) {
 	assert.Error(t, err)
 
 	// test wrong data, empty list
-	withoutEndEvents, relativeTime, err = patientAndEndEvents(map[int64]time.Time{
+	withoutEndEvents, relativeTime, err = db.patientAndEndEvents(map[int64]time.Time{
 		0: someDates[0],
 	}, map[int64][]time.Time{
 		0: {},
@@ -389,7 +393,7 @@ func TestPatientAndEndEvents(t *testing.T) {
 	assert.Error(t, err)
 
 	// test wrong data, nil
-	withoutEndEvents, relativeTime, err = patientAndEndEvents(map[int64]time.Time{
+	withoutEndEvents, relativeTime, err = db.patientAndEndEvents(map[int64]time.Time{
 		0: someDates[0],
 	}, map[int64][]time.Time{
 		0: nil,
@@ -402,6 +406,9 @@ func TestPatientAndEndEvents(t *testing.T) {
 }
 
 func TestPatientAndCensoring(t *testing.T) {
+	db := getDB(t)
+	defer dbCleanUp(t, db)
+
 	someDates := (createDateListFromString(t, []string{
 		"1970-09-01",
 		"1970-09-02",
@@ -413,7 +420,7 @@ func TestPatientAndCensoring(t *testing.T) {
 
 	// test full set, the extra data in end events is silently ignored
 
-	relativeTime, err := patientAndCensoring(map[int64]time.Time{
+	relativeTime, err := db.patientAndCensoring(map[int64]time.Time{
 		0: someDates[0],
 		1: someDates[1],
 	},
@@ -440,7 +447,7 @@ func TestPatientAndCensoring(t *testing.T) {
 
 	// test one patient missing
 
-	relativeTime, err = patientAndCensoring(map[int64]time.Time{
+	relativeTime, err = db.patientAndCensoring(map[int64]time.Time{
 		0: someDates[0],
 		1: someDates[1],
 	},
@@ -461,7 +468,7 @@ func TestPatientAndCensoring(t *testing.T) {
 
 	// test wrong data, extra data in patients-without-end-data
 
-	relativeTime, err = patientAndCensoring(map[int64]time.Time{
+	relativeTime, err = db.patientAndCensoring(map[int64]time.Time{
 		0: someDates[0],
 	},
 		map[int64]struct{}{
@@ -477,7 +484,7 @@ func TestPatientAndCensoring(t *testing.T) {
 
 	// test wrong data, censoring date before
 
-	relativeTime, err = patientAndCensoring(map[int64]time.Time{
+	relativeTime, err = db.patientAndCensoring(map[int64]time.Time{
 		0: someDates[4],
 	},
 		map[int64]struct{}{
@@ -491,7 +498,7 @@ func TestPatientAndCensoring(t *testing.T) {
 
 	// test wrong data, censoring same date
 
-	relativeTime, err = patientAndCensoring(map[int64]time.Time{
+	relativeTime, err = db.patientAndCensoring(map[int64]time.Time{
 		0: someDates[0],
 	},
 		map[int64]struct{}{
@@ -506,6 +513,9 @@ func TestPatientAndCensoring(t *testing.T) {
 }
 
 func TestCompileTimePoints(t *testing.T) {
+	db := getDB(t)
+	defer dbCleanUp(t, db)
+
 	patientsWithEndEvent := map[int64]int64{
 		0: 1,
 		1: 1,
@@ -540,7 +550,7 @@ func TestCompileTimePoints(t *testing.T) {
 	}
 
 	// test full events
-	events, err := compileTimePoints(patientsWithEndEvent, patientsWithCensoring, int64(4))
+	events, err := db.compileTimePoints(patientsWithEndEvent, patientsWithCensoring, int64(4))
 	assert.NoError(t, err)
 
 	for relativeTime, expectedEvent := range expectedEvents {
@@ -558,7 +568,7 @@ func TestCompileTimePoints(t *testing.T) {
 		}
 	}
 
-	events, err = compileTimePoints(patientsWithEndEvent, patientsWithCensoring, int64(3))
+	events, err = db.compileTimePoints(patientsWithEndEvent, patientsWithCensoring, int64(3))
 	assert.NoError(t, err)
 	_, isIn := events[4]
 	assert.False(t, isIn)
@@ -571,13 +581,13 @@ func TestCompileTimePoints(t *testing.T) {
 	}
 
 	// test wrong data, bad relative time
-	_, err = compileTimePoints(map[int64]int64{0: 1, 1: 0}, patientsWithCensoring, int64(4))
+	_, err = db.compileTimePoints(map[int64]int64{0: 1, 1: 0}, patientsWithCensoring, int64(4))
 	assert.Error(t, err)
-	_, err = compileTimePoints(patientsWithEndEvent, map[int64]int64{6: 1, 7: 0}, int64(4))
+	_, err = db.compileTimePoints(patientsWithEndEvent, map[int64]int64{6: 1, 7: 0}, int64(4))
 	assert.Error(t, err)
 
 	// test wrong data, bad time limit
-	_, err = compileTimePoints(patientsWithEndEvent, patientsWithCensoring, int64(0))
+	_, err = db.compileTimePoints(patientsWithEndEvent, patientsWithCensoring, int64(0))
 	assert.Error(t, err)
 
 }

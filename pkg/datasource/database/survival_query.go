@@ -146,7 +146,7 @@ func (db PostgresDatabase) BuildTimePoints(
 		return
 	}
 
-	patientsWithoutEnd, startToEndEvent, err := patientAndEndEvents(patientsToStartEvent, patientsToEndEvents, endEarliest)
+	patientsWithoutEnd, startToEndEvent, err := db.patientAndEndEvents(patientsToStartEvent, patientsToEndEvents, endEarliest)
 	if err != nil {
 		return
 	}
@@ -156,12 +156,12 @@ func (db PostgresDatabase) BuildTimePoints(
 		return
 	}
 
-	startToCensoringEvent, err := patientAndCensoring(patientsToStartEvent, patientsWithoutEnd, patientsToCensoringEvent)
+	startToCensoringEvent, err := db.patientAndCensoring(patientsToStartEvent, patientsWithoutEnd, patientsToCensoringEvent)
 	if err != nil {
 		return
 	}
 
-	eventAggregates, err = compileTimePoints(startToEndEvent, startToCensoringEvent, maxLimit)
+	eventAggregates, err = db.compileTimePoints(startToEndEvent, startToCensoringEvent, maxLimit)
 	if err != nil {
 		return
 	}
@@ -174,7 +174,10 @@ func (db PostgresDatabase) BuildTimePoints(
 // endEarliest defines if it must take the earliest or the latest among candidates. Candidates must occur strictly after the start event, an error is thrown otherwise.
 // The list of candidate events is not expected to be empty, an error is thrown if it is the case.
 // The patient-to-difference-in-day map is returned alongside the list of patients present in the patient-to-start-event map and absent from patient-to-end-event.
-func patientAndEndEvents(startEvent map[int64]time.Time, endEvents map[int64][]time.Time, endEarliest bool) (map[int64]struct{}, map[int64]int64, error) {
+func (db PostgresDatabase) patientAndEndEvents(startEvent map[int64]time.Time, endEvents map[int64][]time.Time, endEarliest bool) (map[int64]struct{}, map[int64]int64, error) {
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "patientAndEvents")
+	defer span.End()
 
 	patientsWithoutEndEvent := make(map[int64]struct{}, len(startEvent))
 	patientsWithStartAndEndEvents := make(map[int64]int64, len(startEvent))
@@ -226,7 +229,10 @@ func patientAndEndEvents(startEvent map[int64]time.Time, endEvents map[int64][]t
 // and the start time taken from the first map. The set of patients without end event is expected to be a subset of the patient-to-start-event keys and
 // censoring events must happen strictly after the start event, an error is thrown otherwise.
 // The patient-to-difference-in-day (for censoring events) is returned.
-func patientAndCensoring(startEvent map[int64]time.Time, patientsWithoutEndEvent map[int64]struct{}, patientWithCensoring map[int64]time.Time) (map[int64]int64, error) {
+func (db PostgresDatabase) patientAndCensoring(startEvent map[int64]time.Time, patientsWithoutEndEvent map[int64]struct{}, patientWithCensoring map[int64]time.Time) (map[int64]int64, error) {
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "patientAndCensoring")
+	defer span.End()
+
 	patientsWithStartAndCensoring := make(map[int64]int64, len(startEvent))
 	for patientID := range patientsWithoutEndEvent {
 		if endDate, isIn := patientWithCensoring[patientID]; isIn {
@@ -256,7 +262,10 @@ func patientAndCensoring(startEvent map[int64]time.Time, patientsWithoutEndEvent
 
 // compileTimePoints takes as input the patient-to-end-event and the patient-to-censoring-event maps and aggregates te number of events, grouped by difference in days (aka relative times).
 // If a relative time is strictly bigger than the max limit defined by the user, it is ignored. If the relative time or the maximum limit is smaller or equal to  zero, an error is thrown.
-func compileTimePoints(patientWithEndEvents, patientWithCensoringEvents map[int64]int64, maxLimit int64) (map[int64]*Events, error) {
+func (db PostgresDatabase) compileTimePoints(patientWithEndEvents, patientWithCensoringEvents map[int64]int64, maxLimit int64) (map[int64]*Events, error) {
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "compileTimePoints")
+	defer span.End()
+
 	if maxLimit <= 0 {
 		err := fmt.Errorf("user-defined maximum limit %d must be strictly greater than 0", maxLimit)
 		return nil, err
@@ -307,6 +316,9 @@ func compileTimePoints(patientWithEndEvents, patientWithCensoringEvents map[int6
 // startEvent calls the postgres procedure to get the list of patients and start event. Concept codes and modifier codes define the start event.
 // As multiple candidates are possible, earliest flag defines if the earliest or the latest date must be considered as the start event.
 func (db PostgresDatabase) startEvent(patientList []int64, conceptCodes, modifierCodes []string, earliest bool) (map[int64]time.Time, map[int64]struct{}, error) {
+
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "startEvent")
+	defer span.End()
 
 	setStrings := make([]string, len(patientList))
 
@@ -381,6 +393,9 @@ func (db PostgresDatabase) startEvent(patientList []int64, conceptCodes, modifie
 // endEvents calls the postgres procedure to get the list of patients and end events. Concept codes and modifier codes define the end event.
 // As multiple candidates are possible, the list of potential end events strictly happening after the start event is stored in the return map.
 func (db PostgresDatabase) endEvents(patientWithStartEventList map[int64]time.Time, conceptCodes, modifierCodes []string) (map[int64][]time.Time, error) {
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "endEvents")
+	defer span.End()
+
 	setStrings := make([]string, 0, len(patientWithStartEventList))
 
 	for patient := range patientWithStartEventList {
@@ -453,6 +468,9 @@ func (db PostgresDatabase) endEvents(patientWithStartEventList map[int64]time.Ti
 // The event with the latest end date should be considered (for each observation, if the end date is missing, the start date should be taken instead).
 // If the start event does not occur before the end event, the event is dropped and the patient is inserted in the set of patient-without-censoring-events (they should miss both event of interest and censoring event).
 func (db PostgresDatabase) censoringEvent(patientWithStartEventList map[int64]time.Time, patientWithoutEndEvent map[int64]struct{}, endConceptCodes []string, endModifierCodes []string) (map[int64]time.Time, map[int64]struct{}, error) {
+	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "censoringEvent")
+	defer span.End()
+
 	setStrings := make([]string, 0, len(patientWithoutEndEvent))
 
 	for patient := range patientWithoutEndEvent {

@@ -16,8 +16,11 @@ DECLARE
 BEGIN
 	FOR i IN 1..n
 	LOOP
+	    RAISE NOTICE 'duplication round: %', i;
 		start_text_search_index := (SELECT MAX (text_search_index) + 1 FROM i2b2demodata.observation_fact);
 		max_patient_num := (SELECT MAX (patient_num) + 1 FROM i2b2demodata.patient_dimension);
+		RAISE NOTICE 'starting text_search_index: %', start_text_search_index;
+		RAISE NOTICE 'starting patient_num: %', max_patient_num;
 		FOR obs_row in SELECT * FROM i2b2demodata.observation_fact
 		LOOP
 			new_obs_row := obs_row;

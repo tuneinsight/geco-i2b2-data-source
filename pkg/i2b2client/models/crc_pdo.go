@@ -82,7 +82,7 @@ type PdoRequestFromInputList struct {
 			Max              string `xml:"max,attr"`
 			Min              string `xml:"min,attr"`
 			PatientSetCollID string `xml:"patient_set_coll_id"`
-		 } `xml:"patient_list,omitempty"`
+		} `xml:"patient_list,omitempty"`
 	} `xml:"input_list"`
 
 	FilterList struct {

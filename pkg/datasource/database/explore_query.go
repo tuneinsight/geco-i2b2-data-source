@@ -89,7 +89,7 @@ func (db PostgresDatabase) SetExploreQuerySuccess(userID, queryID, i2b2PatientSe
 		return err
 	} else if patientSetID, err := strconv.ParseInt(i2b2PatientSetID, 10, 64); err != nil {
 		return fmt.Errorf("parsing patient set ID: %v", err)
-	}else if _, err := db.handle.Exec(setExploreQuerySuccessStatement, userID, queryID, patientSetID, gecoSharedIDCount, gecoSharedIDPatientList); err != nil {
+	} else if _, err := db.handle.Exec(setExploreQuerySuccessStatement, userID, queryID, patientSetID, gecoSharedIDCount, gecoSharedIDPatientList); err != nil {
 		return fmt.Errorf("executing setExploreQuerySuccessStatement: %v", err)
 	}
 

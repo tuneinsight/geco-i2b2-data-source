@@ -186,15 +186,14 @@ func (ds *I2b2DataSource) getPatientIDs(patientSetID string) (patientIDs []int64
 		return nil, fmt.Errorf("requesting PDO query: %v", err)
 	}
 
-
-	patientList := make([]int64, 0, len(pdoResp.Response.PatientData.PatientSet.Patient))
+	patientIDs = make([]int64, 0, len(pdoResp.Response.PatientData.PatientSet.Patient))
 	for _, patient := range pdoResp.Response.PatientData.PatientSet.Patient {
 		// parse patient IDs
 		parsedPatientID, err := strconv.ParseInt(patient.PatientID, 10, 64)
 		if err != nil {
 			return nil, fmt.Errorf("parsing patient ID: %v", err)
 		}
-		patientList = append(patientList, parsedPatientID)
+		patientIDs = append(patientIDs, parsedPatientID)
 	}
 	return
 }

@@ -69,16 +69,16 @@ func (ds *I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []by
 
 	// retrieve patient list if needed
 	if decodedParams.PatientList {
-		if patientList, err := ds.getPatientIDs(i2b2PatientSetID); err != nil {
+		patientList, err := ds.getPatientIDs(i2b2PatientSetID)
+		if err != nil {
 			return nil, nil, fmt.Errorf("getting patient IDs: %v", err)
-		} else {
-			outputDataObjects = append(outputDataObjects,
-				gecosdk.DataObject{
-					OutputName: outputNameExploreQueryPatientList,
-					SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryPatientList],
-					IntVector:  patientList,
-				})
 		}
+		outputDataObjects = append(outputDataObjects,
+			gecosdk.DataObject{
+				OutputName: outputNameExploreQueryPatientList,
+				SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryPatientList],
+				IntVector:  patientList,
+			})
 	}
 
 	return

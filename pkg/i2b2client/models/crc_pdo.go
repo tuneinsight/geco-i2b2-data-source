@@ -27,10 +27,20 @@ func NewCrcPdoReqFromInputList(patientSetID string) CrcPdoReqFromInputListMessag
 	pdoRequest.InputList.PatientList.Min = "0"
 	pdoRequest.InputList.PatientList.PatientSetCollID = patientSetID
 	pdoRequest.OutputOption.Name = "none"
-	pdoRequest.OutputOption.PatientSet.Blob = "false"
-	pdoRequest.OutputOption.PatientSet.TechData = "false"
-	pdoRequest.OutputOption.PatientSet.OnlyKeys = "false"
-	pdoRequest.OutputOption.PatientSet.Select = "using_input_list"
+
+	pdoRequest.OutputOption.PatientSet = &OutputOptionItem{
+		Blob:     "false",
+		TechData: "false",
+		OnlyKeys: "true",
+		Select:   "using_input_list",
+	}
+
+	pdoRequest.OutputOption.ObservationSet = &OutputOptionItem{
+		Blob:     "false",
+		TechData: "false",
+		OnlyKeys: "false",
+		Select:   "using_input_list",
+	}
 
 	return CrcPdoReqFromInputListMessageBody{
 		PdoHeader:  pdoHeader,
@@ -53,6 +63,15 @@ type PdoHeader struct {
 	RequestType     string `xml:"request_type"`
 }
 
+// OutputOptionItem is an item of OutputOption
+type OutputOptionItem struct {
+	Select          string `xml:"select,attr"`
+	OnlyKeys        string `xml:"onlykeys,attr"`
+	Blob            string `xml:"blob,attr"`
+	TechData        string `xml:"techdata,attr"`
+	SelectionFilter string `xml:"selection_filter,attr"`
+}
+
 // PdoRequestFromInputList is an i2b2 XML PDO request - from input list.
 type PdoRequestFromInputList struct {
 	Type string `xml:"xsi:type,attr"`
@@ -63,17 +82,17 @@ type PdoRequestFromInputList struct {
 			Max              string `xml:"max,attr"`
 			Min              string `xml:"min,attr"`
 			PatientSetCollID string `xml:"patient_set_coll_id"`
-		} `xml:"patient_list,omitempty"`
+		 } `xml:"patient_list,omitempty"`
 	} `xml:"input_list"`
 
+	FilterList struct {
+		Panel []Panel `xml:"panel"`
+	} `xml:"filter_list"`
+
 	OutputOption struct {
-		Name       string `xml:"name,attr"`
-		PatientSet struct {
-			Select   string `xml:"select,attr"`
-			OnlyKeys string `xml:"onlykeys,attr"`
-			Blob     string `xml:"blob,attr"`
-			TechData string `xml:"techdata,attr"`
-		} `xml:"patient_set,omitempty"`
+		Name           string            `xml:"name,attr"`
+		PatientSet     *OutputOptionItem `xml:"patient_set,omitempty"`
+		ObservationSet *OutputOptionItem `xml:"observation_set,omitempty"`
 	} `xml:"output_option"`
 }
 
@@ -97,7 +116,48 @@ type CrcPdoRespMessageBody struct {
 						Column           string `xml:"column,attr"`
 					} `xml:"param"`
 				} `xml:"patient"`
-			} `xml:"patient_set"`
+			} `xml:"patient_set,omitempty"`
+			ObservationSet []struct {
+				PanelName   string `xml:"panel_name,attr"`
+				Observation []struct {
+					EventID struct {
+						Text   string `xml:",chardata"`
+						Source string `xml:"source,attr"`
+					} `xml:"event_id"`
+					PatientID string `xml:"patient_id"`
+					ConceptCd struct {
+						Text string `xml:",chardata"`
+						Name string `xml:"name,attr"`
+					} `xml:"concept_cd"`
+					ObserverCd struct {
+						Text   string `xml:",chardata"`
+						Source string `xml:"source,attr"`
+					} `xml:"observer_cd"`
+					StartDate  string `xml:"start_date"`
+					ModifierCd struct {
+						Text string `xml:",chardata"`
+						Name string `xml:"name,attr"`
+					} `xml:"modifier_cd"`
+					InstanceNum string `xml:"instance_num"`
+					ValueTypeCd string `xml:"valuetype_cd"`
+					TvalChar    string `xml:"tval_char"`
+					NvalNum     struct {
+						Text  string `xml:",chardata"`
+						Units string `xml:"units,attr"`
+					} `xml:"nval_num"`
+					ValueflagCD struct {
+						Text string `xml:",chardata"`
+						Name string `xml:"name,attr"`
+					} `xml:"valueflag_cd"`
+					QuantityNum string `xml:"quantity_num"`
+					UnitsCd     string `xml:"units_cd"`
+					EndDate     string `xml:"end_date"`
+					LocationCD  struct {
+						Text string `xml:",chardata"`
+						Name string `xml:"name,attr"`
+					} `xml:"location_cd"`
+				} `xml:"observation"`
+			} `xml:"observation_set,omitempty"`
 		} `xml:"patient_data"`
 	} `xml:"response"`
 }

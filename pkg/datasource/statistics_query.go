@@ -88,7 +88,7 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 		analytePanel.ConceptItems = append(analytePanel.ConceptItems, *analyte)
 	}
 
-	_, patientCount, patientList, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
+	patientSetID, patientCount, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
 		ID: uuid.New().String(),
 		Definition: models.ExploreQueryDefinition{
 			Timing:              params.Constraint.Timing,
@@ -103,6 +103,9 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 		logrus.Errorf("%s : %s", errMsg, err.Error())
 		return nil, fmt.Errorf(errMsg)
 	}
+
+	patientList, err := ds.getPatientIDs(patientSetID)
+	// err not managed, temporary patch
 
 	logrus.Infof("patient count: %v", patientCount)
 

@@ -359,6 +359,7 @@ func (db PostgresDatabase) startEvent(patientList []int64, conceptCodes, modifie
 		recordEntries := strings.Split(strings.Trim(*record, "()"), ",")
 		if len(recordEntries) != 2 {
 			err = fmt.Errorf("while parsing SQL record stream: expected to find 2 items in a string like \"(<integer>,<date>)\" in record %s", *record)
+			return nil, nil, err
 		}
 		patientID, err := strconv.ParseInt(recordEntries[0], 10, 64)
 		if err != nil {
@@ -433,6 +434,7 @@ func (db PostgresDatabase) endEvents(patientWithStartEventList map[int64]time.Ti
 		recordEntries := strings.Split(strings.Trim(*record, "()"), ",")
 		if len(recordEntries) != 2 {
 			err = fmt.Errorf("while parsing SQL record stream: expected to find 2 items in a string like \"(<integer>,<date>)\" in record %s", *record)
+			return nil, err
 		}
 		patientID, err := strconv.ParseInt(recordEntries[0], 10, 64)
 		if err != nil {
@@ -509,6 +511,7 @@ func (db PostgresDatabase) censoringEvent(patientWithStartEventList map[int64]ti
 		recordEntries := strings.Split(strings.Trim(*record, "()"), ",")
 		if len(recordEntries) != 2 {
 			err = fmt.Errorf("while parsing SQL record stream: expected to find 2 items in a string like \"(<integer>,<date>)\" in record %s", *record)
+			return nil, nil, err
 		}
 		patientID, err := strconv.ParseInt(recordEntries[0], 10, 64)
 		if err != nil {

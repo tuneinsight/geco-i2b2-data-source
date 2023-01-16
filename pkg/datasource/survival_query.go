@@ -136,7 +136,7 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 
 			logrus.Infof("survival analysis: I2B2 explore for subgroup %d", i)
 			logrus.Tracef("survival analysis: panels %+v", panels)
-			_, _, patientList, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
+			patientSetID, _, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
 				ID: uuid.New().String(),
 				Definition: models.ExploreQueryDefinition{
 					Timing:              subGroupDefinition.Constraint.Timing,
@@ -145,6 +145,7 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 					SequentialPanels:    subGroupDefinition.Constraint.SequentialPanels,
 				},
 			})
+			patientList, err := ds.getPatientIDs(patientSetID)
 
 			if err != nil {
 				returnedErr := fmt.Errorf("during subgroup explore procedure")

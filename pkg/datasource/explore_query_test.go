@@ -53,7 +53,7 @@ func TestExploreQueryConcept(t *testing.T) {
 	require.EqualValues(t, 4, count)
 	require.Subset(t, []int64{1, 2, 3, 4}, patientList)
 
-	_, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "2",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -75,11 +75,13 @@ func TestExploreQueryConcept(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err = ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 3, count)
 	require.Subset(t, []int64{1, 2, 3}, patientList)
 
-	_, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "3",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -92,6 +94,8 @@ func TestExploreQueryConcept(t *testing.T) {
 			}},
 		},
 	})
+	require.NoError(t, err)
+	patientList, err = ds.getPatientIDs(patientSetID)
 	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 4, count)

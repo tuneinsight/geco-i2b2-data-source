@@ -71,7 +71,7 @@ func TestQueryDataObject(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	params := `{"id": "99999999-9999-1122-0000-999999999999", "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`
+	params := `{"id": "99999999-9999-1122-0000-999999999999", "patientList": true, "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`
 	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{
 		outputNameExploreQueryCount:       "99999999-9999-9999-1111-999999999999",
 		outputNameExploreQueryPatientList: "99999999-9999-9999-0000-999999999999",
@@ -148,6 +148,7 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 	queryID := "99999999-9999-9999-9999-999999999999"
 	params = fmt.Sprintf(`{
 		"id": "%v",
+		"patientList": true,
 		"definition": {
 			"selectionPanels": [
 				{
@@ -185,7 +186,7 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 		outputNameExploreQueryCount:       "99999999-9999-9999-1111-999999999999",
 		outputNameExploreQueryPatientList: "99999999-9999-9999-0000-999999999999",
 	}
-	res, do, err = ds.Query(user, "exploreQuery", []byte(params), sharedIDs)
+	_, do, err = ds.Query(user, "exploreQuery", []byte(params), sharedIDs)
 	require.NoError(t, err)
 	require.EqualValues(t, 2, len(do))
 	for i := range do {

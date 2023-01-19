@@ -401,7 +401,7 @@ Run statistics query.
 - `constraint`: `definition` as defined in exploreQuery parameters
 - `analytes`: the concepts (see `conceptItems` in "exploreQuery") used as analytes of the statistics query
 - `bucketSize`: bucket size for each analyte (float64)
-- `minObservations`: the total minimal number of observations for each analyte.
+- `minObservations`: the minimum observation value for each analyte.
 
 ## Output Data Objects Shared IDs
 - `statisticsQueryResult`: matrix of integers containing the number of observations for each analyte and each bucket.

@@ -179,11 +179,11 @@ func (ds *I2b2DataSource) getPatientIDs(patientSetID string) (patientIDs []int64
 	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "getPatientIDs")
 	defer span.End()
 
-	pdoReq := i2b2clientmodels.NewCrcPdoReqFromInputList(patientSetID)
+	pdoReq := i2b2clientmodels.NewCrcPdoReqFromInputList(patientSetID, true, false)
 	var pdoResp *i2b2clientmodels.CrcPdoRespMessageBody
 
 	if pdoResp, err = ds.i2b2Client.CrcPdoReqFromInputList(&pdoReq); err != nil {
-		return nil, fmt.Errorf("requesting PDO query: %v", err)
+		return nil, fmt.Errorf("performing PDO query for patient IDs: %v", err)
 	}
 
 	patientIDs = make([]int64, 0, len(pdoResp.Response.PatientData.PatientSet.Patient))
@@ -196,4 +196,22 @@ func (ds *I2b2DataSource) getPatientIDs(patientSetID string) (patientIDs []int64
 		patientIDs = append(patientIDs, parsedPatientID)
 	}
 	return
+}
+
+// getObservationSets retrieves the sets of patient observations from the i2b2 CRC using a patient set ID.
+func (ds *I2b2DataSource) getObservationSets(patientSetID string, filters []i2b2clientmodels.Panel) (observations []i2b2clientmodels.ObservationSet, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "getObservations")
+	defer span.End()
+
+	pdoReq := i2b2clientmodels.NewCrcPdoReqFromInputList(patientSetID, false, true)
+	pdoReq.PdoRequest.FilterList.Panel = filters
+	var pdoResp *i2b2clientmodels.CrcPdoRespMessageBody
+
+	if pdoResp, err = ds.i2b2Client.CrcPdoReqFromInputList(&pdoReq); err != nil {
+		return nil, fmt.Errorf("requesting PDO query for patient observations: %v", err)
+	}
+
+	return pdoResp.Response.PatientData.ObservationSet, nil
+
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
+	i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
@@ -97,6 +99,7 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 			SequentialPanels:    params.Constraint.SequentialPanels,
 		},
 	})
+	patientSetIDInt, _ := strconv.ParseInt(patientSetID, 10, 64)
 
 	if err != nil {
 		errMsg := "when running explore query to retrieve patients for statistics query"
@@ -104,8 +107,7 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 		return nil, fmt.Errorf(errMsg)
 	}
 
-	patientList, err := ds.getPatientIDs(patientSetID)
-	// err not managed, temporary patch
+	// patientList, err := ds.getPatientIDs(patientSetID)
 
 	logrus.Infof("patient count: %v", patientCount)
 
@@ -116,8 +118,8 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 				AnalyteName: analyte.QueryTerm,
 				Buckets: []*models.Bucket{
 					{
-						LowerBound:  0,
-						HigherBound: 1,
+						LowerBound:  float64(params.MinObservations),
+						HigherBound: float64(params.MinObservations) + params.BucketSize,
 						Count:       0,
 					},
 				},
@@ -149,7 +151,7 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 			// query
 			conceptObservations, err := ds.db.RetrieveObservationsForConcept(
 				conceptInfo.Code,
-				patientList,
+				patientSetIDInt,
 				params.MinObservations,
 			)
 			if err != nil {
@@ -181,7 +183,7 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 			// query
 			modifierObservations, err := ds.db.RetrieveObservationsForModifier(
 				modifierInfo.Code,
-				patientList,
+				patientSetIDInt,
 				params.MinObservations,
 			)
 			if err != nil {
@@ -223,6 +225,120 @@ func (ds *I2b2DataSource) StatisticsQuery(userID string, params *models.Statisti
 		statResults = append(statResults, result.(*models.StatsResult))
 		return true
 	})
+
+	return
+}
+
+// StatisticsQueryThroughPDOQuery makes a statistics query retrieves the observation through an i2b2 PDO query.
+// It works (it should be better tested though) but it is not used at the moment because it takes much longer than the version that access the database directly.
+func (ds *I2b2DataSource) StatisticsQueryThroughPDOQuery(userID string, params *models.StatisticsQueryParameters) (statResults []*i2b2clientmodels.StatsResult, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "StatisticsQuery")
+	defer span.End()
+
+	// validating params
+	err = params.Validate()
+	if err != nil {
+		return nil, fmt.Errorf("while validating parameters for statistics query %s: %v", params.ID, err)
+	}
+
+	logrus.Info("fetching patients for statistics query")
+
+	// create the panel containing the analytes (OR-ed)
+	analytePanel := models.Panel{
+		Not:          false,
+		ConceptItems: nil,
+	}
+	for _, analyte := range params.Analytes {
+		analytePanel.ConceptItems = append(analytePanel.ConceptItems, *analyte)
+	}
+
+	patientSetID, patientCount, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
+		ID: uuid.New().String(),
+		Definition: models.ExploreQueryDefinition{
+			Timing:              params.Constraint.Timing,
+			SelectionPanels:     append(params.Constraint.SelectionPanels, analytePanel),
+			SequentialOperators: params.Constraint.SequentialOperators,
+			SequentialPanels:    params.Constraint.SequentialPanels,
+		},
+	})
+
+	if err != nil {
+		errMsg := "when running explore query for statistics query"
+		logrus.Errorf("%s : %s", errMsg, err.Error())
+		return nil, fmt.Errorf(errMsg)
+	}
+
+	if patientCount == 0 { // create a single empty bucket for each analyte
+		for _, analyte := range params.Analytes {
+			statResults = append(statResults, &i2b2clientmodels.StatsResult{
+				AnalyteName: analyte.QueryTerm,
+				Buckets: []*i2b2clientmodels.Bucket{
+					{
+						LowerBound:  float64(params.MinObservations),
+						HigherBound: float64(params.MinObservations) + params.BucketSize,
+						Count:       0,
+					},
+				},
+			})
+		}
+		return
+	}
+
+	// create panels to retrieve observations for each analyte
+	panels := make([]i2b2clientmodels.Panel, 0, len(params.Analytes))
+	for i, analyte := range params.Analytes {
+
+		item := i2b2clientmodels.Item{
+			ItemKey: i2b2clientmodels.ConvertPathToI2b2Format(strings.TrimSpace(analyte.QueryTerm)),
+		}
+		cbv := &i2b2clientmodels.ConstrainByValue{
+			ValueType:       "NUMBER",
+			ValueOperator:   "GE", //greater or equal
+			ValueConstraint: strconv.FormatInt(params.MinObservations, 10),
+		}
+
+		if analyte.Modifier.Key == "" {
+			item.ConstrainByValue = cbv
+		} else {
+			item.ConstrainByModifier = &i2b2clientmodels.ConstrainByModifier{
+				AppliedPath:      i2b2clientmodels.ConvertAppliedPathToI2b2Format(strings.TrimSpace(analyte.Modifier.AppliedPath)),
+				ModifierKey:      i2b2clientmodels.ConvertPathToI2b2Format(strings.TrimSpace(analyte.Modifier.Key)),
+				ConstrainByValue: cbv,
+			}
+		}
+
+		panels = append(panels, i2b2clientmodels.Panel{
+			Name:   strconv.Itoa(i),
+			Invert: "0",
+			Items:  []i2b2clientmodels.Item{item},
+		})
+	}
+
+	// retrieve observation sets
+	observationSets, err := ds.getObservationSets(patientSetID, panels)
+	if err != nil {
+		errMsg := "while retrieving observations for statistics query"
+		logrus.Errorf("%s : %s", errMsg, err.Error())
+		return nil, fmt.Errorf(errMsg)
+	}
+
+	// remove outliers and bin observations
+	for _, observationSet := range observationSets {
+		if err := observationSet.RemoveOutliers(); err != nil {
+			errMsg := "while removing outliers from observations in statistics query"
+			logrus.Errorf("%s : %s", errMsg, err.Error())
+			return nil, fmt.Errorf(errMsg)
+		}
+
+		binnedObs, err := observationSet.BinObservations(params.MinObservations, params.BucketSize)
+		if err != nil {
+			errMsg := "while binning observations in statistics query"
+			logrus.Errorf("%s : %s", errMsg, err.Error())
+			return nil, fmt.Errorf(errMsg)
+		}
+		statResults = append(statResults, binnedObs)
+	}
 
 	return
 }

@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
 
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
@@ -14,7 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
-	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )

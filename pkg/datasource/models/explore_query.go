@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	i2b2clientmodels "github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 const (
@@ -59,8 +61,13 @@ const (
 
 // ExploreQueryParameters is the parameter for the ExploreQuery operation.
 type ExploreQueryParameters struct {
-	ID         string                 `json:"id"`
-	Definition ExploreQueryDefinition `json:"definition"`
+	ID string `json:"id"`
+
+	// Definition is the explore query definition.
+	Definition ExploreQueryDefinition
+
+	// OutputDataObjectsSharedIDs is a map of output data object names to their shared IDs.`json:"definition"`
+	OutputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID `json:"outputDataObjectsSharedIDs"`
 }
 
 // ExploreQueryDefinition is the query definition of ExploreQueryParameters.

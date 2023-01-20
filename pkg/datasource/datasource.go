@@ -243,12 +243,39 @@ func (ds *I2b2DataSource) GetDataSourceCustomData() map[string]interface{} {
 }
 
 // Query implements the data source interface Query function.
-func (ds *I2b2DataSource) Query(userID string, operation string, jsonParameters []byte, outputDataObjectsSharedIDs map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID) (jsonResults []byte, outputDataObjects []sdk.DataObject, err error) {
-	ds.logger.Infof("executing operation %v for user %v", operation, userID)
-	ds.logger.Debugf("parameters: %v", string(jsonParameters))
+func (ds *I2b2DataSource) Query(userID string, params map[string]interface{}, resultKeys ...string) (map[string]interface{}, error) {
+	operation, ok := params["operation"].(string)
+	if !ok {
+		return nil, fmt.Errorf("operation not specified")
+	}
+
+	jsonParams, ok := params["params"].([]byte)
+	if !ok {
+		return nil, fmt.Errorf("params not specified")
+	}
+
+	if len(resultKeys) == 0 {
+		resultKeys = append(resultKeys, "default")
+	}
+
+	// Get outputDataObjectsSharedIDs from the jsonParams
+	var unmarshaledJson map[string]interface{}
+	if err := json.Unmarshal(jsonParams, &unmarshaledJson); err != nil {
+		return nil, err
+	}
+	outputDataObjectsSharedIDs := params["outputDataObjectsSharedIDs"].(map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID)
+	if unmarshaledJson["outputDataObjectsSharedIDs"] != nil {
+
+		for k, v := range unmarshaledJson["outputDataObjectsSharedIDs"].(map[string]interface{}) {
+			outputDataObjectsSharedIDs[sdk.OutputDataObjectName(k)] = sdkmodels.DataObjectSharedID(v.(string))
+		}
+	}
 
 	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "Query:"+operation)
 	defer span.End()
+
+	ds.logger.Infof("executing operation %v for user %v", operation, userID)
+	ds.logger.Debugf("parameters: %v", string(jsonParams))
 
 	var handler OperationHandler
 	switch Operation(operation) {
@@ -272,16 +299,20 @@ func (ds *I2b2DataSource) Query(userID string, operation string, jsonParameters 
 		handler = ds.StatisticsQueryHandler
 
 	default:
-		return nil, nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)
+		return nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)
 	}
 
-	if jsonResults, outputDataObjects, err = handler(userID, jsonParameters, outputDataObjectsSharedIDs); err != nil {
-		return nil, nil, ds.logError(fmt.Sprintf("executing operation %v", operation), err)
+	jsonResults, outputDataObjects, err := handler(userID, jsonParams, outputDataObjectsSharedIDs)
+	if err != nil {
+		return nil, ds.logError(fmt.Sprintf("executing operation %v", operation), err)
 	}
 
 	ds.logger.Infof("successfully executed operation %v for user %v", operation, userID)
-	ds.logger.Debugf("results: %v", string(jsonResults))
-	return
+
+	results := make(map[string]interface{})
+	results["default"] = jsonResults
+	results["outputDataObjects"] = outputDataObjects
+	return results, nil
 }
 
 // logError creates and logs an error.

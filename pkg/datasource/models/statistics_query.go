@@ -3,6 +3,9 @@ package models
 import (
 	"fmt"
 	"strings"
+
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 // StatisticsQueryParameters are the parameters for the OperationStatisticsQuery operation.
@@ -24,6 +27,9 @@ type StatisticsQueryParameters struct {
 
 	// MinObservations is the total minimal number of observations for each analyte.
 	MinObservations int64 `json:"minObservations"`
+
+	// OutputDataObjectsSharedIDs is a map of output data object names to their shared IDs.`json:"definition"`
+	OutputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID `json:"outputDataObjectsSharedIDs"`
 }
 
 // Validate validates StatisticsQueryParameters fields.

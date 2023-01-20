@@ -255,18 +255,18 @@ func (ds *I2b2DataSource) Query(userID string, params map[string]interface{}, re
 	}
 
 	if len(resultKeys) == 0 {
-		resultKeys = append(resultKeys, "default")
+		resultKeys = append(resultKeys, sdk.DefaultResultKey)
 	}
 
 	// Get outputDataObjectsSharedIDs from the jsonParams
-	var unmarshaledJson map[string]interface{}
-	if err := json.Unmarshal(jsonParams, &unmarshaledJson); err != nil {
+	var unmarshaledJSON map[string]interface{}
+	if err := json.Unmarshal(jsonParams, &unmarshaledJSON); err != nil {
 		return nil, err
 	}
 	outputDataObjectsSharedIDs := params["outputDataObjectsSharedIDs"].(map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID)
-	if unmarshaledJson["outputDataObjectsSharedIDs"] != nil {
+	if unmarshaledJSON["outputDataObjectsSharedIDs"] != nil {
 
-		for k, v := range unmarshaledJson["outputDataObjectsSharedIDs"].(map[string]interface{}) {
+		for k, v := range unmarshaledJSON["outputDataObjectsSharedIDs"].(map[string]interface{}) {
 			outputDataObjectsSharedIDs[sdk.OutputDataObjectName(k)] = sdkmodels.DataObjectSharedID(v.(string))
 		}
 	}
@@ -310,7 +310,7 @@ func (ds *I2b2DataSource) Query(userID string, params map[string]interface{}, re
 	ds.logger.Infof("successfully executed operation %v for user %v", operation, userID)
 
 	results := make(map[string]interface{})
-	results["default"] = jsonResults
+	results[sdk.DefaultResultKey] = jsonResults
 	results["outputDataObjects"] = outputDataObjects
 	return results, nil
 }

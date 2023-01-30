@@ -10,7 +10,7 @@ func (db PostgresDatabase) SearchOntology(searchString, limit string) (ontologyE
 
 	limitInt, err := strconv.ParseInt(limit, 10, 64)
 	if limitInt <= 0 || err != nil {
-		limitInt = 10
+		limitInt = 30
 	}
 
 	row, err := db.handle.Query("SELECT * FROM i2b2metadata.get_ontology_elements($1,$2) ORDER BY id, fullpath DESC", searchString, limitInt)

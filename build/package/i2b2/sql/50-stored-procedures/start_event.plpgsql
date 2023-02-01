@@ -1,6 +1,6 @@
 -- pl/pgsql function that retrieves the absolute date of the start event for survival analysis
 
-CREATE OR REPLACE FUNCTION i2b2demodata.start_event(patient_list integer[], start_code varchar[], start_modifier_code varchar[], start_earliest boolean)
+CREATE OR REPLACE FUNCTION i2b2demodata.start_event(patient_set_id bigint, start_code varchar[], start_modifier_code varchar[], start_earliest boolean)
 RETURNS TABLE( patient_num bigint, start_date date)
 STABLE
 PARALLEL SAFE
@@ -8,7 +8,16 @@ AS $$
 DECLARE
   qq1 text := 'SELECT patient_num::bigint, ';
   qq2 text := ' AS start_date FROM i2b2demodata.observation_fact
-              WHERE patient_num=ANY($1) AND concept_cd=ANY($2) AND modifier_cd=ANY($3)
+              WHERE patient_num IN
+                                  (SELECT pset.patient_num
+                                   FROM
+                                   i2b2demodata.qt_patient_set_collection pset
+                                   WHERE
+                                   pset.result_instance_id = $1) 
+              AND 
+              concept_cd=ANY($2) 
+              AND 
+              modifier_cd=ANY($3)
               GROUP BY patient_num';
 
 BEGIN
@@ -23,7 +32,7 @@ qq1 := qq1 || qq2;
 
 
 RETURN QUERY EXECUTE qq1
-USING patient_list, start_code, start_modifier_code;
+USING patient_set_id, start_code, start_modifier_code;
 
 
 END;

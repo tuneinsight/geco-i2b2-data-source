@@ -119,7 +119,7 @@ func (db PostgresDatabase) GetModifierCodes(path string, appliedPath string) ([]
 
 // BuildTimePoints runs the SQL queries, process their results to build sequential data and aggregate them.
 func (db PostgresDatabase) BuildTimePoints(
-	patientSet []int64,
+	patientSetID int64,
 	startConceptCodes []string,
 	startModifierCodes []string,
 	startEarliest bool,
@@ -129,17 +129,18 @@ func (db PostgresDatabase) BuildTimePoints(
 	maxLimit int64,
 ) (
 	eventAggregates map[int64]*Events,
-	patientWithoutStartEvent map[int64]struct{},
-	patientWithoutAnyEndEvent map[int64]struct{},
+	patientsWithStartEvent int64,
+	patientsWithoutAnyEndEvent map[int64]struct{},
 	err error,
 ) {
 	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "BuildTimePoints")
 	defer span.End()
 
-	patientsToStartEvent, patientWithoutStartEvent, err := db.startEvent(patientSet, startConceptCodes, startModifierCodes, startEarliest)
+	patientsToStartEvent, err := db.startEvent(patientSetID, startConceptCodes, startModifierCodes, startEarliest)
 	if err != nil {
 		return
 	}
+	patientsWithStartEvent = int64(len(patientsToStartEvent))
 
 	patientsToEndEvents, err := db.endEvents(patientsToStartEvent, endConceptCodes, endModifierCodes)
 	if err != nil {
@@ -151,7 +152,7 @@ func (db PostgresDatabase) BuildTimePoints(
 		return
 	}
 
-	patientsToCensoringEvent, patientWithoutAnyEndEvent, err := db.censoringEvent(patientsToStartEvent, patientsWithoutEnd, endConceptCodes, endModifierCodes)
+	patientsToCensoringEvent, patientsWithoutAnyEndEvent, err := db.censoringEvent(patientsToStartEvent, patientsWithoutEnd, endConceptCodes, endModifierCodes)
 	if err != nil {
 		return
 	}
@@ -315,79 +316,67 @@ func (db PostgresDatabase) compileTimePoints(patientWithEndEvents, patientWithCe
 
 // startEvent calls the postgres procedure to get the list of patients and start event. Concept codes and modifier codes define the start event.
 // As multiple candidates are possible, earliest flag defines if the earliest or the latest date must be considered as the start event.
-func (db PostgresDatabase) startEvent(patientList []int64, conceptCodes, modifierCodes []string, earliest bool) (map[int64]time.Time, map[int64]struct{}, error) {
+func (db PostgresDatabase) startEvent(patientSetID int64, conceptCodes, modifierCodes []string, earliest bool) (map[int64]time.Time, error) {
 
 	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "startEvent")
 	defer span.End()
 
-	setStrings := make([]string, len(patientList))
-
-	for i, patient := range patientList {
-		setStrings[i] = strconv.FormatInt(patient, 10)
-	}
-	setDefinition := "{" + strings.Join(setStrings, ",") + "}"
 	conceptDefinition := "{" + strings.Join(conceptCodes, ",") + "}"
 	modifierDefinition := "{" + strings.Join(modifierCodes, ",") + "}"
 
-	description := fmt.Sprintf("get start event (patient list: %s, start concept codes: %s, start modifier codes: %s, begins with earliest occurence: %t): procedure: %s",
-		setDefinition, conceptDefinition, modifierDefinition, earliest, "i2b2demodata.start_event")
+	description := fmt.Sprintf("get start event (patient set ID: %d, start concept codes: %s, start modifier codes: %s, begins with earliest occurence: %t): procedure: %s",
+		patientSetID, conceptDefinition, modifierDefinition, earliest, "i2b2demodata.start_event")
 
 	logrus.Debugf("survival analysis: timepoints: retrieving the start event dates for the patients: %s", description)
 
 	err := db.handle.Ping()
 	if err != nil {
 		err = fmt.Errorf("while connecting to database when calling start event: %v", err)
-		return nil, nil, err
+		return nil, err
 	}
-	row, err := db.handle.Query("SELECT i2b2demodata.start_event($1,$2,$3,$4)", setDefinition, conceptDefinition, modifierDefinition, earliest)
+	row, err := db.handle.Query("SELECT i2b2demodata.start_event($1,$2,$3,$4)", patientSetID, conceptDefinition, modifierDefinition, earliest)
 	if err != nil {
 		err = fmt.Errorf("while calling database for retrieving start event dates: %s; DB operation: %s", err.Error(), description)
-		return nil, nil, err
+		return nil, err
 	}
 
-	patientsWithStartEvent := make(map[int64]time.Time, len(patientList))
-	patientsWithoutStartEvent := make(map[int64]struct{}, len(patientList))
+	patientsWithStartEvent := make(map[int64]time.Time)
 
 	var record = new(string)
 	for row.Next() {
 		err = row.Scan(record)
 		if err != nil {
 			err = fmt.Errorf("while reading database record stream for retrieving start event dates: %s; DB operation: %s", err.Error(), description)
-			return nil, nil, err
+			return nil, err
 		}
 
 		recordEntries := strings.Split(strings.Trim(*record, "()"), ",")
 		if len(recordEntries) != 2 {
 			err = fmt.Errorf("while parsing SQL record stream: expected to find 2 items in a string like \"(<integer>,<date>)\" in record %s", *record)
-			return nil, nil, err
+			return nil, err
 		}
 		patientID, err := strconv.ParseInt(recordEntries[0], 10, 64)
 		if err != nil {
 			err = fmt.Errorf("while parsing patient number \"%s\": %s; DB operation: %s", recordEntries[0], err.Error(), description)
-			return nil, nil, err
+			return nil, err
 		}
 		startDate, err := time.Parse(dateFormat, recordEntries[1])
 		if err != nil {
 			err = fmt.Errorf("while parsing patient number \"%s\": %s; DB operation: %s", recordEntries[1], err.Error(), description)
-			return nil, nil, err
+			return nil, err
 		}
 
 		if _, isIn := patientsWithStartEvent[patientID]; isIn {
 			err = fmt.Errorf("while filling patient-to-start-date map: patient %d already found in map, this is not expected; DB operation: %s", patientID, description)
-			return nil, nil, err
+			return nil, err
 		}
 
 		patientsWithStartEvent[patientID] = startDate
 
 	}
-	for _, patientNumber := range patientList {
-		if _, isIn := patientsWithStartEvent[patientNumber]; !isIn {
-			patientsWithoutStartEvent[patientNumber] = struct{}{}
-		}
-	}
 
 	logrus.Debugf("Survival analysis: timepoints: successfully found %d patients with start event; DB operation: %s", len(patientsWithStartEvent), description)
-	return patientsWithStartEvent, patientsWithoutStartEvent, nil
+	return patientsWithStartEvent, nil
 
 }
 

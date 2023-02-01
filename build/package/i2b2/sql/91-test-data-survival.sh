@@ -2154,12 +2154,21 @@ VALUES
 
 INSERT INTO i2b2demodata.qt_query_instance (query_instance_id, query_master_id, user_id, group_id, batch_mode, start_date, end_date, delete_flag, status_type_id, message)
 VALUES
-(-100, -100, 'demo', 'Demo', 'FINISHED', '2022-03-04 22:19:50.704', '2022-03-04 22:19:51.664', 'N', 3, '');
+(-100, -100, 'demo', 'Demo', 'FINISHED', '2022-03-04 22:19:50.704', '2022-03-04 22:19:51.664', 'N', 3, ''),
+(-200, -100, 'demo', 'Demo', 'FINISHED', '2022-03-04 22:19:50.704', '2022-03-04 22:19:51.664', 'N', 3, ''),
+(-300, -100, 'demo', 'Demo', 'FINISHED', '2022-03-04 22:19:50.704', '2022-03-04 22:19:51.664', 'N', 3, ''),
+(-400, -100, 'demo', 'Demo', 'FINISHED', '2022-03-04 22:19:50.704', '2022-03-04 22:19:51.664', 'N', 3, '');
 
 INSERT INTO i2b2demodata.qt_query_result_instance (result_instance_id, query_instance_id, result_type_id, set_size, start_date, end_date, status_type_id, delete_flag, message, description, real_set_size, obfusc_method)
 VALUES
 (-101, -100, 1, 228, '2022-03-04 22:19:50.731', '2022-03-04 22:19:51.571', 3, 'N', '', 'Patient Set for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, ''),
-(-102, -100, 4, 228, '2022-03-04 22:19:50.744', '2022-03-04 22:19:51.613', 3, 'N', '', 'Number of patients for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, '');
+(-102, -100, 4, 228, '2022-03-04 22:19:50.744', '2022-03-04 22:19:51.613', 3, 'N', '', 'Number of patients for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, ''),
+(-201, -200, 1, 0, '2022-03-04 22:19:50.731', '2022-03-04 22:19:51.571', 3, 'N', '', 'Patient Set for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, ''),
+(-202, -200, 4, 0, '2022-03-04 22:19:50.744', '2022-03-04 22:19:51.613', 3, 'N', '', 'Number of patients for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, ''),
+(-301, -300, 1, 2, '2022-03-04 22:19:50.731', '2022-03-04 22:19:51.571', 3, 'N', '', 'Patient Set for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, ''),
+(-302, -300, 4, 2, '2022-03-04 22:19:50.744', '2022-03-04 22:19:51.613', 3, 'N', '', 'Number of patients for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, ''),
+(-401, -400, 1, 3, '2022-03-04 22:19:50.731', '2022-03-04 22:19:51.571', 3, 'N', '', 'Patient Set for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, ''),
+(-402, -400, 4, 3, '2022-03-04 22:19:50.744', '2022-03-04 22:19:51.613', 3, 'N', '', 'Number of patients for "63eb6d7e-d437-4f37-a346-4819ed1c74c1"', 1, '');
 
 INSERT INTO i2b2demodata.qt_patient_set_collection (patient_set_coll_id, result_instance_id, set_index, patient_num)
 VALUES
@@ -2390,7 +2399,12 @@ VALUES
 (-225, -101, 225, 1361),
 (-226, -101, 226, 1362),
 (-227, -101, 227, 1363),
-(-228, -101, 228, 1364);
+(-228, -101, 228, 1364),
+(-229, -301, 229, 1137),
+(-230, -301, 230, 1138),
+(-231, -401, 231, 1137),
+(-232, -401, 232, 1138),
+(-233, -401, 233, 9999999);
 
 INSERT INTO i2b2demodata.qt_pdo_query_master VALUES (-1, 'demo', 'Demo', '2022-03-04 22:19:51.786', 'xml-request');
 INSERT INTO i2b2demodata.qt_xml_result (xml_result_id, result_instance_id, xml_value) VALUES (-1, -102, 'xml-result');

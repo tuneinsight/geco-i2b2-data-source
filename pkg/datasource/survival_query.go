@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strconv"
 	"sync"
 
 	"github.com/google/uuid"
@@ -136,7 +137,7 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 
 			logrus.Infof("survival analysis: I2B2 explore for subgroup %d", i)
 			logrus.Tracef("survival analysis: panels %+v", panels)
-			patientSetID, _, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
+			patientSetID, patientCount, err := ds.ExploreQuery(userID, &models.ExploreQueryParameters{
 				ID: uuid.New().String(),
 				Definition: models.ExploreQueryDefinition{
 					Timing:              subGroupDefinition.Constraint.Timing,
@@ -145,7 +146,7 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 					SequentialPanels:    subGroupDefinition.Constraint.SequentialPanels,
 				},
 			})
-			patientList, err := ds.getPatientIDs(patientSetID)
+			patientSetIDInt, _ := strconv.ParseInt(patientSetID, 10, 64)
 
 			if err != nil {
 				returnedErr := fmt.Errorf("during subgroup explore procedure")
@@ -154,12 +155,12 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 				return
 			}
 			logrus.Infof("survival analysis: successful I2B2 explore query %d", i)
-			logrus.Debugf("survival analysis: there are %d patients in the subgroup", len(patientList))
+			logrus.Debugf("survival analysis: there are %d patients in the subgroup", patientCount)
 
 			// --- build time points
 
-			timePointsEventsMap, patientWithoutStartEvent, patientWithoutEndEvent, err := ds.db.BuildTimePoints(
-				patientList,
+			timePointsEventsMap, patientsWithStartEvent, patientsWithoutEndEvent, err := ds.db.BuildTimePoints(
+				patientSetIDInt,
 				startConceptCodes,
 				startModifierCodes,
 				params.StartsWhen == models.WhenEarliest,
@@ -175,21 +176,15 @@ func (ds *I2b2DataSource) SurvivalQuery(userID string, params *models.SurvivalQu
 				errChan <- err
 				return
 			}
-			logrus.Debugf("survival analysis: found %d patients without the start event", len(patientWithoutStartEvent))
-			logrus.Debugf("survival analysis: found %d patients without the end (censoring or of interest) event", len(patientWithoutEndEvent))
+			logrus.Debugf("survival analysis: found %d patients without the start event", patientCount-patientsWithStartEvent)
+			logrus.Debugf("survival analysis: found %d patients without the end (censoring or of interest) event", len(patientsWithoutEndEvent))
 
 			spanTimePointsToList := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "TimePointsToList")
 			timePoints := timePointMapToList(timePointsEventsMap)
 			spanTimePointsToList.End()
 
 			// --- initial count
-			if len(patientList) < len(patientWithoutStartEvent) {
-				logrus.Errorf("length of the patient list %d cannot be smaller than this of patients without start event %d", len(patientList), len(patientWithoutStartEvent))
-				err = fmt.Errorf("while computing initial count")
-				errChan <- err
-				return
-			}
-			newEventGroup.InitialCount = int64(len(patientList) - len(patientWithoutStartEvent))
+			newEventGroup.InitialCount = patientsWithStartEvent
 
 			// --- change time granularity
 			spanBinTimePoints := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "BinTimePoints")

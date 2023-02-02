@@ -1,0 +1,13 @@
+diff --git a/edu.harvard.i2b2.crc/src/server/edu/harvard/i2b2/crc/dao/pdo/input/ModifierConstrainsHandler.java b/edu.harvard.i2b2.crc/src/server/edu/harvard/i2b2/crc/dao/pdo/input/ModifierConstrainsHandler.java
+index b0d4da1..3a96ffd 100755
+--- a/edu.harvard.i2b2.crc/src/server/edu/harvard/i2b2/crc/dao/pdo/input/ModifierConstrainsHandler.java
++++ b/edu.harvard.i2b2.crc/src/server/edu/harvard/i2b2/crc/dao/pdo/input/ModifierConstrainsHandler.java
+@@ -65,6 +65,8 @@ public class ModifierConstrainsHandler {
+ 
+ 		dimPath.replaceAll("'", "''");
+ 
++		dimCode = dimCode.replaceAll("\\\\", "\\\\\\\\");
++
+ 		constrainSql = "  (" + factTableColumn + " IN ( select "
+ 				+ factTableColumn + " from " + this.schemaName + dimTableName + " where "
+ 				+ dimColumnName + " " + dimOperator + " " + dimCode 

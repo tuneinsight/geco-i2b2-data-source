@@ -13,10 +13,11 @@ import (
 )
 
 func TestExploreQueryConcept(t *testing.T) {
+
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -28,11 +29,13 @@ func TestExploreQueryConcept(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err := ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 3, count)
 	require.Subset(t, []int64{1, 2, 3}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -44,11 +47,13 @@ func TestExploreQueryConcept(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err = ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 4, count)
 	require.Subset(t, []int64{1, 2, 3, 4}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "2",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -70,11 +75,13 @@ func TestExploreQueryConcept(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err = ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 3, count)
 	require.Subset(t, []int64{1, 2, 3}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "3",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -88,6 +95,8 @@ func TestExploreQueryConcept(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err = ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 4, count)
 	require.Subset(t, []int64{1, 2, 3, 4}, patientList)
@@ -97,7 +106,7 @@ func TestExploreQueryConceptValue(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -112,11 +121,13 @@ func TestExploreQueryConceptValue(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err := ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 1, count)
 	require.Subset(t, []int64{1}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -136,6 +147,8 @@ func TestExploreQueryConceptValue(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err = ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 2, count)
 	require.Subset(t, []int64{1, 4}, patientList)
@@ -145,7 +158,7 @@ func TestExploreQueryModifier(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -164,11 +177,13 @@ func TestExploreQueryModifier(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err := ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 2, count)
 	require.Subset(t, []int64{1, 3}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -196,6 +211,8 @@ func TestExploreQueryModifier(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err = ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 3, count)
 	require.Subset(t, []int64{1, 2, 3}, patientList)
@@ -205,7 +222,7 @@ func TestExploreQueryModifierValue(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	_, count, patientList, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err := ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "0",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -227,11 +244,13 @@ func TestExploreQueryModifierValue(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err := ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 1, count)
 	require.Subset(t, []int64{1}, patientList)
 
-	_, count, patientList, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
+	patientSetID, count, err = ds.ExploreQuery("testuser1", &models.ExploreQueryParameters{
 		ID: "1",
 		Definition: models.ExploreQueryDefinition{
 			SelectionPanels: []models.Panel{{
@@ -268,6 +287,8 @@ func TestExploreQueryModifierValue(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+	patientList, err = ds.getPatientIDs(patientSetID)
+	require.NoError(t, err)
 	t.Logf("results: count=%v, patientList=%v", count, patientList)
 	require.EqualValues(t, 1, count)
 	require.Subset(t, []int64{2}, patientList)
@@ -301,7 +322,7 @@ func TestExploreQueryWithSequence(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	patientSetID, patientCount, _, err := ds.ExploreQuery(
+	patientSetID, patientCount, err := ds.ExploreQuery(
 		"testUser",
 		&models.ExploreQueryParameters{
 			ID: "",
@@ -342,10 +363,10 @@ func TestExploreQueryWithSequence(t *testing.T) {
 		})
 
 	assert.NoError(t, err)
-	t.Log("count:"+strconv.FormatInt(patientCount, 10), "set ID:"+strconv.FormatInt(patientSetID, 10))
+	t.Log("count:"+strconv.FormatInt(patientCount, 10), "set ID:"+patientSetID, 10)
 
 	// not a correct number of sequence panels for the number of sequence operators
-	patientCount, patientSetID, _, err = ds.ExploreQuery(
+	patientSetID, patientCount, err = ds.ExploreQuery(
 		"testUser",
 		&models.ExploreQueryParameters{
 			ID: "",
@@ -371,5 +392,5 @@ func TestExploreQueryWithSequence(t *testing.T) {
 		})
 
 	assert.Error(t, err)
-	t.Log("count:"+strconv.FormatInt(patientCount, 10), "set ID:"+strconv.FormatInt(patientSetID, 10))
+	t.Log("count:"+strconv.FormatInt(patientCount, 10), "set ID:"+patientSetID)
 }

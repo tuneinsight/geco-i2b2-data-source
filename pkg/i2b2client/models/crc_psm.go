@@ -111,6 +111,7 @@ func NewPanel(panelNb int, not bool, timing Timing, items []Item) Panel {
 
 // Panel is an i2b2 XML panel.
 type Panel struct {
+	Name                 string `xml:"name,attr,omitempty"`
 	PanelNumber          string `xml:"panel_number"`
 	PanelAccuracyScale   string `xml:"panel_accuracy_scale"`
 	Invert               string `xml:"invert"`

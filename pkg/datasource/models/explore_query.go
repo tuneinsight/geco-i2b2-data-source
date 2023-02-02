@@ -59,8 +59,9 @@ const (
 
 // ExploreQueryParameters is the parameter for the ExploreQuery operation.
 type ExploreQueryParameters struct {
-	ID         string                 `json:"id"`
-	Definition ExploreQueryDefinition `json:"definition"`
+	ID          string                 `json:"id"`
+	Definition  ExploreQueryDefinition `json:"definition"`
+	PatientList bool                   `json:"patientList,omitempty"`
 }
 
 // ExploreQueryDefinition is the query definition of ExploreQueryParameters.

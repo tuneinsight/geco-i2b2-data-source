@@ -71,7 +71,7 @@ func TestQueryDataObject(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	params := `{"id": "99999999-9999-1122-0000-999999999999", "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`
+	params := `{"id": "99999999-9999-1122-0000-999999999999", "patientList": true, "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`
 	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{
 		outputNameExploreQueryCount:       "99999999-9999-9999-1111-999999999999",
 		outputNameExploreQueryPatientList: "99999999-9999-9999-0000-999999999999",
@@ -112,6 +112,8 @@ func TestWorkflow(t *testing.T) {
 	require.NoError(t, err)
 	ds.CredentialsProvider = credProvider
 
+	testWorkflow(t, ds)
+
 }
 
 func testWorkflow(t *testing.T, ds *I2b2DataSource) {
@@ -148,6 +150,7 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 	queryID := "99999999-9999-9999-9999-999999999999"
 	params = fmt.Sprintf(`{
 		"id": "%v",
+		"patientList": true,
 		"definition": {
 			"selectionPanels": [
 				{
@@ -185,7 +188,7 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 		outputNameExploreQueryCount:       "99999999-9999-9999-1111-999999999999",
 		outputNameExploreQueryPatientList: "99999999-9999-9999-0000-999999999999",
 	}
-	res, do, err = ds.Query(user, "exploreQuery", []byte(params), sharedIDs)
+	_, do, err = ds.Query(user, "exploreQuery", []byte(params), sharedIDs)
 	require.NoError(t, err)
 	require.EqualValues(t, 2, len(do))
 	for i := range do {
@@ -199,25 +202,26 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 	}
 
 	// save cohort
-	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s"}`, queryID)
+	projectID := "99999999-9999-9999-1111-999999999999"
+	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s", "projectID": "%s"}`, queryID, projectID)
 	res, do, err = ds.Query(user, "addCohort", []byte(params), nil)
 	require.NoError(t, err)
 	require.Empty(t, do)
 	require.EqualValues(t, "", string(res))
 
-	params = `{}`
+	params = fmt.Sprintf(`{"projectID": "%s"}`, projectID)
 	res, do, err = ds.Query(user, "getCohorts", []byte(params), nil)
 	require.NoError(t, err)
 	require.Empty(t, do)
 	require.Contains(t, string(res), "mycohort")
 
-	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s"}`, queryID)
+	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s", "projectID": "%s"}`, queryID, projectID)
 	res, do, err = ds.Query(user, "deleteCohort", []byte(params), nil)
 	require.NoError(t, err)
 	require.Empty(t, do)
 	require.EqualValues(t, "", string(res))
 
-	params = `{"limit": 7}`
+	params = fmt.Sprintf(`{"projectID": "%s", "limit": 7}`, projectID)
 	res, do, err = ds.Query(user, "getCohorts", []byte(params), nil)
 	require.NoError(t, err)
 	require.Empty(t, do)

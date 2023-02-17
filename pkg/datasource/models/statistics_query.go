@@ -25,7 +25,7 @@ type StatisticsQueryParameters struct {
 	// BucketSize is the bucket size for each analyte.
 	BucketSize float64 `json:"bucketSize"`
 
-	// MinObservations is the total minimal number of observations for each analyte.
+	// MinObservations is minimum observation value for each analyte.
 	MinObservations int64 `json:"minObservations"`
 
 	// OutputDataObjectsSharedIDs is a map of output data object names to their shared IDs.`json:"definition"`

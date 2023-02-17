@@ -82,6 +82,7 @@ func TestQueryDataObject(t *testing.T) {
 
 	params := `{
 	"id": "99999999-9999-1122-0000-999999999999",
+	"patientList": true,
 	"definition": {
 		"selectionPanels": [{
 			"conceptItems": [{
@@ -132,6 +133,8 @@ func TestWorkflow(t *testing.T) {
 	})
 	require.NoError(t, err)
 	ds.CredentialsProvider = credProvider
+
+	testWorkflow(t, ds)
 
 }
 
@@ -193,6 +196,7 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 	queryID := "99999999-9999-9999-9999-999999999999"
 	params = fmt.Sprintf(`{
 		"id": "%v",
+		"patientList": true,
 		"definition": {
 			"selectionPanels": [
 				{
@@ -245,28 +249,30 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 	}
 
 	// save cohort
-	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s"}`, queryID)
+
+	projectID := "99999999-9999-9999-1111-999999999999"
+	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s", "projectID": "%s"}`, queryID, projectID)
 	results, err = ds.Query(user, map[string]interface{}{"operation": "addCohort", "params": params})
 	res = results["default"].([]byte)
 	require.NoError(t, err)
 	require.Empty(t, do)
 	require.EqualValues(t, "", string(res))
 
-	params = `{}`
+	params = fmt.Sprintf(`{"projectID": "%s"}`, projectID)
 	results, err = ds.Query(user, map[string]interface{}{"operation": "getCohorts", "params": params})
 	res = results["default"].([]byte)
 	require.NoError(t, err)
 	require.Empty(t, do)
 	require.Contains(t, string(res), "mycohort")
 
-	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s"}`, queryID)
+	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s", "projectID": "%s"}`, queryID, projectID)
 	results, err = ds.Query(user, map[string]interface{}{"operation": "deleteCohort", "params": params})
 	res = results["default"].([]byte)
 	require.NoError(t, err)
 	require.Empty(t, do)
 	require.EqualValues(t, "", string(res))
 
-	params = `{"limit": 7}`
+	params = fmt.Sprintf(`{"projectID": "%s", "limit": 7}`, projectID)
 	results, err = ds.Query(user, map[string]interface{}{"operation": "getCohorts", "params": params})
 	res = results["default"].([]byte)
 	require.NoError(t, err)

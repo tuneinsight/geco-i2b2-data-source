@@ -66,6 +66,9 @@ type ExploreQueryParameters struct {
 	// Definition is the explore query definition.
 	Definition ExploreQueryDefinition
 
+	// PatientList is true if the query should return the patient list.
+	PatientList bool `json:"patientList,omitempty"`
+
 	// OutputDataObjectsSharedIDs is a map of output data object names to their shared IDs.`json:"definition"`
 	OutputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID `json:"outputDataObjectsSharedIDs"`
 }

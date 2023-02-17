@@ -18,36 +18,36 @@ type StatsObservation struct {
 }
 
 // RetrieveObservationsForConcept returns the numerical values that correspond to the concept passed as argument for the specified cohort.
-func (db PostgresDatabase) RetrieveObservationsForConcept(code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
-	logrus.Debugf("executing stats SQL query: %s, concept: %s, patients: %v", sqlConcept, code, patientIDs)
+func (db PostgresDatabase) RetrieveObservationsForConcept(code string, patientSetID, minObservations int64) (statsObservations []StatsObservation, err error) {
+	logrus.Debugf("executing stats SQL query: %s, concept: %s, patientSetID: %v", sqlConcept, code, patientSetID)
 
 	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "RetrieveObservationsForConcept")
 	defer span.End()
 
-	return db.retrieveObservations(sqlConcept, code, patientIDs, minObservations)
+	return db.retrieveObservations(sqlConcept, code, patientSetID, minObservations)
 }
 
 // RetrieveObservationsForModifier returns the numerical values that correspond to the modifier passed as argument for the specified cohort.
-func (db PostgresDatabase) RetrieveObservationsForModifier(code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
-	logrus.Debugf("executing stats SQL query: %s, modifier: %s, patients: %v", sqlModifier, code, patientIDs)
+func (db PostgresDatabase) RetrieveObservationsForModifier(code string, patientSetID, minObservations int64) (statsObservations []StatsObservation, err error) {
+	logrus.Debugf("executing stats SQL query: %s, modifier: %s, patientSetID: %v", sqlModifier, code, patientSetID)
 
 	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "RetrieveObservationsForModifier")
 	defer span.End()
 
-	return db.retrieveObservations(sqlModifier, code, patientIDs, minObservations)
+	return db.retrieveObservations(sqlModifier, code, patientSetID, minObservations)
 }
 
 // retrieveObservations returns the numerical values that correspond to the concept or modifier whose code is passed as argument for the specified cohort.
-func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, patientIDs []int64, minObservations int64) (statsObservations []StatsObservation, err error) {
+func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, patientSetID, minObservations int64) (statsObservations []StatsObservation, err error) {
 
 	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "retrieveObservations")
 	defer span.End()
 
-	strPatientList := convertIntListToString(patientIDs)
+	//strPatientList := convertIntListToString(patientIDs)
 
 	var rows *sql.Rows
 	completeSQLQuery := sqlQuery + " " + sqlCohortFilter
-	rows, err = db.handle.Query(completeSQLQuery, code, minObservations, strPatientList)
+	rows, err = db.handle.Query(completeSQLQuery, code, minObservations, patientSetID)
 
 	if err != nil {
 		err = fmt.Errorf("while execution SQL query: %s", err.Error())
@@ -121,4 +121,11 @@ const sqlConcept string = sqlStart + ` concept_cd = $1 ` + sqlEnd
 const sqlEnd = ` AND valtype_cd = 'N' AND tval_char = 'E' AND nval_num is not null AND units_cd is not null AND units_cd != '@'
 AND nval_num >= $2 `
 
-const sqlCohortFilter = ` AND patient_num = ANY($3::integer[]) `
+// const sqlCohortFilter = ` AND patient_num = ANY($3::integer[]) `¨
+
+const sqlCohortFilter = ` AND patient_num IN
+(SELECT pset.patient_num
+ FROM
+i2b2demodata.qt_patient_set_collection pset
+					WHERE
+pset.result_instance_id = $3)`

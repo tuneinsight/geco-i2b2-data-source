@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 )
 
 // GetExploreQuery retrieves an explore query from the database.
@@ -75,7 +76,7 @@ func (db PostgresDatabase) SetExploreQueryError(userID, queryID string) error {
 }
 
 // SetExploreQuerySuccess sets the success status to an explore query and stores its results.
-func (db PostgresDatabase) SetExploreQuerySuccess(userID, queryID string, i2b2PatientSetID int64, gecoSharedIDCount, gecoSharedIDPatientList string) error {
+func (db PostgresDatabase) SetExploreQuerySuccess(userID, queryID, i2b2PatientSetID, gecoSharedIDCount, gecoSharedIDPatientList string) error {
 	const setExploreQuerySuccessStatement = `
 		UPDATE explore_query SET 
 			result_i2b2_patient_set_id = $3,
@@ -86,7 +87,9 @@ func (db PostgresDatabase) SetExploreQuerySuccess(userID, queryID string, i2b2Pa
 
 	if err := db.setExploreQueryStatus("success", userID, queryID); err != nil {
 		return err
-	} else if _, err := db.handle.Exec(setExploreQuerySuccessStatement, userID, queryID, i2b2PatientSetID, gecoSharedIDCount, gecoSharedIDPatientList); err != nil {
+	} else if patientSetID, err := strconv.ParseInt(i2b2PatientSetID, 10, 64); err != nil {
+		return fmt.Errorf("parsing patient set ID: %v", err)
+	} else if _, err := db.handle.Exec(setExploreQuerySuccessStatement, userID, queryID, patientSetID, gecoSharedIDCount, gecoSharedIDPatientList); err != nil {
 		return fmt.Errorf("executing setExploreQuerySuccessStatement: %v", err)
 	}
 

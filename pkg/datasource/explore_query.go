@@ -28,10 +28,12 @@ func (ds *I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []by
 
 	// parse parameters
 	decodedParams := &models.ExploreQueryParameters{}
-	if outputDataObjectsSharedIDs[outputNameExploreQueryCount] == "" || outputDataObjectsSharedIDs[outputNameExploreQueryPatientList] == "" {
-		return nil, nil, fmt.Errorf("missing output data object name")
-	} else if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
+	if err = json.Unmarshal(jsonParameters, decodedParams); err != nil {
 		return nil, nil, fmt.Errorf("decoding parameters: %v", err)
+	} else if outputDataObjectsSharedIDs[outputNameExploreQueryCount] == "" {
+		return nil, nil, fmt.Errorf("missing output data object name: %s", outputNameExploreQueryCount)
+	} else if decodedParams.PatientList && outputDataObjectsSharedIDs[outputNameExploreQueryPatientList] == "" {
+		return nil, nil, fmt.Errorf("missing output data object name: %s", outputNameExploreQueryPatientList)
 	}
 
 	// register query in DB
@@ -44,7 +46,7 @@ func (ds *I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []by
 	}
 
 	// run query and update status in DB
-	i2b2PatientSetID, count, patientList, err := ds.ExploreQuery(userID, decodedParams)
+	i2b2PatientSetID, count, err := ds.ExploreQuery(userID, decodedParams)
 	if err != nil {
 		return nil, nil, fmt.Errorf("executing query: %v", err)
 	} else if err := ds.db.SetExploreQuerySuccess(
@@ -62,39 +64,38 @@ func (ds *I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []by
 			SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryCount],
 			Columns:    []string{"count"},
 			IntValue:   &count,
-		}, {
-			OutputName: outputNameExploreQueryPatientList,
-			SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryPatientList],
-			IntVector:  patientList,
 		},
 	}
+
+	// retrieve patient list if needed
+	if decodedParams.PatientList {
+		patientList, err := ds.getPatientIDs(i2b2PatientSetID)
+		if err != nil {
+			return nil, nil, fmt.Errorf("getting patient IDs: %v", err)
+		}
+		outputDataObjects = append(outputDataObjects,
+			gecosdk.DataObject{
+				OutputName: outputNameExploreQueryPatientList,
+				SharedID:   outputDataObjectsSharedIDs[outputNameExploreQueryPatientList],
+				IntVector:  patientList,
+			})
+	}
+
 	return
 }
 
-// ExploreQuery makes an explore query, i.e. two i2b2 CRC queries, a PSM and a PDO query.
-func (ds *I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQueryParameters) (patientSetID int64, patientCount int64, patientList []int64, err error) {
+// ExploreQuery makes an explore query, i.e. an i2b2 CRC (PSM) query.
+func (ds *I2b2DataSource) ExploreQuery(userID string, params *models.ExploreQueryParameters) (patientSetID string, patientCount int64, err error) {
 
 	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "ExploreQuery")
 	defer span.End()
 
 	if i2b2PatientCount, i2b2PatientSetID, err := ds.doCrcPsmQuery(userID, *params); err != nil {
-		return -1, -1, nil, err
+		return "", -1, err
 	} else if patientCount, err = strconv.ParseInt(i2b2PatientCount, 10, 64); err != nil {
-		return -1, -1, nil, fmt.Errorf("parsing patient count: %v", err)
-	} else if patientSetID, err = strconv.ParseInt(i2b2PatientSetID, 10, 64); err != nil {
-		return -1, -1, nil, fmt.Errorf("parsing patient set ID: %v", err)
-	} else if i2b2PatientIDs, err := ds.getPatientIDs(i2b2PatientSetID); err != nil {
-		return -1, -1, nil, err
+		return "", -1, fmt.Errorf("parsing patient count: %v", err)
 	} else {
-		// parse patient IDs
-		patientList = make([]int64, 0)
-		for _, patientID := range i2b2PatientIDs {
-			parsedPatientID, err := strconv.ParseInt(patientID, 10, 64)
-			if err != nil {
-				return -1, -1, nil, fmt.Errorf("parsing patient ID: %v", err)
-			}
-			patientList = append(patientList, parsedPatientID)
-		}
+		patientSetID = i2b2PatientSetID
 	}
 	return
 }
@@ -173,20 +174,44 @@ func (ds *I2b2DataSource) doCrcPsmQuery(userID string, params models.ExploreQuer
 }
 
 // getPatientIDs retrieves the list of patient IDs from the i2b2 CRC using a patient set ID.
-func (ds *I2b2DataSource) getPatientIDs(patientSetID string) (patientIDs []string, err error) {
+func (ds *I2b2DataSource) getPatientIDs(patientSetID string) (patientIDs []int64, err error) {
 
 	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "getPatientIDs")
 	defer span.End()
 
-	pdoReq := i2b2clientmodels.NewCrcPdoReqFromInputList(patientSetID)
+	pdoReq := i2b2clientmodels.NewCrcPdoReqFromInputList(patientSetID, true, false)
 	var pdoResp *i2b2clientmodels.CrcPdoRespMessageBody
 
 	if pdoResp, err = ds.i2b2Client.CrcPdoReqFromInputList(&pdoReq); err != nil {
-		return nil, fmt.Errorf("requesting PDO query: %v", err)
+		return nil, fmt.Errorf("performing PDO query for patient IDs: %v", err)
 	}
 
+	patientIDs = make([]int64, 0, len(pdoResp.Response.PatientData.PatientSet.Patient))
 	for _, patient := range pdoResp.Response.PatientData.PatientSet.Patient {
-		patientIDs = append(patientIDs, patient.PatientID)
+		// parse patient IDs
+		parsedPatientID, err := strconv.ParseInt(patient.PatientID, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("parsing patient ID: %v", err)
+		}
+		patientIDs = append(patientIDs, parsedPatientID)
 	}
 	return
+}
+
+// getObservationSets retrieves the sets of patient observations from the i2b2 CRC using a patient set ID.
+func (ds *I2b2DataSource) getObservationSets(patientSetID string, filters []i2b2clientmodels.Panel) (observations []i2b2clientmodels.ObservationSet, err error) {
+
+	span := telemetry.StartSpan(ds.Ctx, "datasource:i2b2", "getObservations")
+	defer span.End()
+
+	pdoReq := i2b2clientmodels.NewCrcPdoReqFromInputList(patientSetID, false, true)
+	pdoReq.PdoRequest.FilterList.Panel = filters
+	var pdoResp *i2b2clientmodels.CrcPdoRespMessageBody
+
+	if pdoResp, err = ds.i2b2Client.CrcPdoReqFromInputList(&pdoReq); err != nil {
+		return nil, fmt.Errorf("requesting PDO query for patient observations: %v", err)
+	}
+
+	return pdoResp.Response.PatientData.ObservationSet, nil
+
 }

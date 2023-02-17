@@ -50,7 +50,7 @@ func TestExploreQuery(t *testing.T) {
 	require.NoError(t, err)
 	require.EqualValues(t, "error", query.Status)
 
-	err = db.SetExploreQuerySuccess("testUser5", queryID, 7, "31133333-3333-3333-3333-333333333333", "33333333-3333-3333-3333-333333333223")
+	err = db.SetExploreQuerySuccess("testUser5", queryID, "7", "31133333-3333-3333-3333-333333333333", "33333333-3333-3333-3333-333333333223")
 	require.NoError(t, err)
 	query, err = db.GetExploreQuery("testUser5", queryID)
 	require.NoError(t, err)

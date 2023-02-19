@@ -131,6 +131,7 @@ Retrieve patient IDs from i2b2 based on explore query terms.
 ```json
 {
   "id": "99999999-9999-9999-9999-999999999999",
+  "patientList": true,
   "definition": {
     "selectionPanels": [{
       "not": false,
@@ -167,6 +168,7 @@ Retrieve patient IDs from i2b2 based on explore query terms.
 ```
 
 - `id`: ID of the query, must be an UUID
+- `patientList`: true if you want to retrieve the patient IDs from i2b2 and store them in TI4Health (used for queries run by user who can retrieve tha patient list)
 - `definition`: definition of the explore query
   - `selectionPanels`: panels of the explore query (linked together by an AND)
     - `not`: true if the panel is inverted

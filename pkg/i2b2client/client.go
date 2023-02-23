@@ -6,11 +6,11 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"net/http"
 
 	"github.com/sirupsen/logrus"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/i2b2client/models"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/attribute"
 )
 
@@ -50,7 +50,7 @@ func (c Client) xmlRequest(endpoint string, xmlRequest *models.Request, xmlRespo
 
 	// execute HTTP request
 	subSpan = telemetry.StartSpan(&c.Ctx, "i2b2client", "xmlRequest:Post")
-	httpResponse, err := otelhttp.Post(c.Ctx, reqURL, "text/xml", bytes.NewReader(marshaledRequest))
+	httpResponse, err := http.Post(reqURL, "text/xml", bytes.NewReader(marshaledRequest))
 	subSpan.End()
 	if err != nil {
 		return fmt.Errorf("making HTTP POST of XML request: %v", err)

@@ -251,11 +251,11 @@ func (ds *I2b2DataSource) Query(userID string, params map[string]interface{}, re
 
 	jsonParams, ok := params["params"].([]byte)
 	if !ok {
-		return nil, fmt.Errorf("params not specified")
-	}
-
-	if len(resultKeys) == 0 {
-		resultKeys = append(resultKeys, sdk.DefaultResultKey)
+		stringParams, ok := params["params"].(string)
+		if !ok {
+			return nil, fmt.Errorf("params not specified")
+		}
+		jsonParams = []byte(stringParams)
 	}
 
 	// Get outputDataObjectsSharedIDs from the jsonParams
@@ -263,9 +263,12 @@ func (ds *I2b2DataSource) Query(userID string, params map[string]interface{}, re
 	if err := json.Unmarshal(jsonParams, &unmarshaledJSON); err != nil {
 		return nil, err
 	}
-	outputDataObjectsSharedIDs := params["outputDataObjectsSharedIDs"].(map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID)
-	if unmarshaledJSON["outputDataObjectsSharedIDs"] != nil {
 
+	var outputDataObjectsSharedIDs map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID = make(map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID)
+	if params["outputDataObjectsSharedIDs"] != nil {
+		outputDataObjectsSharedIDs = params["outputDataObjectsSharedIDs"].(map[sdk.OutputDataObjectName]sdkmodels.DataObjectSharedID)
+	}
+	if unmarshaledJSON["outputDataObjectsSharedIDs"] != nil {
 		for k, v := range unmarshaledJSON["outputDataObjectsSharedIDs"].(map[string]interface{}) {
 			outputDataObjectsSharedIDs[sdk.OutputDataObjectName(k)] = sdkmodels.DataObjectSharedID(v.(string))
 		}

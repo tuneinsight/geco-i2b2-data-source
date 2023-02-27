@@ -89,7 +89,7 @@ func TestQueryDataObject(t *testing.T) {
 				"queryTerm": "/TEST/test/1/"
 			}]
 		}]
-	}
+	},
 	"outputDataObjectsSharedIDs": ` + string(jsonSharedIDs) + `
 }`
 

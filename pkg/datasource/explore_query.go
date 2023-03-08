@@ -57,6 +57,8 @@ func (ds *I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []by
 		return nil, nil, fmt.Errorf("updating explore query status: %v", err)
 	}
 
+	ds.logger.Debugf("patient set ID: %v, count: %v", i2b2PatientSetID, count)
+
 	// wrap results in data objects
 	outputDataObjects = []gecosdk.DataObject{
 		{
@@ -73,6 +75,7 @@ func (ds *I2b2DataSource) ExploreQueryHandler(userID string, jsonParameters []by
 		if err != nil {
 			return nil, nil, fmt.Errorf("getting patient IDs: %v", err)
 		}
+		ds.logger.Debugf("patient list: %v", patientList)
 		outputDataObjects = append(outputDataObjects,
 			gecosdk.DataObject{
 				OutputName: outputNameExploreQueryPatientList,

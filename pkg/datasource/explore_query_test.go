@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
@@ -310,7 +311,7 @@ func TestExploreQueryDatabase(t *testing.T) {
 	jsonSharedIDs, _ := json.Marshal(sharedIDs)
 
 	params := fmt.Sprintf(`{"id": "%v", "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]},"outputDataObjectsSharedIDs": `+string(jsonSharedIDs)+`}`, queryID)
-	_, err := ds.Query("testUser", map[string]interface{}{"operation": "exploreQuery", "params": params})
+	_, err := ds.Query("testUser", map[string]interface{}{sdk.QueryOperation: "exploreQuery", sdk.QueryParams: params})
 	require.NoError(t, err)
 
 	query, err := ds.db.GetExploreQuery("testUser", queryID)

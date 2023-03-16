@@ -302,7 +302,7 @@ func (ds *I2b2DataSource) Query(userID string, params map[string]interface{}, re
 		handler = ds.StatisticsQueryHandler
 
 	default:
-		return nil, ds.logError(fmt.Sprintf("unknown query requested (%v)", operation), nil)
+		return nil, ds.logError(fmt.Sprintf("unknown operation requested (%v)", operation), nil)
 	}
 
 	jsonResults, outputDataObjects, err := handler(userID, jsonParams, outputDataObjectsSharedIDs)
@@ -314,7 +314,7 @@ func (ds *I2b2DataSource) Query(userID string, params map[string]interface{}, re
 
 	results := make(map[string]interface{})
 	results[sdk.DefaultResultKey] = jsonResults
-	results["outputDataObjects"] = outputDataObjects
+	results[sdk.OutputDataObjectsKey] = outputDataObjects
 	return results, nil
 }
 

@@ -9,7 +9,7 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
-	github.com/tuneinsight/sdk-datasource v0.0.0-20230306185928-2bb2a9231383
+	github.com/tuneinsight/sdk-datasource v0.0.0-20230316155502-58f2858c050c
 	go.opentelemetry.io/otel v1.14.0
 	go.opentelemetry.io/otel/trace v1.14.0
 )

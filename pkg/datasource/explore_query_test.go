@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/models"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
@@ -302,12 +304,14 @@ func TestExploreQueryDatabase(t *testing.T) {
 	countSharedID := "44444444-7777-8888-4444-444444444444"
 	patientListSharedID := "44444444-7777-4444-7121-444444444444"
 
-	params := fmt.Sprintf(`{"id": "%v", "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`, queryID)
 	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{
 		outputNameExploreQueryCount:       gecomodels.DataObjectSharedID(countSharedID),
 		outputNameExploreQueryPatientList: gecomodels.DataObjectSharedID(patientListSharedID),
 	}
-	_, _, err := ds.Query("testUser", "exploreQuery", []byte(params), sharedIDs)
+	jsonSharedIDs, _ := json.Marshal(sharedIDs)
+
+	params := fmt.Sprintf(`{"id": "%v", "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]},"outputDataObjectsSharedIDs": `+string(jsonSharedIDs)+`}`, queryID)
+	_, err := ds.Query("testUser", map[string]interface{}{sdk.QueryOperation: "exploreQuery", sdk.QueryParams: params})
 	require.NoError(t, err)
 
 	query, err := ds.db.GetExploreQuery("testUser", queryID)

@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tuneinsight/geco-i2b2-data-source/pkg/datasource/database"
 	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	"github.com/tuneinsight/sdk-datasource/pkg/sdk"
 	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk/credentials"
 )
@@ -62,7 +64,8 @@ func TestQuery(t *testing.T) {
 	defer dataSourceCleanUp(t, ds)
 
 	params := `{"path": "/", "operation": "children"}`
-	res, _, err := ds.Query("testUser", "searchConcept", []byte(params), nil)
+	results, err := ds.Query("testUser", map[string]interface{}{sdk.QueryOperation: "searchConcept", sdk.QueryParams: params})
+	res := results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
 	t.Logf("result: %v", string(res))
 }
@@ -71,12 +74,31 @@ func TestQueryDataObject(t *testing.T) {
 	ds := getDataSource(t)
 	defer dataSourceCleanUp(t, ds)
 
-	params := `{"id": "99999999-9999-1122-0000-999999999999", "patientList": true, "definition": {"selectionPanels": [{"conceptItems": [{"queryTerm": "/TEST/test/1/"}]}]}}`
 	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{
 		outputNameExploreQueryCount:       "99999999-9999-9999-1111-999999999999",
 		outputNameExploreQueryPatientList: "99999999-9999-9999-0000-999999999999",
 	}
-	res, do, err := ds.Query("testUser", "exploreQuery", []byte(params), sharedIDs)
+
+	jsonSharedIDs, _ := json.Marshal(sharedIDs)
+
+	params := `{
+	"id": "99999999-9999-1122-0000-999999999999",
+	"patientList": true,
+	"definition": {
+		"selectionPanels": [{
+			"conceptItems": [{
+				"queryTerm": "/TEST/test/1/"
+			}]
+		}]
+	},
+	"outputDataObjectsSharedIDs": ` + string(jsonSharedIDs) + `
+}`
+
+	results, err := ds.Query("testUser", map[string]interface{}{sdk.QueryOperation: "exploreQuery", sdk.QueryParams: params})
+	res := results[sdk.DefaultResultKey].([]byte)
+	require.NoError(t, err)
+	do := results[sdk.OutputDataObjectsKey].([]sdk.DataObject)
+
 	require.NoError(t, err)
 
 	require.EqualValues(t, 3, *do[0].IntValue)
@@ -122,29 +144,39 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 
 	// search the ontology by browsing it
 	params := `{"path": "/", "operation": "children"}`
-	res, do, err := ds.Query(user, "searchConcept", []byte(params), nil)
+	results, err := ds.Query(user, map[string]interface{}{sdk.QueryOperation: "searchConcept", sdk.QueryParams: params})
+	res := results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
-	require.Empty(t, do)
+
 	require.Contains(t, string(res), "Test Ontology")
 
 	params = `{"path": "/TEST/test/", "operation": "children"}`
-	res, do, err = ds.Query(user, "searchConcept", []byte(params), nil)
+	results, err = ds.Query(user, map[string]interface{}{sdk.QueryOperation: "searchConcept", sdk.QueryParams: params})
+	res = results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
-	require.Empty(t, do)
+
 	require.Contains(t, string(res), "Concept 1")
 
 	params = `{"path": "/TEST/test/1/", "operation": "concept"}`
-	res, do, err = ds.Query(user, "searchModifier", []byte(params), nil)
+	results, err = ds.Query(user, map[string]interface{}{sdk.QueryOperation: "searchModifier", sdk.QueryParams: params})
+	res = results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
-	require.Empty(t, do)
+
 	require.Contains(t, string(res), "Modifier 1")
 
 	// OR search the ontology by searching for a specific item.
 	params = `{"searchString": "Modifier 1", "limit": "10"}`
-	res, do, err = ds.Query(user, string(OperationSearchOntology), []byte(params), nil)
+	results, err = ds.Query(user, map[string]interface{}{sdk.QueryOperation: string(OperationSearchOntology), sdk.QueryParams: params})
+	res = results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
-	require.Empty(t, do)
+
 	require.Contains(t, string(res), "Modifier 1")
+
+	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{
+		outputNameExploreQueryCount:       "99999999-9999-9999-1111-999999999999",
+		outputNameExploreQueryPatientList: "99999999-9999-9999-0000-999999999999",
+	}
+	jsonSharedIDs, _ := json.Marshal(sharedIDs)
 
 	// execute query
 	queryID := "99999999-9999-9999-9999-999999999999"
@@ -182,14 +214,14 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 					]
 				}
 			]
-		}
+		},
+		"outputDataObjectsSharedIDs": `+string(jsonSharedIDs)+`
 	}`, queryID)
-	sharedIDs := map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID{
-		outputNameExploreQueryCount:       "99999999-9999-9999-1111-999999999999",
-		outputNameExploreQueryPatientList: "99999999-9999-9999-0000-999999999999",
-	}
-	_, do, err = ds.Query(user, "exploreQuery", []byte(params), sharedIDs)
+
+	results, err = ds.Query(user, map[string]interface{}{sdk.QueryOperation: "exploreQuery", sdk.QueryParams: params})
 	require.NoError(t, err)
+
+	do := results[sdk.OutputDataObjectsKey].([]sdk.DataObject)
 	require.EqualValues(t, 2, len(do))
 	for i := range do {
 		if do[i].OutputName == outputNameExploreQueryCount {
@@ -202,29 +234,30 @@ func testWorkflow(t *testing.T, ds *I2b2DataSource) {
 	}
 
 	// save cohort
+
 	projectID := "99999999-9999-9999-1111-999999999999"
 	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s", "projectID": "%s"}`, queryID, projectID)
-	res, do, err = ds.Query(user, "addCohort", []byte(params), nil)
+	results, err = ds.Query(user, map[string]interface{}{sdk.QueryOperation: "addCohort", sdk.QueryParams: params})
+	res = results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
-	require.Empty(t, do)
 	require.EqualValues(t, "", string(res))
 
 	params = fmt.Sprintf(`{"projectID": "%s"}`, projectID)
-	res, do, err = ds.Query(user, "getCohorts", []byte(params), nil)
+	results, err = ds.Query(user, map[string]interface{}{sdk.QueryOperation: "getCohorts", sdk.QueryParams: params})
+	res = results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
-	require.Empty(t, do)
 	require.Contains(t, string(res), "mycohort")
 
 	params = fmt.Sprintf(`{"name": "mycohort", "exploreQueryID": "%s", "projectID": "%s"}`, queryID, projectID)
-	res, do, err = ds.Query(user, "deleteCohort", []byte(params), nil)
+	results, err = ds.Query(user, map[string]interface{}{sdk.QueryOperation: "deleteCohort", sdk.QueryParams: params})
+	res = results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
-	require.Empty(t, do)
 	require.EqualValues(t, "", string(res))
 
 	params = fmt.Sprintf(`{"projectID": "%s", "limit": 7}`, projectID)
-	res, do, err = ds.Query(user, "getCohorts", []byte(params), nil)
+	results, err = ds.Query(user, map[string]interface{}{sdk.QueryOperation: "getCohorts", sdk.QueryParams: params})
+	res = results[sdk.DefaultResultKey].([]byte)
 	require.NoError(t, err)
-	require.Empty(t, do)
 	require.NotContains(t, string(res), "mycohort")
 
 }

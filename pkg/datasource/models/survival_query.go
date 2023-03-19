@@ -3,6 +3,9 @@ package models
 import (
 	"fmt"
 	"strings"
+
+	gecomodels "github.com/tuneinsight/sdk-datasource/pkg/models"
+	gecosdk "github.com/tuneinsight/sdk-datasource/pkg/sdk"
 )
 
 // SurvivalQueryParameters are the parameters for the OperationSurvivalQuery operation.
@@ -57,6 +60,9 @@ type SurvivalQueryParameters struct {
 	// Required: true
 	// Minimum: 1
 	TimeLimit int64 `json:"timeLimit"`
+
+	// OutputDataObjectsSharedIDs is a map of output data object names to their shared IDs.
+	OutputDataObjectsSharedIDs map[gecosdk.OutputDataObjectName]gecomodels.DataObjectSharedID `json:"outputDataObjectsSharedIDs"`
 }
 
 const (

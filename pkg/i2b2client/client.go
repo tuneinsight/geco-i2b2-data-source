@@ -33,6 +33,7 @@ func (c Client) xmlRequest(endpoint string, xmlRequest *models.Request, xmlRespo
 	span := telemetry.StartSpan(&c.Ctx, "i2b2client", "xmlRequest")
 	defer span.End()
 
+	// #nosec G107 - This URL must be variable to allow connection to different i2b2 instances
 	reqURL := c.Ci.HiveURL + endpoint
 	c.Logger.Infof("i2b2 XML request to %v", reqURL)
 

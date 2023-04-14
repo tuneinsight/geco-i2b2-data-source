@@ -23,4 +23,7 @@ jobs:
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
-          args: ./...
+        # G307 has been retired
+          args: > 
+            -exclude G307
+            ./...

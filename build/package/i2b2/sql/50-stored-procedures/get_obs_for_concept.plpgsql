@@ -1,0 +1,37 @@
+-- This query will return the numerical values from all observations for the provided concept and patient set.
+
+-- We only keep rows where nval_num is exactly equal to a specific values hence the required value of TVAL_CHAR.
+-- We could keep values which are GE or LE or L or G the problem is that we would need open brackets for intervals.
+-- VALTYPE_CD = 'N' because we only care about numerical values.
+
+-- TODO In the same way I gathered the schema and table in which the ontology is contained, gather the schema in which observations are contained.
+-- For the moment hardcode the table and schema are hardcoded.
+
+CREATE OR REPLACE FUNCTION i2b2demodata.get_obs_for_concept(concept_id varchar, nval numeric, patient_set_id integer)
+RETURNS TABLE (nval_num numeric, patient_num int, units_cd varchar)
+LANGUAGE 'plpgsql'
+AS $BODY$
+BEGIN
+
+DROP TABLE IF EXISTS temp_cohort;
+CREATE TEMP TABLE temp_cohort AS
+		SELECT pset.patient_num
+		FROM 
+		i2b2demodata.qt_patient_set_collection pset 
+		WHERE pset.result_instance_id = $3;
+
+CREATE INDEX patient_num_idx ON temp_cohort (patient_num);
+
+RETURN QUERY SELECT os.nval_num, os.patient_num, os.units_cd 
+FROM i2b2demodata.observation_fact as os
+INNER JOIN temp_cohort ON temp_cohort.patient_num = os.patient_num
+WHERE  concept_cd = $1
+AND valtype_cd = 'N' 
+AND tval_char = 'E' 
+AND os.nval_num is not null 
+AND os.units_cd is not null 
+AND os.units_cd != '@'
+AND os.nval_num >= $2;
+
+END;
+$BODY$

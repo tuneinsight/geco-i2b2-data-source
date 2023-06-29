@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/tuneinsight/sdk-datasource/pkg/sdk/telemetry"
@@ -19,22 +18,22 @@ type StatsObservation struct {
 
 // RetrieveObservationsForConcept returns the numerical values that correspond to the concept passed as argument for the specified cohort.
 func (db PostgresDatabase) RetrieveObservationsForConcept(code string, patientSetID, minObservations int64) (statsObservations []StatsObservation, err error) {
-	logrus.Debugf("executing stats SQL query: %s, concept: %s, patientSetID: %v", sqlConcept, code, patientSetID)
+	logrus.Debugf("executing stats SQL query: %s, concept: %s, patientSetID: %v", "i2b2demodata.get_obs_for_concept", code, patientSetID)
 
 	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "RetrieveObservationsForConcept")
 	defer span.End()
 
-	return db.retrieveObservations(sqlConcept, code, patientSetID, minObservations)
+	return db.retrieveObservations("SELECT * FROM i2b2demodata.get_obs_for_concept($1, $2, $3);", code, patientSetID, minObservations)
 }
 
 // RetrieveObservationsForModifier returns the numerical values that correspond to the modifier passed as argument for the specified cohort.
 func (db PostgresDatabase) RetrieveObservationsForModifier(code string, patientSetID, minObservations int64) (statsObservations []StatsObservation, err error) {
-	logrus.Debugf("executing stats SQL query: %s, modifier: %s, patientSetID: %v", sqlModifier, code, patientSetID)
+	logrus.Debugf("executing stats SQL query: %s, modifier: %s, patientSetID: %v", "i2b2demodata.get_obs_for_modifier", code, patientSetID)
 
 	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "RetrieveObservationsForModifier")
 	defer span.End()
 
-	return db.retrieveObservations(sqlModifier, code, patientSetID, minObservations)
+	return db.retrieveObservations("SELECT * FROM i2b2demodata.get_obs_for_modifier($1, $2, $3);", code, patientSetID, minObservations)
 }
 
 // retrieveObservations returns the numerical values that correspond to the concept or modifier whose code is passed as argument for the specified cohort.
@@ -43,11 +42,8 @@ func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, patientSe
 	span := telemetry.StartSpan(db.Ctx, "datasource:i2b2:database", "retrieveObservations")
 	defer span.End()
 
-	//strPatientList := convertIntListToString(patientIDs)
-
 	var rows *sql.Rows
-	completeSQLQuery := sqlQuery + " " + sqlCohortFilter
-	rows, err = db.handle.Query(completeSQLQuery, code, minObservations, patientSetID)
+	rows, err = db.handle.Query(sqlQuery, code, minObservations, patientSetID)
 
 	if err != nil {
 		err = fmt.Errorf("while execution SQL query: %s", err.Error())
@@ -89,45 +85,3 @@ func (db PostgresDatabase) retrieveObservations(sqlQuery, code string, patientSe
 	return
 
 }
-
-// convertIntListToString is used to convert a list of int into a list of integer argument for a sql query.
-// For instance the output of this function will be accepted by ANY($n::integer[]) where `n` is the index of the parameter in a SQL argument.
-func convertIntListToString(intList []int64) string {
-	strList := make([]string, len(intList))
-	for i, num := range intList {
-		strList[i] = strconv.FormatInt(num, 10)
-	}
-	return "{" + strings.Join(strList, ",") + "}"
-}
-
-/*
-* This query will return the numerical values from all observations where
-* the patient_num is contained within the list passed as argument (the list is in principle a list of patient from a specific cohort).
-
-TODO In the same way I gathered the schema and table in which the ontology is contained, gather the schema in which observations are contained.
-For the moment I hardcode the table and schema.
-
-We only keep rows where nval_num is exactly equal to a specific values hence the required value of TVAL_CHAR.
-We could keep values which are GE or LE or L or G the problem is that we would need open brackets for intervals.
-VALTYPE_CD = 'N' because we only care about numerical values.
-*/
-const sqlStart string = `
-SELECT nval_num, patient_num, units_cd FROM i2b2demodata.observation_fact
-	WHERE `
-
-const sqlModifier string = sqlStart + ` modifier_cd = $1 ` + sqlEnd
-const sqlConcept string = sqlStart + ` concept_cd = $1 ` + sqlEnd
-
-const sqlEnd = ` AND valtype_cd = 'N' AND tval_char = 'E' AND nval_num is not null AND units_cd is not null AND units_cd != '@'
-AND nval_num >= $2 `
-
-// const sqlCohortFilter = ` AND patient_num = ANY($3::integer[]) `¨
-
-const sqlCohortFilter = ` AND patient_num = ANY(
-	(SELECT array 
-		(SELECT pset.patient_num 
-		FROM 
-		i2b2demodata.qt_patient_set_collection pset 
-		WHERE pset.result_instance_id = $3)
-	)::integer[]
-)`

@@ -123,9 +123,11 @@ AND nval_num >= $2 `
 
 // const sqlCohortFilter = ` AND patient_num = ANY($3::integer[]) `¨
 
-const sqlCohortFilter = ` AND patient_num IN
-(SELECT pset.patient_num
- FROM
-i2b2demodata.qt_patient_set_collection pset
-					WHERE
-pset.result_instance_id = $3)`
+const sqlCohortFilter = ` AND patient_num = ANY(
+	(SELECT array 
+		(SELECT pset.patient_num 
+		FROM 
+		i2b2demodata.qt_patient_set_collection pset 
+		WHERE pset.result_instance_id = $3)
+	)::integer[]
+)`

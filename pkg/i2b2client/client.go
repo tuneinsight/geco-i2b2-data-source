@@ -33,7 +33,6 @@ func (c Client) xmlRequest(endpoint string, xmlRequest *models.Request, xmlRespo
 	span := telemetry.StartSpan(&c.Ctx, "i2b2client", "xmlRequest")
 	defer span.End()
 
-	// #nosec G107 - This URL must be variable to allow connection to different i2b2 instances
 	reqURL := c.Ci.HiveURL + endpoint
 	c.Logger.Infof("i2b2 XML request to %v", reqURL)
 
@@ -51,6 +50,7 @@ func (c Client) xmlRequest(endpoint string, xmlRequest *models.Request, xmlRespo
 
 	// execute HTTP request
 	subSpan = telemetry.StartSpan(&c.Ctx, "i2b2client", "xmlRequest:Post")
+	// #nosec G107 - This URL must be variable to allow connection to different i2b2 instances
 	httpResponse, err := http.Post(reqURL, "text/xml", bytes.NewReader(marshaledRequest))
 	subSpan.End()
 	if err != nil {
